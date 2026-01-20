@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function PostJob() {
+export default function PostResume() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,7 @@ const checkUser = async () => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     sessionStorage.setItem('loginRequired', 'true');
-    router.push('/login?redirect=post-job');
+    router.push('/login?redirect=post-resume');
     return;
   }
   setUser(user);
@@ -26,16 +26,14 @@ const checkUser = async () => {
 };
 
   const [formData, setFormData] = useState({
-    title: '',
+    name: '',
     location: '',
-    yogaStyle: '',
-    experience: '',
-    salary: '',
-    description: ''
+    yogaStyles: '',
+    experienceYears: '',
+    certifications: '',
+    photoUrl: '',
+    introduction: ''
   });
-
-const [aiGenerated, setAiGenerated] = useState('');
-const [isGenerating, setIsGenerating] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -44,69 +42,33 @@ const [isGenerating, setIsGenerating] = useState(false);
     });
   };
 
-  const generateWithAI = async () => {
-  if (!formData.location || !formData.yogaStyle) {
-    alert('지역과 요가 종류를 먼저 입력해주세요!');
-    return;
-  }
-
-  setIsGenerating(true);
-  setAiGenerated('');
-
-  try {
-    const res = await fetch('/api/generate-job-post', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        location: formData.location,
-        yogaStyle: formData.yogaStyle,
-        experience: formData.experience,
-        salary: formData.salary
-      })
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data?.error || 'AI 생성 실패');
-    }
-
-    setAiGenerated(data.generatedText || '');
-  } catch (err) {
-    console.error(err);
-    alert(String(err?.message || err));
-  } finally {
-    setIsGenerating(false);
-  }
-};
-
-
   const handleSubmit = async (e) => {
   e.preventDefault();
   
   const { data, error } = await supabase
-    .from('job')
+    .from('candidate')
     .insert([
       {
-        title: formData.title,
+        name: formData.name,
         location: formData.location,
-        yoga_style: formData.yogaStyle,
-        experience: formData.experience,
-        salary: formData.salary,
-        description: formData.description
+        yoga_styles: formData.yogaStyles,
+        experience_years: formData.experienceYears,
+        certifications: formData.certifications,
+        photo_url: formData.photoUrl,
+        introduction: formData.introduction
       }
     ])
-    .select();  // ← 이 줄 추가!
+    .select();
 
   if (error) {
     console.error('에러:', error);
     alert('등록 실패: ' + error.message);
   } else {
-    alert('공고가 성공적으로 등록되었습니다!');
+    alert('이력서가 성공적으로 등록되었습니다!');
     if (data && data[0]) {
-      router.push(`/jobs/${data[0].id}`);
+      router.push(`/resumes/${data[0].id}`);
     } else {
-      router.push('/jobs');
+      router.push('/resumes');
     }
   }
 };
@@ -130,23 +92,23 @@ return (
 
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            구인 공고 등록
+            이력서 등록
           </h1>
           <p className="text-gray-600 mb-8">
-            필요한 정보를 입력하시면 AI가 매력적인 공고문을 작성해드립니다
+            요가 강사로 일하고 싶으신가요? 이력서를 등록해주세요
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                공고 제목 *
+                이름 *
               </label>
               <input
                 type="text"
-                name="title"
-                value={formData.title}
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
-                placeholder="예: 빈야사 요가 강사 모집"
+                placeholder="예: 김요가"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 required
               />
@@ -154,7 +116,7 @@ return (
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                지역 *
+                희망 지역 *
               </label>
               <input
                 type="text"
@@ -169,106 +131,90 @@ return (
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                요가 종류 *
+                가능한 요가 종류 *
               </label>
-              <select
-                name="yogaStyle"
-                value={formData.yogaStyle}
+              <input
+                type="text"
+                name="yogaStyles"
+                value={formData.yogaStyles}
                 onChange={handleChange}
+                placeholder="예: 빈야사, 하타요가, 파워요가"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 required
-              >
-                <option value="">선택해주세요</option>
-                <option value="하타요가">하타요가</option>
-                <option value="빈야사">빈야사</option>
-                <option value="아쉬탕가">아쉬탕가</option>
-                <option value="파워요가">파워요가</option>
-                <option value="음요가">음요가</option>
-                <option value="핫요가">핫요가</option>
-                <option value="기타">기타</option>
-              </select>
+              />
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                필요 경력
+                경력
               </label>
               <select
-                name="experience"
-                value={formData.experience}
+                name="experienceYears"
+                value={formData.experienceYears}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               >
                 <option value="">선택해주세요</option>
                 <option value="신입">신입</option>
-                <option value="1년 이상">1년 이상</option>
-                <option value="3년 이상">3년 이상</option>
+                <option value="1년">1년</option>
+                <option value="2년">2년</option>
+                <option value="3년">3년</option>
+                <option value="4년">4년</option>
                 <option value="5년 이상">5년 이상</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                급여 조건
+                자격증
               </label>
               <input
                 type="text"
-                name="salary"
-                value={formData.salary}
+                name="certifications"
+                value={formData.certifications}
                 onChange={handleChange}
-                placeholder="예: 시급 30,000원 ~ 50,000원"
+                placeholder="예: 요가지도자 2급, RYT 200"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                상세 설명
+                프로필 사진 URL
               </label>
-              <textarea
-                name="description"
-                value={formData.description}
+              <input
+                type="url"
+                name="photoUrl"
+                value={formData.photoUrl}
                 onChange={handleChange}
-                placeholder="센터 소개, 근무 조건 등을 입력해주세요"
-                rows="5"
+                placeholder="https://example.com/photo.jpg"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                이미지 URL을 입력하세요 (선택사항)
+              </p>
             </div>
 
-            <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
-              <p className="text-sm text-purple-800 mb-3">
-                💡 AI가 입력하신 정보를 바탕으로 전문적인 공고문을 작성해드립니다
-              </p>
-              <button
-  type="button"
-  onClick={generateWithAI}
-  disabled={isGenerating}
-  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:bg-gray-400"
->
-  {isGenerating ? '✨ AI가 작성 중...' : '✨ AI로 공고 작성하기'}
-</button>
-
-{aiGenerated && (
-  <div className="mt-4 p-4 bg-white rounded-lg border border-purple-200">
-    <h4 className="font-semibold text-gray-800 mb-2">AI 생성 결과:</h4>
-    <p className="text-gray-700 whitespace-pre-wrap">{aiGenerated}</p>
-    <button
-      type="button"
-      onClick={() => setFormData({ ...formData, description: aiGenerated })}
-      className="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm"
-    >
-      이 내용을 상세 설명에 적용하기
-    </button>
-  </div>
-)}
-
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                자기소개 *
+              </label>
+              <textarea
+                name="introduction"
+                value={formData.introduction}
+                onChange={handleChange}
+                placeholder="본인의 강점, 강의 스타일 등을 자유롭게 작성해주세요"
+                rows="5"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                required
+              />
             </div>
 
             <button
               type="submit"
               className="w-full bg-indigo-600 text-white py-4 rounded-lg font-semibold text-lg hover:bg-indigo-700 transition"
             >
-              공고 등록하기
+              이력서 등록하기
             </button>
           </form>
         </div>
