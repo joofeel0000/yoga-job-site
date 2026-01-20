@@ -1,11 +1,11 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function Login() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
@@ -125,5 +125,17 @@ export default function Login() {
         </div>
       </div>
     </main>
+);
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center p-8">
+        <p className="text-gray-500">로딩 중...</p>
+      </main>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
