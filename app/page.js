@@ -69,6 +69,11 @@ export default function Home() {
             {user ? (
               <div className="flex items-center gap-4">
                 <span className="text-gray-600">{user.email}</span>
+                <Link href="/mypage">
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    📄 마이페이지
+                  </button>
+                </Link>
                 {isAdmin && (
                   <Link href="/admin">
                     <button className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition">

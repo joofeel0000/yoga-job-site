@@ -45,6 +45,15 @@ const checkUser = async () => {
   const handleSubmit = async (e) => {
   e.preventDefault();
   
+// 현재 로그인한 사용자 가져오기
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    alert('로그인이 필요합니다');
+    setLoading(false);
+    return;
+  }
+
   const { data, error } = await supabase
     .from('candidate')
     .insert([
@@ -55,7 +64,8 @@ const checkUser = async () => {
         experience_years: formData.experienceYears,
         certifications: formData.certifications,
         photo_url: formData.photoUrl,
-        introduction: formData.introduction
+        introduction: formData.introduction,
+        user_id: user.id  // ← 추가
       }
     ])
     .select();

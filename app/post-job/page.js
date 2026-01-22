@@ -84,6 +84,16 @@ const [isGenerating, setIsGenerating] = useState(false);
   const handleSubmit = async (e) => {
   e.preventDefault();
   
+  
+// 현재 로그인한 사용자 가져오기
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    alert('로그인이 필요합니다');
+    setLoading(false);
+    return;
+  }
+
   const { data, error } = await supabase
     .from('job')
     .insert([
@@ -93,10 +103,11 @@ const [isGenerating, setIsGenerating] = useState(false);
         yoga_style: formData.yogaStyle,
         experience: formData.experience,
         salary: formData.salary,
-        description: formData.description
+        description: formData.description,
+        user_id: user.id  // ← 추가
       }
     ])
-    .select();  // ← 이 줄 추가!
+    .select();
 
   if (error) {
     console.error('에러:', error);
