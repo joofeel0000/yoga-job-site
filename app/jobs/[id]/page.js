@@ -1,21 +1,22 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
+import { createApplicationNotification } from '@/lib/notifications';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 export default function JobDetail() {
   const params = useParams();
-  const id = params.id;  // ← 추가
+  const id = params.id;
   const [job, setJob] = useState(null);
-  const [user, setUser] = useState(null);  // ← 추가
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [hasApplied, setHasApplied] = useState(false);  // ← 추가
-const [applicantCount, setApplicantCount] = useState(0);  // ← 추가
-const [showApplyModal, setShowApplyModal] = useState(false);  // ← 추가
-const [applyMessage, setApplyMessage] = useState('');  // ← 추가
+  const [hasApplied, setHasApplied] = useState(false);
+  const [applicantCount, setApplicantCount] = useState(0);
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [applyMessage, setApplyMessage] = useState('');
 
   useEffect(() => {
     checkUser();
@@ -39,10 +40,10 @@ const [applyMessage, setApplyMessage] = useState('');  // ← 추가
     
     if (user && id) {
       checkBookmark(user.id);
-      checkApplication(user.id);  // ← 추가
+      checkApplication(user.id);
     }
     
-    fetchApplicantCount();  // ← 추가
+    fetchApplicantCount();
   };
 
   const checkBookmark = async (userId) => {
@@ -50,7 +51,7 @@ const [applyMessage, setApplyMessage] = useState('');  // ← 추가
       .from('bookmarks')
       .select('*')
       .eq('user_id', userId)
-      .eq('job_id', id)  // ← item_type, item_id 대신 job_id
+      .eq('job_id', id)
       .maybeSingle();
     
     if (error) {
@@ -114,16 +115,27 @@ const [applyMessage, setApplyMessage] = useState('');  // ← 추가
   };
 
   const submitApplication = async () => {
-    const { error } = await supabase
+    const { data: applicationData, error } = await supabase
       .from('applications')
       .insert([{
         user_id: user.id,
         job_id: id,
         candidate_id: null,
         message: applyMessage
-      }]);
+      }])
+      .select()
+      .single();
 
     if (!error) {
+      // 🆕 공고 작성자에게 알림 생성
+      if (job.user_id && applicationData) {
+        await createApplicationNotification(
+          job.user_id,
+          job.title,
+          applicationData.id
+        );
+      }
+
       alert('지원이 완료되었습니다!');
       setHasApplied(true);
       setShowApplyModal(false);
@@ -146,7 +158,7 @@ const [applyMessage, setApplyMessage] = useState('');  // ← 추가
         .from('bookmarks')
         .delete()
         .eq('user_id', user.id)
-        .eq('job_id', id);  // ← 수정
+        .eq('job_id', id);
 
       if (!error) {
         setIsBookmarked(false);
@@ -160,7 +172,7 @@ const [applyMessage, setApplyMessage] = useState('');  // ← 추가
         .from('bookmarks')
         .insert([{
           user_id: user.id,
-          job_id: id,  // ← 수정
+          job_id: id,
           candidate_id: null
         }]);
 

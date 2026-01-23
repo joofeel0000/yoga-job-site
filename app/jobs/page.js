@@ -19,6 +19,8 @@ export default function Jobs() {
     const { data, error } = await supabase
       .from('job')
       .select('*')
+      .eq('status', 'active')
+      .gte('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false });
 
     if (error) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
+import { createContactNotification } from '@/lib/notifications';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -12,10 +13,10 @@ export default function ResumeDetail() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [hasContacted, setHasContacted] = useState(false);  // ← 추가
-const [contactCount, setContactCount] = useState(0);  // ← 추가
-const [showContactModal, setShowContactModal] = useState(false);  // ← 추가
-const [contactMessage, setContactMessage] = useState('');  // ← 추가
+  const [hasContacted, setHasContacted] = useState(false);
+  const [contactCount, setContactCount] = useState(0);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactMessage, setContactMessage] = useState('');
 
   useEffect(() => {
     checkUser();
@@ -28,10 +29,10 @@ const [contactMessage, setContactMessage] = useState('');  // ← 추가
     
     if (user && id) {
       checkBookmark(user.id);
-      checkContact(user.id);  // ← 추가
+      checkContact(user.id);
     }
     
-    fetchContactCount();  // ← 추가
+    fetchContactCount();
   };
 
   const checkBookmark = async (userId) => {
@@ -39,7 +40,7 @@ const [contactMessage, setContactMessage] = useState('');  // ← 추가
       .from('bookmarks')
       .select('*')
       .eq('user_id', userId)
-      .eq('candidate_id', id)  // ← 수정
+      .eq('candidate_id', id)
       .maybeSingle();
     
     if (error) {
@@ -99,16 +100,27 @@ const [contactMessage, setContactMessage] = useState('');  // ← 추가
   };
 
   const submitContact = async () => {
-    const { error } = await supabase
+    const { data: contactData, error } = await supabase
       .from('applications')
       .insert([{
         user_id: user.id,
         job_id: null,
         candidate_id: id,
         message: contactMessage
-      }]);
+      }])
+      .select()
+      .single();
 
     if (!error) {
+      // 🆕 이력서 작성자에게 알림 생성
+      if (resume.user_id && contactData) {
+        await createContactNotification(
+          resume.user_id,
+          resume.name,
+          contactData.id
+        );
+      }
+
       alert('연락이 완료되었습니다!');
       setHasContacted(true);
       setShowContactModal(false);
@@ -130,7 +142,7 @@ const [contactMessage, setContactMessage] = useState('');  // ← 추가
         .from('bookmarks')
         .delete()
         .eq('user_id', user.id)
-        .eq('candidate_id', id);  // ← 수정
+        .eq('candidate_id', id);
 
       if (!error) {
         setIsBookmarked(false);
@@ -144,7 +156,7 @@ const [contactMessage, setContactMessage] = useState('');  // ← 추가
         .insert([{
           user_id: user.id,
           job_id: null,
-          candidate_id: id  // ← 수정
+          candidate_id: id
         }]);
 
       if (!error) {
