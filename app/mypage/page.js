@@ -21,14 +21,21 @@ export default function MyPage() {
   const [myResumes, setMyResumes] = useState([]);
   const [bookmarkedJobs, setBookmarkedJobs] = useState([]);
   const [bookmarkedResumes, setBookmarkedResumes] = useState([]);
-  const [myApplications, setMyApplications] = useState([]); // 내가 지원한 공고
-  const [receivedApplications, setReceivedApplications] = useState([]); // 내 공고에 온 지원
-  const [myContacts, setMyContacts] = useState([]); // 내가 연락한 이력서
-  const [receivedContacts, setReceivedContacts] = useState([]); // 내 이력서에 온 연락
+  const [myApplications, setMyApplications] = useState([]);
+  const [receivedApplications, setReceivedApplications] = useState([]);
+  const [myContacts, setMyContacts] = useState([]);
+  const [receivedContacts, setReceivedContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('jobs');
 
   useEffect(() => {
+    // URL에서 탭 정보 읽기
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+    
     checkUser();
   }, []);
 
@@ -114,21 +121,15 @@ export default function MyPage() {
       if (resumes.length > 0) setBookmarkedResumes(resumes);
     }
 
-    // 🆕 내가 지원한 공고들 (구인 공고만 - job_id가 있는 것)
-    console.log('🔍 내 지원 내역 조회 시작. userId:', userId);
-    
-    const { data: myAppsData, error: appsError } = await supabase
+    // 내가 지원한 공고들
+    const { data: myAppsData } = await supabase
       .from('applications')
       .select('*')
       .eq('user_id', userId)
-      .not('job_id', 'is', null)  // job_id가 NULL이 아닌 것만
+      .not('job_id', 'is', null)
       .order('created_at', { ascending: false });
     
-    console.log('✅ 지원 내역 조회 결과:', myAppsData);
-    console.log('❌ 에러:', appsError);
-    
     if (myAppsData && myAppsData.length > 0) {
-      // 각 지원에 대한 공고 정보를 별도로 가져오기
       const appsWithJobs = await Promise.all(
         myAppsData.map(async (app) => {
           const { data: jobData } = await supabase
@@ -144,20 +145,19 @@ export default function MyPage() {
         })
       );
       
-      console.log('✅ 공고 정보와 함께:', appsWithJobs);
       setMyApplications(appsWithJobs);
     } else {
       setMyApplications([]);
     }
 
-    // 🆕 내 공고에 온 지원들 (job_id가 있는 것만)
+    // 내 공고에 온 지원들
     if (jobsData && jobsData.length > 0) {
       const jobIds = jobsData.map(j => j.id);
       const { data: receivedAppsData } = await supabase
         .from('applications')
         .select('*')
         .in('job_id', jobIds)
-        .not('job_id', 'is', null)  // job_id가 NULL이 아닌 것만
+        .not('job_id', 'is', null)
         .order('created_at', { ascending: false });
       
       if (receivedAppsData && receivedAppsData.length > 0) {
@@ -179,12 +179,12 @@ export default function MyPage() {
       }
     }
 
-    // 🆕 내가 연락한 이력서들 (applications 테이블, candidate_id가 있는 것만)
+    // 내가 연락한 이력서들
     const { data: myContactsData } = await supabase
-      .from('applications')  // contacts → applications로 변경
+      .from('applications')
       .select('*')
       .eq('user_id', userId)
-      .not('candidate_id', 'is', null)  // candidate_id가 NULL이 아닌 것만
+      .not('candidate_id', 'is', null)
       .order('created_at', { ascending: false });
     
     if (myContactsData && myContactsData.length > 0) {
@@ -207,14 +207,14 @@ export default function MyPage() {
       setMyContacts([]);
     }
 
-    // 🆕 내 이력서에 온 연락들 (applications 테이블, candidate_id가 있는 것만)
+    // 내 이력서에 온 연락들
     if (resumesData && resumesData.length > 0) {
       const resumeIds = resumesData.map(r => r.id);
       const { data: receivedContactsData } = await supabase
-        .from('applications')  // contacts → applications로 변경
+        .from('applications')
         .select('*')
         .in('candidate_id', resumeIds)
-        .not('candidate_id', 'is', null)  // candidate_id가 NULL이 아닌 것만
+        .not('candidate_id', 'is', null)
         .order('created_at', { ascending: false });
       
       if (receivedContactsData && receivedContactsData.length > 0) {
@@ -251,7 +251,7 @@ export default function MyPage() {
       alert('삭제 실패');
     } else {
       alert('삭제되었습니다!');
-      fetchMyData(user.id);
+      window.location.href = "/mypage?tab=" + activeTab;
     }
   };
 
@@ -267,7 +267,7 @@ export default function MyPage() {
       alert('삭제 실패');
     } else {
       alert('삭제되었습니다!');
-      fetchMyData(user.id);
+      window.location.href = "/mypage?tab=" + activeTab;
     }
   };
 
@@ -368,15 +368,15 @@ export default function MyPage() {
                   
                   return (
                     <div key={job.id} className="p-6 hover:bg-gray-50">
-                      <div className="flex justify-between items-start">
+                      <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
+                          <div className="flex items-center gap-3 mb-2 flex-wrap">
                             <h3 className="text-xl font-bold text-gray-800">{job.title}</h3>
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadge.color}`}>
                               {statusBadge.icon} {statusBadge.text}
                             </span>
                           </div>
-                          <div className="flex gap-4 text-sm text-gray-600 mb-3">
+                          <div className="flex gap-4 text-sm text-gray-600 mb-3 flex-wrap">
                             <span>📍 {job.location}</span>
                             <span>🧘 {job.yoga_style}</span>
                             {job.salary && <span>💰 {job.salary}</span>}
@@ -385,14 +385,13 @@ export default function MyPage() {
                             등록일: {new Date(job.created_at).toLocaleDateString('ko-KR')}
                           </p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                           <Link href={`/jobs/${job.id}`}>
-                            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition whitespace-nowrap">
                               보기
                             </button>
                           </Link>
                           
-                          {/* 상태별 버튼 */}
                           {job.status === 'active' ? (
                             <>
                               <button
@@ -401,11 +400,13 @@ export default function MyPage() {
                                     const { error } = await closeJob(job.id);
                                     if (!error) {
                                       alert('공고가 마감되었습니다');
-                                      fetchMyData(user.id);
+                                      window.location.href = '/mypage?tab=' + activeTab;
+                                    } else {
+                                      alert('마감 실패: ' + error);
                                     }
                                   }
                                 }}
-                                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
+                                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition whitespace-nowrap"
                               >
                                 마감
                               </button>
@@ -414,10 +415,12 @@ export default function MyPage() {
                                   const { error } = await extendJobExpiry(job.id, 30);
                                   if (!error) {
                                     alert('만료일이 30일 연장되었습니다');
-                                    fetchMyData(user.id);
+                                    window.location.href = '/mypage?tab=' + activeTab;
+                                  } else {
+                                    alert('연장 실패: ' + error);
                                   }
                                 }}
-                                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition whitespace-nowrap"
                               >
                                 연장
                               </button>
@@ -428,10 +431,12 @@ export default function MyPage() {
                                 const { error } = await reopenJob(job.id);
                                 if (!error) {
                                   alert('공고가 다시 열렸습니다');
-                                  fetchMyData(user.id);
+                                  window.location.href = '/mypage?tab=' + activeTab;
+                                } else {
+                                  alert('다시 열기 실패: ' + error);
                                 }
                               }}
-                              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition whitespace-nowrap"
                             >
                               다시 열기
                             </button>
@@ -439,7 +444,7 @@ export default function MyPage() {
                           
                           <button
                             onClick={() => deleteJob(job.id)}
-                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition whitespace-nowrap"
                           >
                             삭제
                           </button>
@@ -469,15 +474,15 @@ export default function MyPage() {
                   
                   return (
                     <div key={resume.id} className="p-6 hover:bg-gray-50">
-                      <div className="flex justify-between items-start">
+                      <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
+                          <div className="flex items-center gap-3 mb-2 flex-wrap">
                             <h3 className="text-xl font-bold text-gray-800">{resume.name}</h3>
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadge.color}`}>
                               {statusBadge.icon} {statusBadge.text}
                             </span>
                           </div>
-                          <div className="flex gap-4 text-sm text-gray-600 mb-3">
+                          <div className="flex gap-4 text-sm text-gray-600 mb-3 flex-wrap">
                             <span>📍 {resume.location}</span>
                             <span>🧘 {resume.yoga_styles}</span>
                           </div>
@@ -485,9 +490,9 @@ export default function MyPage() {
                             등록일: {new Date(resume.created_at).toLocaleDateString('ko-KR')}
                           </p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                           <Link href={`/resumes/${resume.id}`}>
-                            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition whitespace-nowrap">
                               보기
                             </button>
                           </Link>
@@ -500,11 +505,13 @@ export default function MyPage() {
                                     const { error } = await closeResume(resume.id);
                                     if (!error) {
                                       alert('이력서가 마감되었습니다');
-                                      fetchMyData(user.id);
+                                      window.location.href = "/mypage?tab=" + activeTab;
+                                    } else {
+                                      alert('마감 실패: ' + error);
                                     }
                                   }
                                 }}
-                                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
+                                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition whitespace-nowrap"
                               >
                                 마감
                               </button>
@@ -513,10 +520,12 @@ export default function MyPage() {
                                   const { error } = await extendResumeExpiry(resume.id, 30);
                                   if (!error) {
                                     alert('만료일이 30일 연장되었습니다');
-                                    fetchMyData(user.id);
+                                    window.location.href = "/mypage?tab=" + activeTab;
+                                  } else {
+                                    alert('연장 실패: ' + error);
                                   }
                                 }}
-                                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition whitespace-nowrap"
                               >
                                 연장
                               </button>
@@ -527,10 +536,12 @@ export default function MyPage() {
                                 const { error } = await reopenResume(resume.id);
                                 if (!error) {
                                   alert('이력서가 다시 열렸습니다');
-                                  fetchMyData(user.id);
+                                  window.location.href = "/mypage?tab=" + activeTab;
+                                } else {
+                                  alert('다시 열기 실패: ' + error);
                                 }
                               }}
-                              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition whitespace-nowrap"
                             >
                               다시 열기
                             </button>
@@ -538,7 +549,7 @@ export default function MyPage() {
                           
                           <button
                             onClick={() => deleteResume(resume.id)}
-                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition whitespace-nowrap"
                           >
                             삭제
                           </button>
@@ -552,7 +563,6 @@ export default function MyPage() {
           )
         ) : activeTab === 'bookmarks' ? (
           <div className="space-y-6">
-            {/* 북마크한 구인 공고 */}
             <div>
               <h2 className="text-xl font-bold text-gray-800 mb-4">북마크한 구인 공고</h2>
               {bookmarkedJobs.length === 0 ? (
@@ -585,7 +595,6 @@ export default function MyPage() {
               )}
             </div>
 
-            {/* 북마크한 이력서 */}
             <div>
               <h2 className="text-xl font-bold text-gray-800 mb-4">북마크한 강사</h2>
               {bookmarkedResumes.length === 0 ? (
@@ -619,192 +628,196 @@ export default function MyPage() {
             </div>
           </div>
         ) : activeTab === 'applications' ? (
-          /* 🆕 내가 지원한 공고들 */
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">내가 지원한 공고</h2>
-            {myApplications.length === 0 ? (
-              <div className="bg-white rounded-xl shadow p-12 text-center">
-                <p className="text-gray-500">아직 지원한 공고가 없습니다</p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl shadow overflow-hidden">
-                <div className="divide-y divide-gray-200">
-                  {myApplications.map((app) => (
-                    <div key={app.id} className="p-6 hover:bg-gray-50">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-xl font-bold text-gray-800">
-                              {app.job?.title || '삭제된 공고'}
-                            </h3>
-                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                              지원 완료
-                            </span>
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">내가 지원한 공고</h2>
+              {myApplications.length === 0 ? (
+                <div className="bg-white rounded-xl shadow p-12 text-center">
+                  <p className="text-gray-500">아직 지원한 공고가 없습니다</p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl shadow overflow-hidden">
+                  <div className="divide-y divide-gray-200">
+                    {myApplications.map((app) => (
+                      <div key={app.id} className="p-6 hover:bg-gray-50">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <h3 className="text-xl font-bold text-gray-800">
+                                {app.job?.title || '삭제된 공고'}
+                              </h3>
+                              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                                지원 완료
+                              </span>
+                            </div>
+                            {app.job && (
+                              <div className="flex gap-4 text-sm text-gray-600 mb-3 flex-wrap">
+                                <span>📍 {app.job.location}</span>
+                                <span>🧘 {app.job.yoga_style}</span>
+                              </div>
+                            )}
+                            <div className="bg-gray-50 p-4 rounded-lg mb-3">
+                              <p className="text-sm text-gray-700 font-semibold mb-1">내 메시지:</p>
+                              <p className="text-sm text-gray-600">{app.message || '메시지 없음'}</p>
+                            </div>
+                            <p className="text-gray-500 text-sm">
+                              지원일: {new Date(app.created_at).toLocaleDateString('ko-KR')} {new Date(app.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
+                            </p>
                           </div>
                           {app.job && (
-                            <div className="flex gap-4 text-sm text-gray-600 mb-3">
-                              <span>📍 {app.job.location}</span>
-                              <span>🧘 {app.job.yoga_style}</span>
-                            </div>
+                            <Link href={`/jobs/${app.job.id}`}>
+                              <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition whitespace-nowrap">
+                                공고 보기
+                              </button>
+                            </Link>
                           )}
-                          <div className="bg-gray-50 p-4 rounded-lg mb-3">
-                            <p className="text-sm text-gray-700 font-semibold mb-1">내 메시지:</p>
-                            <p className="text-sm text-gray-600">{app.message || '메시지 없음'}</p>
-                          </div>
-                          <p className="text-gray-500 text-sm">
-                            지원일: {new Date(app.created_at).toLocaleDateString('ko-KR')} {new Date(app.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
-                          </p>
                         </div>
-                        {app.job && (
-                          <Link href={`/jobs/${app.job.id}`}>
-                            <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
-                              공고 보기
-                            </button>
-                          </Link>
-                        )}
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
-            {/* 내가 연락한 이력서들 */}
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8">내가 연락한 강사</h2>
-            {myContacts.length === 0 ? (
-              <div className="bg-white rounded-xl shadow p-12 text-center">
-                <p className="text-gray-500">아직 연락한 강사가 없습니다</p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl shadow overflow-hidden">
-                <div className="divide-y divide-gray-200">
-                  {myContacts.map((contact) => (
-                    <div key={contact.id} className="p-6 hover:bg-gray-50">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-xl font-bold text-gray-800">
-                              {contact.candidate?.name || '삭제된 이력서'}
-                            </h3>
-                            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                              연락 완료
-                            </span>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">내가 연락한 강사</h2>
+              {myContacts.length === 0 ? (
+                <div className="bg-white rounded-xl shadow p-12 text-center">
+                  <p className="text-gray-500">아직 연락한 강사가 없습니다</p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl shadow overflow-hidden">
+                  <div className="divide-y divide-gray-200">
+                    {myContacts.map((contact) => (
+                      <div key={contact.id} className="p-6 hover:bg-gray-50">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <h3 className="text-xl font-bold text-gray-800">
+                                {contact.candidate?.name || '삭제된 이력서'}
+                              </h3>
+                              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                                연락 완료
+                              </span>
+                            </div>
+                            {contact.candidate && (
+                              <div className="flex gap-4 text-sm text-gray-600 mb-3 flex-wrap">
+                                <span>📍 {contact.candidate.location}</span>
+                                <span>🧘 {contact.candidate.yoga_styles}</span>
+                              </div>
+                            )}
+                            <div className="bg-gray-50 p-4 rounded-lg mb-3">
+                              <p className="text-sm text-gray-700 font-semibold mb-1">내 메시지:</p>
+                              <p className="text-sm text-gray-600">{contact.message || '메시지 없음'}</p>
+                            </div>
+                            <p className="text-gray-500 text-sm">
+                              연락일: {new Date(contact.created_at).toLocaleDateString('ko-KR')} {new Date(contact.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
+                            </p>
                           </div>
                           {contact.candidate && (
-                            <div className="flex gap-4 text-sm text-gray-600 mb-3">
-                              <span>📍 {contact.candidate.location}</span>
-                              <span>🧘 {contact.candidate.yoga_styles}</span>
-                            </div>
+                            <Link href={`/resumes/${contact.candidate.id}`}>
+                              <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition whitespace-nowrap">
+                                이력서 보기
+                              </button>
+                            </Link>
                           )}
-                          <div className="bg-gray-50 p-4 rounded-lg mb-3">
-                            <p className="text-sm text-gray-700 font-semibold mb-1">내 메시지:</p>
-                            <p className="text-sm text-gray-600">{contact.message || '메시지 없음'}</p>
-                          </div>
-                          <p className="text-gray-500 text-sm">
-                            연락일: {new Date(contact.created_at).toLocaleDateString('ko-KR')} {new Date(contact.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
-                          </p>
                         </div>
-                        {contact.candidate && (
-                          <Link href={`/resumes/${contact.candidate.id}`}>
-                            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                              이력서 보기
-                            </button>
-                          </Link>
-                        )}
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         ) : activeTab === 'received' ? (
-          /* 🆕 받은 지원/연락 */
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">내 공고에 온 지원</h2>
-            {receivedApplications.length === 0 ? (
-              <div className="bg-white rounded-xl shadow p-12 text-center">
-                <p className="text-gray-500">아직 받은 지원이 없습니다</p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl shadow overflow-hidden">
-                <div className="divide-y divide-gray-200">
-                  {receivedApplications.map((app) => (
-                    <div key={app.id} className="p-6 hover:bg-gray-50">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
-                              새 지원!
-                            </span>
-                            <h3 className="text-xl font-bold text-gray-800">
-                              {app.job?.title || '삭제된 공고'}
-                            </h3>
-                          </div>
-                          <div className="bg-blue-50 p-4 rounded-lg mb-3">
-                            <p className="text-sm text-gray-700 font-semibold mb-1">지원자 메시지:</p>
-                            <p className="text-sm text-gray-600">{app.message || '메시지 없음'}</p>
-                          </div>
-                          <p className="text-gray-500 text-sm">
-                            지원일: {new Date(app.created_at).toLocaleDateString('ko-KR')} {new Date(app.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
-                          </p>
-                        </div>
-                        {app.job && (
-                          <Link href={`/jobs/${app.job.id}`}>
-                            <button className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition">
-                              공고 보기
-                            </button>
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">내 공고에 온 지원</h2>
+              {receivedApplications.length === 0 ? (
+                <div className="bg-white rounded-xl shadow p-12 text-center">
+                  <p className="text-gray-500">아직 받은 지원이 없습니다</p>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="bg-white rounded-xl shadow overflow-hidden">
+                  <div className="divide-y divide-gray-200">
+                    {receivedApplications.map((app) => (
+                      <div key={app.id} className="p-6 hover:bg-gray-50">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
+                                새 지원!
+                              </span>
+                              <h3 className="text-xl font-bold text-gray-800">
+                                {app.job?.title || '삭제된 공고'}
+                              </h3>
+                            </div>
+                            <div className="bg-blue-50 p-4 rounded-lg mb-3">
+                              <p className="text-sm text-gray-700 font-semibold mb-1">지원자 메시지:</p>
+                              <p className="text-sm text-gray-600">{app.message || '메시지 없음'}</p>
+                            </div>
+                            <p className="text-gray-500 text-sm">
+                              지원일: {new Date(app.created_at).toLocaleDateString('ko-KR')} {new Date(app.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
+                            </p>
+                          </div>
+                          {app.job && (
+                            <Link href={`/jobs/${app.job.id}`}>
+                              <button className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition whitespace-nowrap">
+                                공고 보기
+                              </button>
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
-            {/* 내 이력서에 온 연락 */}
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8">내 이력서에 온 연락</h2>
-            {receivedContacts.length === 0 ? (
-              <div className="bg-white rounded-xl shadow p-12 text-center">
-                <p className="text-gray-500">아직 받은 연락이 없습니다</p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl shadow overflow-hidden">
-                <div className="divide-y divide-gray-200">
-                  {receivedContacts.map((contact) => (
-                    <div key={contact.id} className="p-6 hover:bg-gray-50">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">
-                              새 연락!
-                            </span>
-                            <h3 className="text-xl font-bold text-gray-800">
-                              {contact.candidate?.name || '삭제된 이력서'}
-                            </h3>
-                          </div>
-                          <div className="bg-blue-50 p-4 rounded-lg mb-3">
-                            <p className="text-sm text-gray-700 font-semibold mb-1">채용자 메시지:</p>
-                            <p className="text-sm text-gray-600">{contact.message || '메시지 없음'}</p>
-                          </div>
-                          <p className="text-gray-500 text-sm">
-                            연락일: {new Date(contact.created_at).toLocaleDateString('ko-KR')} {new Date(contact.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
-                          </p>
-                        </div>
-                        {contact.candidate && (
-                          <Link href={`/resumes/${contact.candidate.id}`}>
-                            <button className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition">
-                              이력서 보기
-                            </button>
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">내 이력서에 온 연락</h2>
+              {receivedContacts.length === 0 ? (
+                <div className="bg-white rounded-xl shadow p-12 text-center">
+                  <p className="text-gray-500">아직 받은 연락이 없습니다</p>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="bg-white rounded-xl shadow overflow-hidden">
+                  <div className="divide-y divide-gray-200">
+                    {receivedContacts.map((contact) => (
+                      <div key={contact.id} className="p-6 hover:bg-gray-50">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">
+                                새 연락!
+                              </span>
+                              <h3 className="text-xl font-bold text-gray-800">
+                                {contact.candidate?.name || '삭제된 이력서'}
+                              </h3>
+                            </div>
+                            <div className="bg-blue-50 p-4 rounded-lg mb-3">
+                              <p className="text-sm text-gray-700 font-semibold mb-1">채용자 메시지:</p>
+                              <p className="text-sm text-gray-600">{contact.message || '메시지 없음'}</p>
+                            </div>
+                            <p className="text-gray-500 text-sm">
+                              연락일: {new Date(contact.created_at).toLocaleDateString('ko-KR')} {new Date(contact.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
+                            </p>
+                          </div>
+                          {contact.candidate && (
+                            <Link href={`/resumes/${contact.candidate.id}`}>
+                              <button className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition whitespace-nowrap">
+                                이력서 보기
+                              </button>
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         ) : null}
       </div>
