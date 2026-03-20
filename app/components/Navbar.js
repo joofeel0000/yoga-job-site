@@ -12,6 +12,13 @@ export default function Navbar() {
 
   useEffect(() => {
     checkUser();
+
+    // Auth 상태 변경 감지
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const checkUser = async () => {
@@ -21,6 +28,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    setUser(null);
     window.location.href = '/';
   };
 
@@ -62,6 +70,17 @@ export default function Navbar() {
                 <NotificationBell />
 
                 <Link
+                  href="/chat"
+                  className={`text-sm font-medium transition ${
+                    pathname === '/chat' || pathname?.startsWith('/chat/')
+                      ? 'text-purple-600'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  💬 채팅
+                </Link>
+
+                <Link
                   href="/mypage"
                   className={`text-sm font-medium transition ${
                     pathname === '/mypage'
@@ -71,6 +90,7 @@ export default function Navbar() {
                 >
                   마이페이지
                 </Link>
+
                 <button
                   onClick={handleLogout}
                   className="text-sm font-medium text-gray-600 hover:text-gray-900 transition"
