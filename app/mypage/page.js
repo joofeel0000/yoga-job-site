@@ -272,72 +272,72 @@ export default function MyPage() {
   };
 
   return (
-    <main className="min-h-screen p-8 bg-gray-50">
+    <main className="min-h-screen p-8 bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">마이페이지</h1>
-            <p className="text-gray-600 mt-2">{user?.email}</p>
+            <h1 className="text-3xl font-bold text-stone-800">마이페이지</h1>
+            <p className="text-stone-500 mt-2">{user?.email}</p>
           </div>
           <div className="flex gap-4">
-            <Link href="/profile" className="text-purple-600 hover:underline">
+            <Link href="/profile" className="text-green-700 hover:text-green-800 text-sm font-medium">
               프로필 설정 →
             </Link>
-            <Link href="/" className="text-purple-600 hover:underline">
+            <Link href="/" className="text-green-700 hover:text-green-800 text-sm font-medium">
               ← 홈으로
             </Link>
           </div>
         </div>
 
         {/* 탭 */}
-        <div className="bg-white rounded-xl shadow mb-6 overflow-x-auto">
-          <div className="flex border-b min-w-max">
+        <div className="bg-white rounded-xl border border-stone-100 shadow-sm mb-6 overflow-x-auto">
+          <div className="flex border-b border-stone-100 min-w-max">
             <button
               onClick={() => setActiveTab('jobs')}
-              className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap ${
+              className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
                 activeTab === 'jobs'
-                  ? 'text-purple-600 border-b-2 border-purple-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-green-700 border-b-2 border-green-700'
+                  : 'text-stone-500 hover:text-stone-700'
               }`}
             >
               내 구인공고 ({myJobs.length})
             </button>
             <button
               onClick={() => setActiveTab('resumes')}
-              className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap ${
+              className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
                 activeTab === 'resumes'
-                  ? 'text-indigo-600 border-b-2 border-indigo-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
+                  : 'text-stone-500 hover:text-stone-700'
               }`}
             >
               내 이력서 ({myResumes.length})
             </button>
             <button
               onClick={() => setActiveTab('bookmarks')}
-              className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap ${
+              className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
                 activeTab === 'bookmarks'
                   ? 'text-yellow-600 border-b-2 border-yellow-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  : 'text-stone-500 hover:text-stone-700'
               }`}
             >
               북마크 ({bookmarkedJobs.length + bookmarkedResumes.length})
             </button>
             <button
               onClick={() => setActiveTab('applications')}
-              className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap ${
+              className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
                 activeTab === 'applications'
-                  ? 'text-green-600 border-b-2 border-green-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-emerald-600 border-b-2 border-emerald-600'
+                  : 'text-stone-500 hover:text-stone-700'
               }`}
             >
               내 지원내역 ({myApplications.length + myContacts.length})
             </button>
             <button
               onClick={() => setActiveTab('received')}
-              className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap ${
+              className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
                 activeTab === 'received'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-emerald-600 border-b-2 border-emerald-600'
+                  : 'text-stone-500 hover:text-stone-700'
               }`}
             >
               받은 지원/연락 ({receivedApplications.length + receivedContacts.length})
@@ -348,46 +348,47 @@ export default function MyPage() {
         {/* 내용 */}
         {loading ? (
           <div className="text-center py-20">
-            <p className="text-gray-500">로딩 중...</p>
+            <div className="text-4xl mb-3 animate-pulse">🌿</div>
+            <p className="text-stone-400 text-sm">불러오는 중...</p>
           </div>
         ) : activeTab === 'jobs' ? (
           myJobs.length === 0 ? (
-            <div className="bg-white rounded-xl shadow p-12 text-center">
-              <p className="text-gray-500 mb-4">등록한 구인 공고가 없습니다</p>
+            <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+              <p className="text-stone-400 mb-4 text-sm">등록한 구인 공고가 없습니다</p>
               <Link href="/post-job">
-                <button className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                <button className="px-6 py-3 bg-green-700 text-white rounded-full hover:bg-green-800 transition text-sm font-semibold">
                   구인 공고 등록하기
                 </button>
               </Link>
             </div>
           ) : (
-            <div className="bg-white rounded-xl shadow overflow-hidden">
-              <div className="divide-y divide-gray-200">
+            <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+              <div className="divide-y divide-stone-100">
                 {myJobs.map((job) => {
                   const statusBadge = getStatusBadge(job.status, job.expires_at);
                   
                   return (
-                    <div key={job.id} className="p-6 hover:bg-gray-50">
+                    <div key={job.id} className="p-6 hover:bg-stone-50">
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <h3 className="text-xl font-bold text-gray-800">{job.title}</h3>
+                            <h3 className="text-xl font-bold text-stone-800">{job.title}</h3>
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadge.color}`}>
                               {statusBadge.icon} {statusBadge.text}
                             </span>
                           </div>
-                          <div className="flex gap-4 text-sm text-gray-600 mb-3 flex-wrap">
+                          <div className="flex gap-4 text-sm text-stone-500 mb-3 flex-wrap">
                             <span>📍 {job.location}</span>
-                            <span>🧘 {job.yoga_style}</span>
+                            <span>🌿 {job.yoga_style}</span>
                             {job.salary && <span>💰 {job.salary}</span>}
                           </div>
-                          <p className="text-gray-600 text-sm">
+                          <p className="text-stone-400 text-sm">
                             등록일: {new Date(job.created_at).toLocaleDateString('ko-KR')}
                           </p>
                         </div>
                         <div className="flex gap-2 flex-wrap">
                           <Link href={`/jobs/${job.id}`}>
-                            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition whitespace-nowrap">
+                            <button className="px-4 py-2 bg-green-700 text-white rounded-full hover:bg-green-800 transition whitespace-nowrap text-sm font-semibold">
                               보기
                             </button>
                           </Link>
@@ -458,41 +459,41 @@ export default function MyPage() {
           )
         ) : activeTab === 'resumes' ? (
           myResumes.length === 0 ? (
-            <div className="bg-white rounded-xl shadow p-12 text-center">
-              <p className="text-gray-500 mb-4">등록한 이력서가 없습니다</p>
+            <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+              <p className="text-stone-400 mb-4 text-sm">등록한 이력서가 없습니다</p>
               <Link href="/post-resume">
-                <button className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                <button className="px-6 py-3 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition text-sm font-semibold">
                   이력서 등록하기
                 </button>
               </Link>
             </div>
           ) : (
-            <div className="bg-white rounded-xl shadow overflow-hidden">
-              <div className="divide-y divide-gray-200">
+            <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+              <div className="divide-y divide-stone-100">
                 {myResumes.map((resume) => {
                   const statusBadge = getStatusBadge(resume.status, resume.expires_at);
                   
                   return (
-                    <div key={resume.id} className="p-6 hover:bg-gray-50">
+                    <div key={resume.id} className="p-6 hover:bg-stone-50">
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <h3 className="text-xl font-bold text-gray-800">{resume.name}</h3>
+                            <h3 className="text-xl font-bold text-stone-800">{resume.name}</h3>
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadge.color}`}>
                               {statusBadge.icon} {statusBadge.text}
                             </span>
                           </div>
-                          <div className="flex gap-4 text-sm text-gray-600 mb-3 flex-wrap">
+                          <div className="flex gap-4 text-sm text-stone-500 mb-3 flex-wrap">
                             <span>📍 {resume.location}</span>
-                            <span>🧘 {resume.yoga_styles}</span>
+                            <span>🌿 {resume.yoga_styles}</span>
                           </div>
-                          <p className="text-gray-600 text-sm">
+                          <p className="text-stone-400 text-sm">
                             등록일: {new Date(resume.created_at).toLocaleDateString('ko-KR')}
                           </p>
                         </div>
                         <div className="flex gap-2 flex-wrap">
                           <Link href={`/resumes/${resume.id}`}>
-                            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition whitespace-nowrap">
+                            <button className="px-4 py-2 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition whitespace-nowrap text-sm font-semibold">
                               보기
                             </button>
                           </Link>
@@ -564,26 +565,26 @@ export default function MyPage() {
         ) : activeTab === 'bookmarks' ? (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-4">북마크한 구인 공고</h2>
+              <h2 className="text-xl font-bold text-stone-800 mb-4">북마크한 구인 공고</h2>
               {bookmarkedJobs.length === 0 ? (
-                <div className="bg-white rounded-xl shadow p-8 text-center">
-                  <p className="text-gray-500">북마크한 구인 공고가 없습니다</p>
+                <div className="bg-white rounded-xl border border-stone-100 p-8 text-center">
+                  <p className="text-stone-400 text-sm">북마크한 구인 공고가 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl shadow overflow-hidden">
-                  <div className="divide-y divide-gray-200">
+                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+                  <div className="divide-y divide-stone-100">
                     {bookmarkedJobs.map((job) => (
-                      <div key={job.id} className="p-6 hover:bg-gray-50">
+                      <div key={job.id} className="p-6 hover:bg-stone-50">
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <h3 className="text-xl font-bold text-gray-800 mb-2">{job.title}</h3>
-                            <div className="flex gap-4 text-sm text-gray-600 mb-3">
+                            <h3 className="text-lg font-bold text-stone-800 mb-2">{job.title}</h3>
+                            <div className="flex gap-4 text-sm text-stone-500 mb-3">
                               <span>📍 {job.location}</span>
-                              <span>🧘 {job.yoga_style}</span>
+                              <span>🌿 {job.yoga_style}</span>
                             </div>
                           </div>
                           <Link href={`/jobs/${job.id}`}>
-                            <button className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition">
+                            <button className="px-4 py-2 bg-green-700 text-white rounded-full hover:bg-green-800 transition text-sm font-semibold">
                               보기
                             </button>
                           </Link>
@@ -596,26 +597,26 @@ export default function MyPage() {
             </div>
 
             <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-4">북마크한 강사</h2>
+              <h2 className="text-xl font-bold text-stone-800 mb-4">북마크한 강사</h2>
               {bookmarkedResumes.length === 0 ? (
-                <div className="bg-white rounded-xl shadow p-8 text-center">
-                  <p className="text-gray-500">북마크한 강사가 없습니다</p>
+                <div className="bg-white rounded-xl border border-stone-100 p-8 text-center">
+                  <p className="text-stone-400 text-sm">북마크한 강사가 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl shadow overflow-hidden">
-                  <div className="divide-y divide-gray-200">
+                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+                  <div className="divide-y divide-stone-100">
                     {bookmarkedResumes.map((resume) => (
-                      <div key={resume.id} className="p-6 hover:bg-gray-50">
+                      <div key={resume.id} className="p-6 hover:bg-stone-50">
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <h3 className="text-xl font-bold text-gray-800 mb-2">{resume.name}</h3>
-                            <div className="flex gap-4 text-sm text-gray-600 mb-3">
+                            <h3 className="text-lg font-bold text-stone-800 mb-2">{resume.name}</h3>
+                            <div className="flex gap-4 text-sm text-stone-500 mb-3">
                               <span>📍 {resume.location}</span>
-                              <span>🧘 {resume.yoga_styles}</span>
+                              <span>🌺 {resume.yoga_styles}</span>
                             </div>
                           </div>
                           <Link href={`/resumes/${resume.id}`}>
-                            <button className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition">
+                            <button className="px-4 py-2 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition text-sm font-semibold">
                               보기
                             </button>
                           </Link>
@@ -630,20 +631,20 @@ export default function MyPage() {
         ) : activeTab === 'applications' ? (
           <div className="space-y-8">
             <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">내가 지원한 공고</h2>
+              <h2 className="text-xl font-bold text-stone-800 mb-4">내가 지원한 공고</h2>
               {myApplications.length === 0 ? (
-                <div className="bg-white rounded-xl shadow p-12 text-center">
-                  <p className="text-gray-500">아직 지원한 공고가 없습니다</p>
+                <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+                  <p className="text-stone-400 text-sm">아직 지원한 공고가 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl shadow overflow-hidden">
-                  <div className="divide-y divide-gray-200">
+                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+                  <div className="divide-y divide-stone-100">
                     {myApplications.map((app) => (
-                      <div key={app.id} className="p-6 hover:bg-gray-50">
+                      <div key={app.id} className="p-6 hover:bg-stone-50">
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <h3 className="text-xl font-bold text-gray-800">
+                              <h3 className="text-lg font-bold text-stone-800">
                                 {app.job?.title || '삭제된 공고'}
                               </h3>
                               <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
@@ -651,22 +652,22 @@ export default function MyPage() {
                               </span>
                             </div>
                             {app.job && (
-                              <div className="flex gap-4 text-sm text-gray-600 mb-3 flex-wrap">
+                              <div className="flex gap-4 text-sm text-stone-500 mb-3 flex-wrap">
                                 <span>📍 {app.job.location}</span>
-                                <span>🧘 {app.job.yoga_style}</span>
+                                <span>🌿 {app.job.yoga_style}</span>
                               </div>
                             )}
-                            <div className="bg-gray-50 p-4 rounded-lg mb-3">
-                              <p className="text-sm text-gray-700 font-semibold mb-1">내 메시지:</p>
-                              <p className="text-sm text-gray-600">{app.message || '메시지 없음'}</p>
+                            <div className="bg-stone-50 p-4 rounded-xl mb-3">
+                              <p className="text-xs font-bold text-stone-400 uppercase tracking-wide mb-1">내 메시지</p>
+                              <p className="text-sm text-stone-600">{app.message || '메시지 없음'}</p>
                             </div>
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-stone-400 text-xs">
                               지원일: {new Date(app.created_at).toLocaleDateString('ko-KR')} {new Date(app.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
                             </p>
                           </div>
                           {app.job && (
                             <Link href={`/jobs/${app.job.id}`}>
-                              <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition whitespace-nowrap">
+                              <button className="px-4 py-2 bg-green-700 text-white rounded-full hover:bg-green-800 transition whitespace-nowrap text-sm font-semibold">
                                 공고 보기
                               </button>
                             </Link>
@@ -680,43 +681,43 @@ export default function MyPage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">내가 연락한 강사</h2>
+              <h2 className="text-xl font-bold text-stone-800 mb-4">내가 연락한 강사</h2>
               {myContacts.length === 0 ? (
-                <div className="bg-white rounded-xl shadow p-12 text-center">
-                  <p className="text-gray-500">아직 연락한 강사가 없습니다</p>
+                <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+                  <p className="text-stone-400 text-sm">아직 연락한 강사가 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl shadow overflow-hidden">
-                  <div className="divide-y divide-gray-200">
+                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+                  <div className="divide-y divide-stone-100">
                     {myContacts.map((contact) => (
-                      <div key={contact.id} className="p-6 hover:bg-gray-50">
+                      <div key={contact.id} className="p-6 hover:bg-stone-50">
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <h3 className="text-xl font-bold text-gray-800">
+                              <h3 className="text-lg font-bold text-stone-800">
                                 {contact.candidate?.name || '삭제된 이력서'}
                               </h3>
-                              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                              <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">
                                 연락 완료
                               </span>
                             </div>
                             {contact.candidate && (
-                              <div className="flex gap-4 text-sm text-gray-600 mb-3 flex-wrap">
+                              <div className="flex gap-4 text-sm text-stone-500 mb-3 flex-wrap">
                                 <span>📍 {contact.candidate.location}</span>
-                                <span>🧘 {contact.candidate.yoga_styles}</span>
+                                <span>🌺 {contact.candidate.yoga_styles}</span>
                               </div>
                             )}
-                            <div className="bg-gray-50 p-4 rounded-lg mb-3">
-                              <p className="text-sm text-gray-700 font-semibold mb-1">내 메시지:</p>
-                              <p className="text-sm text-gray-600">{contact.message || '메시지 없음'}</p>
+                            <div className="bg-stone-50 p-4 rounded-xl mb-3">
+                              <p className="text-xs font-bold text-stone-400 uppercase tracking-wide mb-1">내 메시지</p>
+                              <p className="text-sm text-stone-600">{contact.message || '메시지 없음'}</p>
                             </div>
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-stone-400 text-xs">
                               연락일: {new Date(contact.created_at).toLocaleDateString('ko-KR')} {new Date(contact.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
                             </p>
                           </div>
                           {contact.candidate && (
                             <Link href={`/resumes/${contact.candidate.id}`}>
-                              <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition whitespace-nowrap">
+                              <button className="px-4 py-2 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition whitespace-nowrap text-sm font-semibold">
                                 이력서 보기
                               </button>
                             </Link>
@@ -732,37 +733,37 @@ export default function MyPage() {
         ) : activeTab === 'received' ? (
           <div className="space-y-8">
             <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">내 공고에 온 지원</h2>
+              <h2 className="text-xl font-bold text-stone-800 mb-4">내 공고에 온 지원</h2>
               {receivedApplications.length === 0 ? (
-                <div className="bg-white rounded-xl shadow p-12 text-center">
-                  <p className="text-gray-500">아직 받은 지원이 없습니다</p>
+                <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+                  <p className="text-stone-400 text-sm">아직 받은 지원이 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl shadow overflow-hidden">
-                  <div className="divide-y divide-gray-200">
+                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+                  <div className="divide-y divide-stone-100">
                     {receivedApplications.map((app) => (
-                      <div key={app.id} className="p-6 hover:bg-gray-50">
+                      <div key={app.id} className="p-6 hover:bg-stone-50">
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
+                              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
                                 새 지원!
                               </span>
-                              <h3 className="text-xl font-bold text-gray-800">
+                              <h3 className="text-lg font-bold text-stone-800">
                                 {app.job?.title || '삭제된 공고'}
                               </h3>
                             </div>
-                            <div className="bg-blue-50 p-4 rounded-lg mb-3">
-                              <p className="text-sm text-gray-700 font-semibold mb-1">지원자 메시지:</p>
-                              <p className="text-sm text-gray-600">{app.message || '메시지 없음'}</p>
+                            <div className="bg-emerald-50 p-4 rounded-xl mb-3">
+                              <p className="text-xs font-bold text-stone-400 uppercase tracking-wide mb-1">지원자 메시지</p>
+                              <p className="text-sm text-stone-600">{app.message || '메시지 없음'}</p>
                             </div>
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-stone-400 text-xs">
                               지원일: {new Date(app.created_at).toLocaleDateString('ko-KR')} {new Date(app.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
                             </p>
                           </div>
                           {app.job && (
                             <Link href={`/jobs/${app.job.id}`}>
-                              <button className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition whitespace-nowrap">
+                              <button className="px-4 py-2 bg-green-700 text-white rounded-full hover:bg-green-800 transition whitespace-nowrap text-sm font-semibold">
                                 공고 보기
                               </button>
                             </Link>
@@ -776,37 +777,37 @@ export default function MyPage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">내 이력서에 온 연락</h2>
+              <h2 className="text-xl font-bold text-stone-800 mb-4">내 이력서에 온 연락</h2>
               {receivedContacts.length === 0 ? (
-                <div className="bg-white rounded-xl shadow p-12 text-center">
-                  <p className="text-gray-500">아직 받은 연락이 없습니다</p>
+                <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+                  <p className="text-stone-400 text-sm">아직 받은 연락이 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl shadow overflow-hidden">
-                  <div className="divide-y divide-gray-200">
+                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+                  <div className="divide-y divide-stone-100">
                     {receivedContacts.map((contact) => (
-                      <div key={contact.id} className="p-6 hover:bg-gray-50">
+                      <div key={contact.id} className="p-6 hover:bg-stone-50">
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">
+                              <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">
                                 새 연락!
                               </span>
-                              <h3 className="text-xl font-bold text-gray-800">
+                              <h3 className="text-lg font-bold text-stone-800">
                                 {contact.candidate?.name || '삭제된 이력서'}
                               </h3>
                             </div>
-                            <div className="bg-blue-50 p-4 rounded-lg mb-3">
-                              <p className="text-sm text-gray-700 font-semibold mb-1">채용자 메시지:</p>
-                              <p className="text-sm text-gray-600">{contact.message || '메시지 없음'}</p>
+                            <div className="bg-amber-50 p-4 rounded-xl mb-3">
+                              <p className="text-xs font-bold text-stone-400 uppercase tracking-wide mb-1">채용자 메시지</p>
+                              <p className="text-sm text-stone-600">{contact.message || '메시지 없음'}</p>
                             </div>
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-stone-400 text-xs">
                               연락일: {new Date(contact.created_at).toLocaleDateString('ko-KR')} {new Date(contact.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
                             </p>
                           </div>
                           {contact.candidate && (
                             <Link href={`/resumes/${contact.candidate.id}`}>
-                              <button className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition whitespace-nowrap">
+                              <button className="px-4 py-2 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition whitespace-nowrap text-sm font-semibold">
                                 이력서 보기
                               </button>
                             </Link>
