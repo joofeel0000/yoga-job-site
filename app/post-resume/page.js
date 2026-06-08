@@ -65,7 +65,9 @@ const checkUser = async () => {
         certifications: formData.certifications,
         photo_url: formData.photoUrl,
         introduction: formData.introduction,
-        user_id: user.id  // ← 추가
+        user_id: user.id,
+        status: 'active',
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
       }
     ])
     .select();
