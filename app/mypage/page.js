@@ -392,7 +392,7 @@ export default function MyPage() {
                             </button>
                           </Link>
                           
-                          {job.status === 'active' ? (
+                          {job.status !== 'closed' ? (
                             <>
                               <button
                                 onClick={async () => {
@@ -497,7 +497,7 @@ export default function MyPage() {
                             </button>
                           </Link>
                           
-                          {resume.status === 'active' ? (
+                          {resume.status !== 'closed' ? (
                             <>
                               <button
                                 onClick={async () => {
