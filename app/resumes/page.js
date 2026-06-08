@@ -18,130 +18,130 @@ export default function Resumes() {
     const { data, error } = await supabase
       .from('candidate')
       .select('*')
-      .eq('status', 'active')
-      .gte('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('에러:', error);
-    } else {
-      setResumes(data);
-    }
+    if (error) console.error('에러:', error);
+    else setResumes(data);
     setLoading(false);
   };
 
-  const filteredResumes = resumes.filter(resume => {
-    const matchSearch = 
-      resume.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resume.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resume.yoga_styles?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    return matchSearch;
-  });
+  const filteredResumes = resumes.filter(resume =>
+    resume.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    resume.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    resume.yoga_styles?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <main className="min-h-screen p-8 bg-gradient-to-b from-indigo-50 to-white">
-      <div className="max-w-6xl mx-auto">
+    <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20">
+      <div className="max-w-6xl mx-auto px-8 py-10">
+
         {/* 헤더 */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-indigo-900">
-            🙋‍♀️ 요가 강사 찾기
-          </h1>
-          <Link href="/" className="text-indigo-600 hover:underline">
+          <div>
+            <h1 className="text-3xl font-bold text-stone-800 tracking-tight">강사 찾기</h1>
+            <p className="text-stone-400 text-sm mt-1">센터에 어울리는 요가 강사를 찾아보세요</p>
+          </div>
+          <Link href="/" className="text-sm text-green-700 hover:text-green-800 font-medium transition-colors">
             ← 홈으로
           </Link>
         </div>
 
         {/* 검색 */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            검색
-          </label>
+        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-6 mb-8">
+          <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">검색</label>
           <input
             type="text"
             placeholder="이름, 지역, 요가 종류로 검색..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition text-sm"
           />
         </div>
 
         {/* 이력서 목록 */}
         {loading ? (
-          <div className="text-center py-20">
-            <p className="text-gray-500">로딩 중...</p>
+          <div className="text-center py-24">
+            <div className="text-4xl mb-3 animate-pulse">🌺</div>
+            <p className="text-stone-400 text-sm">불러오는 중...</p>
           </div>
         ) : filteredResumes.length === 0 ? (
-          <div className="bg-white rounded-xl shadow p-12 text-center">
-            <p className="text-gray-500">검색 결과가 없습니다</p>
+          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border-2 border-dashed border-stone-200 text-center">
+            <span className="text-5xl mb-4">🌺</span>
+            <p className="text-stone-500 font-medium">
+              {searchTerm ? '검색 결과가 없습니다' : '아직 등록된 강사가 없어요'}
+            </p>
+            <p className="text-stone-400 text-sm mt-1">
+              {searchTerm ? '다른 이름, 지역, 요가 종류로 시도해보세요' : '첫 번째 이력서를 등록해보세요'}
+            </p>
+            {!searchTerm && (
+              <Link href="/post-resume">
+                <button className="mt-5 px-5 py-2.5 bg-amber-600 text-white text-sm font-semibold rounded-full hover:bg-amber-700 transition">
+                  이력서 등록하기
+                </button>
+              </Link>
+            )}
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredResumes.map((resume) => (
               <Link href={`/resumes/${resume.id}`} key={resume.id} className="block">
-                <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer">     
-                    {/* 프로필 사진 */}
-                    {resume.photo_url && (
-                    <div className="mb-4">
-                        <img 
-                        src={resume.photo_url} 
+                <div className="bg-white rounded-2xl border border-stone-100 p-6 hover:border-amber-200 hover:shadow-md transition cursor-pointer h-full flex flex-col">
+
+                  {/* 프로필 사진 */}
+                  {resume.photo_url && (
+                    <div className="mb-4 flex justify-center">
+                      <img
+                        src={resume.photo_url}
                         alt={resume.name}
-                        className="w-24 h-24 rounded-full object-cover mx-auto"
-                        onError={(e) => { e.target.style.display = 'none' }}
-                        />
+                        className="w-20 h-20 rounded-full object-cover ring-2 ring-stone-100"
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
                     </div>
-                    )}
+                  )}
 
-                    <h3 className="text-xl font-bold text-gray-800 mb-2 text-center">
+                  <h3 className="text-base font-bold text-stone-800 mb-3 text-center">
                     {resume.name}
-                    </h3>
-                    
-                    <div className="space-y-2 mb-4">
-                    <p className="text-gray-600 flex items-center">
-                        <span className="font-semibold mr-2">📍</span>
-                        {resume.location}
+                  </h3>
+
+                  <div className="space-y-1.5 mb-4 flex-1">
+                    <p className="text-stone-500 text-sm flex items-center gap-2">
+                      <span>📍</span>{resume.location}
                     </p>
-                    
-                    <p className="text-gray-600 flex items-center">
-                        <span className="font-semibold mr-2">🧘</span>
-                        {resume.yoga_styles}
+                    <p className="text-stone-500 text-sm flex items-center gap-2">
+                      <span>🌿</span>{resume.yoga_styles}
                     </p>
-                    
                     {resume.experience_years && (
-                        <p className="text-gray-600 flex items-center">
-                        <span className="font-semibold mr-2">📊</span>
-                        경력 {resume.experience_years}
-                        </p>
+                      <p className="text-stone-500 text-sm flex items-center gap-2">
+                        <span>📊</span>경력 {resume.experience_years}
+                      </p>
                     )}
-                    
                     {resume.certifications && (
-                        <p className="text-gray-600 flex items-center">
-                        <span className="font-semibold mr-2">🏆</span>
-                        {resume.certifications}
-                        </p>
+                      <p className="text-stone-500 text-sm flex items-center gap-2">
+                        <span>🏆</span>{resume.certifications}
+                      </p>
                     )}
-                    </div>
+                  </div>
 
-                    {resume.introduction && (
-                    <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-                        {resume.introduction}
+                  {resume.introduction && (
+                    <p className="text-stone-400 text-xs line-clamp-2 mb-4">
+                      {resume.introduction}
                     </p>
-                    )}
+                  )}
 
-                    <p className="text-gray-400 text-xs">
-                    등록일: {new Date(resume.created_at).toLocaleDateString('ko-KR')}
-                    </p>
+                  <p className="text-stone-300 text-xs text-center">
+                    {new Date(resume.created_at).toLocaleDateString('ko-KR')}
+                  </p>
                 </div>
               </Link>
             ))}
           </div>
         )}
 
-        <div className="mt-8 text-center">
-          <p className="text-gray-500">
-            총 {filteredResumes.length}명의 강사
-          </p>
-        </div>
+        {!loading && (
+          <div className="mt-8 text-center">
+            <p className="text-stone-300 text-sm">총 {filteredResumes.length}명의 강사</p>
+          </div>
+        )}
       </div>
     </main>
   );
