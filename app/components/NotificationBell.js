@@ -85,7 +85,7 @@ export default function NotificationBell() {
       {/* 알림 벨 아이콘 */}
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 text-gray-600 hover:text-gray-800 transition"
+        className="relative p-2 text-stone-500 hover:text-green-700 transition-colors"
       >
         <svg
           className="w-6 h-6"
@@ -119,14 +119,14 @@ export default function NotificationBell() {
           />
 
           {/* 드롭다운 메뉴 */}
-          <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-20 max-h-96 overflow-y-auto">
+          <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-stone-100 z-20 max-h-96 overflow-y-auto">
             {/* 헤더 */}
             <div className="flex items-center justify-between p-4 border-b">
               <h3 className="text-lg font-bold text-gray-800">알림</h3>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  className="text-xs text-green-700 hover:text-green-800 font-semibold"
                 >
                   모두 읽음
                 </button>
@@ -148,14 +148,14 @@ export default function NotificationBell() {
                   <div
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`p-4 hover:bg-gray-50 cursor-pointer transition ${
-                      !notification.is_read ? 'bg-blue-50' : ''
+                    className={`p-4 hover:bg-stone-50 cursor-pointer transition ${
+                      !notification.is_read ? 'bg-emerald-50' : ''
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       {/* 아이콘 */}
                       <div className={`flex-shrink-0 w-2 h-2 mt-2 rounded-full ${
-                        !notification.is_read ? 'bg-blue-500' : 'bg-gray-300'
+                        !notification.is_read ? 'bg-green-600' : 'bg-stone-300'
                       }`} />
 
                       {/* 내용 */}
@@ -184,11 +184,11 @@ export default function NotificationBell() {
 
             {/* 푸터 */}
             {notifications.length > 0 && (
-              <div className="p-3 border-t bg-gray-50 text-center">
+              <div className="p-3 border-t border-stone-100 bg-stone-50 text-center rounded-b-2xl">
                 <Link
                   href="/mypage?tab=received"
                   onClick={() => setShowDropdown(false)}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
+                  className="text-sm text-green-700 hover:text-green-800 font-semibold"
                 >
                   모든 알림 보기
                 </Link>
