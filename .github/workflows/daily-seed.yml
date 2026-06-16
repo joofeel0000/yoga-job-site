@@ -1,0 +1,45 @@
+name: 매일 더미 데이터 삽입
+
+on:
+  schedule:
+    # 매일 오전 9시 KST (= UTC 00:00) 실행
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      jobs_per_run:
+        description: '구인 공고 삽입 수 (기본 3)'
+        required: false
+        default: '3'
+      candidates_per_run:
+        description: '구직 이력서 삽입 수 (기본 2)'
+        required: false
+        default: '2'
+
+jobs:
+  seed:
+    name: 더미 데이터 삽입
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 더미 데이터 삽입
+        run: node scripts/seed-dummy-data.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SEED_USER_ID: ${{ secrets.SEED_USER_ID }}
+          SEED_JOBS_PER_RUN: ${{ github.event.inputs.jobs_per_run || '3' }}
+          SEED_CANDIDATES_PER_RUN: ${{ github.event.inputs.candidates_per_run || '2' }}
+          MAX_TOTAL_SEED_ROWS: '200'
