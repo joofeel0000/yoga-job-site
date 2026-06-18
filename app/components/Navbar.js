@@ -63,6 +63,8 @@ export default function Navbar() {
           <div className="flex items-center gap-6">
             {navLink('/jobs', '구인공고')}
             {navLink('/resumes', '강사찾기')}
+            {navLink('/property', '매물정보')}
+            {navLink('/community', '커뮤니티')}
 
             {user ? (
               <>

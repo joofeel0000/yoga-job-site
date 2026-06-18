@@ -3,6 +3,7 @@
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BannerZone from '@/app/components/BannerZone';
 
 export default function Jobs() {
   const [jobs, setJobs] = useState([]);
@@ -82,77 +83,84 @@ export default function Jobs() {
           </div>
         </div>
 
-        {/* 공고 목록 */}
-        {loading ? (
-          <div className="text-center py-24">
-            <div className="text-4xl mb-3 animate-pulse">🌿</div>
-            <p className="text-stone-400 text-sm">불러오는 중...</p>
-          </div>
-        ) : filteredJobs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border-2 border-dashed border-stone-200 text-center">
-            <span className="text-5xl mb-4">🧘‍♀️</span>
-            <p className="text-stone-500 font-medium">
-              {searchTerm || filterYogaStyle ? '검색 결과가 없습니다' : '아직 등록된 공고가 없어요'}
-            </p>
-            <p className="text-stone-400 text-sm mt-1">
-              {searchTerm || filterYogaStyle ? '다른 검색어나 요가 종류로 시도해보세요' : '첫 번째 구인 공고를 올려보세요'}
-            </p>
-            {!(searchTerm || filterYogaStyle) && (
-              <Link href="/post-job">
-                <button className="mt-5 px-5 py-2.5 bg-green-700 text-white text-sm font-semibold rounded-full hover:bg-green-800 transition">
-                  공고 등록하기
-                </button>
-              </Link>
+        {/* 공고 목록 + 사이드바 */}
+        <div className="flex gap-6 items-start">
+
+          {/* 메인 콘텐츠 */}
+          <div className="flex-1 min-w-0">
+            {loading ? (
+              <div className="text-center py-24">
+                <div className="text-4xl mb-3 animate-pulse">🌿</div>
+                <p className="text-stone-400 text-sm">불러오는 중...</p>
+              </div>
+            ) : filteredJobs.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border-2 border-dashed border-stone-200 text-center">
+                <span className="text-5xl mb-4">🧘‍♀️</span>
+                <p className="text-stone-500 font-medium">
+                  {searchTerm || filterYogaStyle ? '검색 결과가 없습니다' : '아직 등록된 공고가 없어요'}
+                </p>
+                <p className="text-stone-400 text-sm mt-1">
+                  {searchTerm || filterYogaStyle ? '다른 검색어나 요가 종류로 시도해보세요' : '첫 번째 구인 공고를 올려보세요'}
+                </p>
+                {!(searchTerm || filterYogaStyle) && (
+                  <Link href="/post-job">
+                    <button className="mt-5 px-5 py-2.5 bg-green-700 text-white text-sm font-semibold rounded-full hover:bg-green-800 transition">
+                      공고 등록하기
+                    </button>
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredJobs.map((job) => (
+                  <Link href={`/jobs/${job.id}`} key={job.id}>
+                    <div className="bg-white rounded-2xl border border-stone-100 p-6 hover:border-green-200 hover:shadow-md transition cursor-pointer h-full flex flex-col">
+                      <h3 className="text-base font-bold text-stone-800 mb-3 leading-snug">
+                        {job.title}
+                      </h3>
+                      <div className="space-y-1.5 mb-4 flex-1">
+                        <p className="text-stone-500 text-sm flex items-center gap-2">
+                          <span>📍</span>{job.location}
+                        </p>
+                        <p className="text-stone-500 text-sm flex items-center gap-2">
+                          <span>🌿</span>{job.yoga_style}
+                        </p>
+                        {job.experience && (
+                          <p className="text-stone-500 text-sm flex items-center gap-2">
+                            <span>📊</span>{job.experience}
+                          </p>
+                        )}
+                        {job.salary && (
+                          <p className="text-stone-500 text-sm flex items-center gap-2">
+                            <span>💰</span>{job.salary}
+                          </p>
+                        )}
+                      </div>
+                      {job.description && (
+                        <p className="text-stone-400 text-xs line-clamp-2 mb-4">
+                          {job.description}
+                        </p>
+                      )}
+                      <p className="text-stone-300 text-xs">
+                        {new Date(job.created_at).toLocaleDateString('ko-KR')}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {!loading && (
+              <div className="mt-8 text-center">
+                <p className="text-stone-300 text-sm">총 {filteredJobs.length}개의 공고</p>
+              </div>
             )}
           </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredJobs.map((job) => (
-              <Link href={`/jobs/${job.id}`} key={job.id}>
-                <div className="bg-white rounded-2xl border border-stone-100 p-6 hover:border-green-200 hover:shadow-md transition cursor-pointer h-full flex flex-col">
-                  <h3 className="text-base font-bold text-stone-800 mb-3 leading-snug">
-                    {job.title}
-                  </h3>
 
-                  <div className="space-y-1.5 mb-4 flex-1">
-                    <p className="text-stone-500 text-sm flex items-center gap-2">
-                      <span>📍</span>{job.location}
-                    </p>
-                    <p className="text-stone-500 text-sm flex items-center gap-2">
-                      <span>🌿</span>{job.yoga_style}
-                    </p>
-                    {job.experience && (
-                      <p className="text-stone-500 text-sm flex items-center gap-2">
-                        <span>📊</span>{job.experience}
-                      </p>
-                    )}
-                    {job.salary && (
-                      <p className="text-stone-500 text-sm flex items-center gap-2">
-                        <span>💰</span>{job.salary}
-                      </p>
-                    )}
-                  </div>
+          {/* 우측 사이드바 배너 */}
+          <BannerZone position="jobs_top" />
+        </div>
 
-                  {job.description && (
-                    <p className="text-stone-400 text-xs line-clamp-2 mb-4">
-                      {job.description}
-                    </p>
-                  )}
-
-                  <p className="text-stone-300 text-xs">
-                    {new Date(job.created_at).toLocaleDateString('ko-KR')}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {!loading && (
-          <div className="mt-8 text-center">
-            <p className="text-stone-300 text-sm">총 {filteredJobs.length}개의 공고</p>
-          </div>
-        )}
       </div>
     </main>
   );

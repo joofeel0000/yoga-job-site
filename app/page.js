@@ -3,12 +3,15 @@
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BannerZone from '@/app/components/BannerZone';
 
 export default function Home() {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [recentJobs, setRecentJobs] = useState([]);
   const [recentResumes, setRecentResumes] = useState([]);
+  const [recentProperties, setRecentProperties] = useState([]);
+  const [recentPosts, setRecentPosts] = useState([]);
 
   useEffect(() => {
     checkUser();
@@ -46,6 +49,21 @@ export default function Home() {
       .order('created_at', { ascending: false })
       .limit(3);
     if (resumesData) setRecentResumes(resumesData);
+
+    const { data: propertyData } = await supabase
+      .from('property')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(3);
+    if (propertyData) setRecentProperties(propertyData);
+
+    const { data: postsData } = await supabase
+      .from('community_posts')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(5);
+    if (postsData) setRecentPosts(postsData);
   };
 
   const handleLogout = async () => {
@@ -110,8 +128,13 @@ export default function Home() {
         <div className="h-0.5 bg-gradient-to-r from-transparent via-green-300 to-transparent opacity-60" />
       </section>
 
+      <BannerZone position="home_strip" />
+
       {/* Main content */}
       <div className="max-w-6xl mx-auto px-8 py-12">
+
+        <BannerZone position="home_top" />
+
         <div className="grid md:grid-cols-2 gap-8">
 
           {/* 구인 카드 */}
@@ -205,6 +228,107 @@ export default function Home() {
               </div>
             )}
           </section>
+        </div>
+
+        <BannerZone position="home_bottom" />
+
+        {/* 추가 게시판 */}
+        <div className="grid md:grid-cols-2 gap-8 mt-8">
+
+          {/* 매물 정보 카드 */}
+          <section className="bg-white rounded-3xl shadow-sm border border-stone-100 p-8 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center text-xl shrink-0">🏠</div>
+              <div>
+                <h2 className="text-lg font-bold text-stone-800">요가 매물 정보</h2>
+                <p className="text-xs text-stone-400 mt-0.5">스튜디오 임대·매매·양도 정보</p>
+              </div>
+            </div>
+
+            <Link href="/post-property">
+              <button className="w-full mb-7 py-3 bg-blue-600 text-white rounded-2xl font-semibold hover:bg-blue-700 active:scale-95 transition text-sm">
+                매물 등록하기
+              </button>
+            </Link>
+
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-xs font-bold text-stone-400 uppercase tracking-widest">최근 매물</span>
+              <Link href="/property" className="text-blue-600 hover:text-blue-700 text-xs font-semibold">
+                더보기 →
+              </Link>
+            </div>
+
+            {recentProperties.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 bg-stone-50 rounded-2xl border-2 border-dashed border-stone-200 text-center">
+                <span className="text-4xl mb-3">🏠</span>
+                <p className="text-stone-500 font-medium text-sm">등록된 매물이 없어요</p>
+                <p className="text-stone-400 text-xs mt-1">첫 번째 매물을 등록해보세요</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recentProperties.map((p) => (
+                  <Link key={p.id} href={`/property/${p.id}`}>
+                    <div className="p-4 bg-stone-50 rounded-2xl border border-transparent hover:bg-blue-50 hover:border-blue-200 transition cursor-pointer">
+                      <p className="font-semibold text-stone-800 text-sm mb-1 truncate">{p.title}</p>
+                      <div className="flex gap-3 text-xs text-stone-500">
+                        <span>🏷 {p.property_type}</span>
+                        {p.location && <span>📍 {p.location}</span>}
+                        {p.price && <span className="text-green-700 font-medium">💰 {p.price}</span>}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* 커뮤니티 카드 */}
+          <section className="bg-white rounded-3xl shadow-sm border border-stone-100 p-8 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-11 h-11 bg-purple-50 rounded-2xl flex items-center justify-center text-xl shrink-0">💬</div>
+              <div>
+                <h2 className="text-lg font-bold text-stone-800">커뮤니티</h2>
+                <p className="text-xs text-stone-400 mt-0.5">강사와 센터가 소통하는 공간</p>
+              </div>
+            </div>
+
+            <Link href="/post-community">
+              <button className="w-full mb-7 py-3 bg-purple-600 text-white rounded-2xl font-semibold hover:bg-purple-700 active:scale-95 transition text-sm">
+                글쓰기
+              </button>
+            </Link>
+
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-xs font-bold text-stone-400 uppercase tracking-widest">최근 게시글</span>
+              <Link href="/community" className="text-purple-600 hover:text-purple-700 text-xs font-semibold">
+                더보기 →
+              </Link>
+            </div>
+
+            {recentPosts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 bg-stone-50 rounded-2xl border-2 border-dashed border-stone-200 text-center">
+                <span className="text-4xl mb-3">💬</span>
+                <p className="text-stone-500 font-medium text-sm">게시글이 없어요</p>
+                <p className="text-stone-400 text-xs mt-1">첫 글을 작성해보세요</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recentPosts.map((post) => (
+                  <Link key={post.id} href={`/community/${post.id}`}>
+                    <div className="p-4 bg-stone-50 rounded-2xl border border-transparent hover:bg-purple-50 hover:border-purple-200 transition cursor-pointer">
+                      <p className="font-semibold text-stone-800 text-sm truncate">{post.title}</p>
+                      <div className="flex gap-3 text-xs text-stone-400 mt-1">
+                        <span>{post.category}</span>
+                        <span>{post.author_email?.split('@')[0]}</span>
+                        <span>👁 {post.views ?? 0}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+
         </div>
 
         {/* Footer tagline */}
