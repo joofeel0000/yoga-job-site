@@ -94,20 +94,29 @@ const EXPERIENCE_YEARS = [
 ];
 
 const CERTIFICATIONS = [
-  'RYT 200', 'RYT 500', '대한요가협회 자격증', '한국요가연합회 자격증',
-  '필라테스 지도자 과정 수료', 'RYT 200 + 명상지도사', 'RYT 500 + 어린이요가',
-  '음요가 전문 수료증', '아이엔가 요가 인증',
+  'RYT 200 (Yoga Alliance)',
+  'RYT 500 (Yoga Alliance)',
+  'RYT 200 + 명상지도사 1급',
+  'RYT 500 + 어린이요가 지도사',
+  '대한요가협회 자격증 1급',
+  '한국요가연합회 지도자 자격증',
+  '필라테스 지도자 과정 수료 + RYT 200',
+  '음요가(Yin Yoga) 전문 수료증',
+  '아이엥가 요가 Introductory I 인증',
+  '생활체육지도사 2급 (요가)',
 ];
 
 const CANDIDATE_INTRODUCTIONS = [
   (style, years) =>
-    `${years} 경력의 ${style} 전문 강사입니다. 다양한 연령대의 수강생을 지도한 경험이 있으며 체계적인 커리큘럼 구성을 강점으로 삼고 있습니다.`,
-  (style) =>
-    `${style}에 진심인 강사입니다. 수련자가 자신의 몸과 호흡을 느끼는 순간을 함께 만들어가고 싶습니다. 소통과 피드백을 중요하게 생각합니다.`,
+    `안녕하세요, ${style} 전문 강사입니다.\n\n${years} 동안 다양한 연령대의 수강생을 지도하며 각 개인의 신체 조건과 목표에 맞는 맞춤 수업을 제공해 왔습니다. 체계적인 커리큘럼 구성과 세밀한 자세 교정을 강점으로 삼고 있으며, 초보자도 편안하게 시작할 수 있는 분위기를 만들기 위해 노력합니다.\n\n정규 그룹 클래스 외에 개인 레슨과 기업 출강 경험도 보유하고 있습니다. 새로운 센터에서도 책임감 있게 함께 성장하고 싶습니다.`,
   (style, years) =>
-    `${style} 지도 ${years} 경력으로 다수의 센터에서 근무했습니다. 정기 클래스 외에 개인 레슨, 기업 출강 경험도 보유하고 있습니다.`,
-  (style) =>
-    `${style}와 명상을 접목한 수업을 지향합니다. 수강생의 신체 조건과 목표에 맞춘 맞춤형 지도를 제공하며 안전한 수련 환경을 최우선으로 합니다.`,
+    `${style} 강사로 활동한 지 ${years}이 됐습니다.\n\n수련자가 스스로 몸과 호흡을 느끼는 순간을 함께 만들어가는 것이 저의 수업 철학입니다. 단순히 동작을 따라 하는 수업이 아니라, 호흡과 내면의 집중을 이끌어내는 수업을 지향합니다.\n\n밝고 따뜻한 성격으로 회원들과의 소통을 중요하게 생각하며, 수업 후 피드백을 꼼꼼히 반영해 지속적으로 발전하는 강사가 되려 노력합니다.`,
+  (style, years) =>
+    `${style} 지도 경력 ${years}으로, 서울과 수도권 소재 여러 센터에서 근무한 경험이 있습니다.\n\n초보자부터 심화 수련자까지 수준별 수업 설계가 가능하며, 수강생의 부상 예방을 최우선으로 하는 안전한 수업 환경을 만들기 위해 항상 주의를 기울입니다.\n\n요가를 통해 일상의 스트레스에서 벗어나 몸과 마음의 균형을 찾는 경험을 함께 나누고 싶습니다. 장기적으로 함께할 수 있는 센터를 찾고 있습니다.`,
+  (style, years) =>
+    `${style}와 명상을 접목한 수업을 전문으로 하는 강사입니다.\n\n${years} 경력 동안 요가가 단순한 운동을 넘어 삶의 질을 높이는 도구가 될 수 있다는 것을 직접 목격해 왔습니다. 특히 현대인의 번아웃과 스트레스 회복에 도움이 되는 프로그램 구성에 관심이 많습니다.\n\n그룹 수업뿐 아니라 소규모 워크숍과 리트릿 프로그램 기획·진행 경험도 있으며, 수강생 개개인의 성장을 세심하게 살피는 강사가 되고자 합니다.`,
+  (style, years) =>
+    `처음 요가를 만난 이후 ${years} 동안 ${style}에 전념해 왔습니다.\n\n학원이나 센터에서의 정규 수업 외에도 지역 커뮤니티 센터 출강, 기업 웰니스 프로그램, 온라인 클래스 운영 등 다양한 환경에서 수업을 진행한 경험이 있습니다.\n\n유연성과 근력 강화를 균형 있게 다루는 수업 스타일을 추구하며, 수강생이 수업 후 몸이 가벼워지는 느낌을 받아갈 수 있도록 최선을 다합니다. 성실하고 책임감 있는 강사입니다.`,
 ];
 
 // ─────────────────────────────────────────────
@@ -316,16 +325,18 @@ function makeJob() {
 
 function makeCandidate() {
   const styleCount = Math.random() < 0.4 ? 2 : 1;
-  const styles = pickN(YOGA_STYLES, styleCount).join(', ');
-  const primaryStyle = styles.split(',')[0].trim();
+  // yoga_styles: 요가 종류명만 (예: "하타요가, 빈야사")
+  const yoga_styles = pickN(YOGA_STYLES, styleCount).join(', ');
+  const primaryStyle = yoga_styles.split(',')[0].trim();
   const years = pick(EXPERIENCE_YEARS);
   return {
     name: pick(CANDIDATE_NAMES),
     location: pick(LOCATIONS),
-    yoga_styles: styles,
-    experience_years: years,
-    certifications: pick(CERTIFICATIONS),
-    introduction: pick(CANDIDATE_INTRODUCTIONS)(primaryStyle, years),
+    yoga_styles,                                             // 종류명만
+    experience_years: years,                                 // 경력 연차
+    certifications: pick(CERTIFICATIONS),                    // 자격증
+    introduction: pick(CANDIDATE_INTRODUCTIONS)(primaryStyle, years), // 자기소개
+    photo_url: null,
     user_id: SEED_USER_ID,
     status: 'active',
     expires_at: expiresAt(30),
