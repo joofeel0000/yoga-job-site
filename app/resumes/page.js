@@ -104,7 +104,7 @@ export default function Resumes() {
                       <h3 className="text-base font-bold text-stone-800 mb-3 text-center">
                         {resume.name}
                       </h3>
-                      <div className="space-y-1.5 mb-4 flex-1">
+                      <div className="space-y-1.5 mb-3 flex-1">
                         <p className="text-stone-500 text-sm flex items-center gap-2">
                           <span>📍</span>{resume.location}
                         </p>
@@ -116,14 +116,9 @@ export default function Resumes() {
                             <span>📊</span>경력 {resume.experience_years}
                           </p>
                         )}
-                        {resume.certifications && (
-                          <p className="text-stone-500 text-sm flex items-center gap-2">
-                            <span>🏆</span>{resume.certifications}
-                          </p>
-                        )}
                       </div>
                       {resume.introduction && (
-                        <p className="text-stone-400 text-xs line-clamp-2 mb-4">
+                        <p className="text-stone-400 text-xs overflow-hidden mb-3" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                           {resume.introduction}
                         </p>
                       )}
