@@ -13,6 +13,7 @@
  */
 
 const { createClient } = require('@supabase/supabase-js');
+const { randomUUID } = require('crypto');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -332,6 +333,7 @@ function makeCandidate() {
   const years = pick(EXPERIENCE_YEARS);
   const cert = pick(CERT_PHRASES);
   return {
+    id: randomUUID(),
     name: pick(CANDIDATE_NAMES),
     location: pick(LOCATIONS),
     yoga_styles,                                                        // 예: "하타요가, 빈야사"
