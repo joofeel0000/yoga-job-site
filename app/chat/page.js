@@ -70,11 +70,11 @@ export default function ChatPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20 p-8">
+    <main className="min-h-screen bg-[#F4F1E9] p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-stone-800">💬 채팅</h1>
-          <Link href="/" className="text-green-700 hover:text-green-800 font-medium text-sm transition-colors">
+          <Link href="/" className="text-[#23211C] hover:text-black font-medium text-sm transition-colors">
             ← 홈으로
           </Link>
         </div>
@@ -89,7 +89,7 @@ export default function ChatPage() {
             <div className="text-4xl mb-4">💬</div>
             <p className="text-stone-400 text-sm mb-6">아직 채팅 내역이 없습니다</p>
             <Link href="/jobs">
-              <button className="px-6 py-3 bg-green-700 text-white rounded-full hover:bg-green-800 transition font-semibold text-sm">
+              <button className="px-6 py-3 bg-[#23211C] text-white rounded-full hover:bg-black transition font-semibold text-sm">
                 구인 공고 보러가기
               </button>
             </Link>

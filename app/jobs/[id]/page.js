@@ -4,7 +4,39 @@ import { supabase } from '@/lib/supabase';
 import { createApplicationNotification } from '@/lib/notifications';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
+
+const JOB_IMGS = [
+  'https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&auto=format&fit=crop&q=80',
+];
+
+function jobImg(id) {
+  if (!id) return JOB_IMGS[0];
+  const code = [...String(id)].reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return JOB_IMGS[code % JOB_IMGS.length];
+}
+
+function Tag({ label }) {
+  return (
+    <span style={{ fontSize: 12, color: '#76705F', background: '#F4F1E9', padding: '3px 10px', borderRadius: 8, border: '1px solid #E3DDD0' }}>
+      {label}
+    </span>
+  );
+}
+
+function InfoRow({ label, value }) {
+  if (!value) return null;
+  return (
+    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', paddingBottom: 12, borderBottom: '1px solid #F4F1E9' }}>
+      <span style={{ fontSize: 13, color: '#9A9382', width: 72, flexShrink: 0 }}>{label}</span>
+      <span style={{ fontSize: 13, color: '#23211C', fontWeight: 500 }}>{value}</span>
+    </div>
+  );
+}
 
 export default function JobDetail() {
   const params = useParams();
@@ -21,25 +53,20 @@ export default function JobDetail() {
   useEffect(() => {
     checkUser();
     fetchJob();
-
-    const handleFocus = () => fetchApplicantCount();
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
   }, [id]);
 
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
-    if (user && id) {
-      checkBookmark(user.id);
-      checkApplication(user.id);
+    const { data: { user: u } } = await supabase.auth.getUser();
+    setUser(u);
+    if (u && id) {
+      checkBookmark(u.id);
+      checkApplication(u.id);
     }
     fetchApplicantCount();
   };
 
   const checkBookmark = async (userId) => {
-    const { data } = await supabase.from('bookmarks').select('*')
-      .eq('user_id', userId).eq('job_id', id).maybeSingle();
+    const { data } = await supabase.from('bookmarks').select('*').eq('user_id', userId).eq('job_id', id).maybeSingle();
     setIsBookmarked(!!data);
   };
 
@@ -52,14 +79,12 @@ export default function JobDetail() {
   };
 
   const checkApplication = async (userId) => {
-    const { data } = await supabase.from('applications').select('*')
-      .eq('user_id', userId).eq('job_id', id).maybeSingle();
+    const { data } = await supabase.from('applications').select('*').eq('user_id', userId).eq('job_id', id).maybeSingle();
     setHasApplied(!!data);
   };
 
   const fetchApplicantCount = async () => {
-    const { count } = await supabase.from('applications')
-      .select('*', { count: 'exact', head: true }).eq('job_id', id);
+    const { count } = await supabase.from('applications').select('*', { count: 'exact', head: true }).eq('job_id', id);
     setApplicantCount(count || 0);
   };
 
@@ -73,7 +98,6 @@ export default function JobDetail() {
     const { data: applicationData, error } = await supabase.from('applications')
       .insert([{ user_id: user.id, job_id: id, candidate_id: null, message: applyMessage }])
       .select().single();
-
     if (!error) {
       if (job.user_id && applicationData)
         await createApplicationNotification(job.user_id, job.title, applicationData.id);
@@ -90,147 +114,139 @@ export default function JobDetail() {
   const toggleBookmark = async () => {
     if (!user) { alert('로그인이 필요합니다'); return; }
     if (isBookmarked) {
-      const { error } = await supabase.from('bookmarks').delete()
-        .eq('user_id', user.id).eq('job_id', id);
-      if (!error) { setIsBookmarked(false); alert('북마크가 해제되었습니다'); }
+      const { error } = await supabase.from('bookmarks').delete().eq('user_id', user.id).eq('job_id', id);
+      if (!error) setIsBookmarked(false);
     } else {
-      const { error } = await supabase.from('bookmarks')
-        .insert([{ user_id: user.id, job_id: id, candidate_id: null }]);
-      if (!error) { setIsBookmarked(true); alert('북마크에 추가되었습니다'); }
+      const { error } = await supabase.from('bookmarks').insert([{ user_id: user.id, job_id: id, candidate_id: null }]);
+      if (!error) setIsBookmarked(true);
     }
   };
 
-  if (!job) {
+  if (loading || !job) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20">
-        <div className="max-w-4xl mx-auto px-8 py-16 text-center">
-          <div className="text-4xl mb-4 animate-pulse">🌿</div>
-          <p className="text-stone-400 text-sm">
-            {loading ? '불러오는 중...' : '공고를 찾을 수 없습니다'}
-          </p>
-          {!loading && (
-            <Link href="/jobs" className="mt-4 inline-block text-green-700 hover:text-green-800 text-sm font-medium">
-              ← 목록으로 돌아가기
-            </Link>
-          )}
-        </div>
+      <main style={{ minHeight: '100vh', background: '#F4F1E9', paddingTop: 68, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: '#9A9382', fontSize: 14 }}>{loading ? '불러오는 중...' : '공고를 찾을 수 없습니다'}</p>
       </main>
     );
   }
 
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20">
-      <div className="max-w-4xl mx-auto px-8 py-10">
+  const descLines = (job.description || '').split('\n').filter(l => l.trim());
 
-        {/* 상단 */}
-        <div className="flex justify-between items-center mb-6">
-          <Link href="/jobs" className="text-sm text-green-700 hover:text-green-800 font-medium transition-colors">
-            ← 목록으로
-          </Link>
-          {user && (
-            <button
-              onClick={toggleBookmark}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                isBookmarked
-                  ? 'bg-yellow-400 text-white hover:bg-yellow-500'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-              }`}
-            >
-              {isBookmarked ? '⭐ 북마크 해제' : '☆ 북마크'}
-            </button>
-          )}
+  return (
+    <main style={{ minHeight: '100vh', background: '#F4F1E9' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
+
+        <Link href="/jobs" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: '#23211C', marginBottom: 24, textDecoration: 'none', background: '#fff', border: '1px solid #E3DDD0', borderRadius: 10, padding: '8px 16px' }}>
+          ← 공고 목록
+        </Link>
+
+        {/* Header Card */}
+        <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #E3DDD0', padding: '28px 32px', marginBottom: 20, display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+          <div style={{ width: 72, height: 72, borderRadius: 14, overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+            <Image src={jobImg(job.id)} alt={job.title} fill sizes="72px" style={{ objectFit: 'cover' }} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 12, color: '#9A9382', marginBottom: 6 }}>요가스튜디오</p>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#23211C', marginBottom: 12, lineHeight: 1.3 }}>{job.title}</h1>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {job.location && <Tag label={job.location} />}
+              {job.yoga_style && <Tag label={job.yoga_style} />}
+              {job.experience && <Tag label={job.experience} />}
+            </div>
+          </div>
+          <div style={{ flexShrink: 0, textAlign: 'right' }}>
+            {job.salary && (
+              <p style={{ fontSize: 18, fontWeight: 700, color: '#23211C', marginBottom: 8 }}>{job.salary}</p>
+            )}
+            <p style={{ fontSize: 12, color: '#9A9382' }}>
+              {new Date(job.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
+          </div>
         </div>
 
-        {/* 상세 카드 */}
-        <div className="bg-white rounded-3xl border border-stone-100 shadow-sm p-8">
-          <h1 className="text-3xl font-bold text-stone-800 mb-7 leading-snug">{job.title}</h1>
+        {/* 2-col body */}
+        <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
 
-          {/* 기본 정보 */}
-          <div className="grid md:grid-cols-2 gap-4 mb-8 p-6 bg-stone-50 rounded-2xl">
-            <div>
-              <p className="text-xs text-stone-400 font-bold uppercase tracking-widest mb-1">지역</p>
-              <p className="text-base font-semibold text-stone-800">📍 {job.location}</p>
-            </div>
-            <div>
-              <p className="text-xs text-stone-400 font-bold uppercase tracking-widest mb-1">요가 종류</p>
-              <p className="text-base font-semibold text-stone-800">🌿 {job.yoga_style}</p>
-            </div>
-            {job.experience && (
-              <div>
-                <p className="text-xs text-stone-400 font-bold uppercase tracking-widest mb-1">필요 경력</p>
-                <p className="text-base font-semibold text-stone-800">📊 {job.experience}</p>
-              </div>
+          {/* Left: content */}
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+            {job.description && (
+              <section style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 28px' }}>
+                <h2 style={{ fontSize: 15, fontWeight: 700, color: '#23211C', marginBottom: 16 }}>상세 설명</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {descLines.length > 0 ? descLines.map((line, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                      <div style={{ width: 3, height: 16, borderRadius: 2, background: '#C2922F', flexShrink: 0, marginTop: 3 }} />
+                      <p style={{ fontSize: 14, color: '#4A4740', lineHeight: 1.7 }}>{line}</p>
+                    </div>
+                  )) : (
+                    <p style={{ fontSize: 14, color: '#76705F', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{job.description}</p>
+                  )}
+                </div>
+              </section>
             )}
-            {job.salary && (
-              <div>
-                <p className="text-xs text-stone-400 font-bold uppercase tracking-widest mb-1">급여</p>
-                <p className="text-base font-semibold text-stone-800">💰 {job.salary}</p>
+
+            <section style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 28px' }}>
+              <h2 style={{ fontSize: 15, fontWeight: 700, color: '#23211C', marginBottom: 16 }}>근무 조건</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <InfoRow label="근무지역" value={job.location} />
+                <InfoRow label="요가종류" value={job.yoga_style} />
+                <InfoRow label="필요경력" value={job.experience} />
+                <InfoRow label="급여" value={job.salary} />
               </div>
-            )}
+            </section>
           </div>
 
-          {/* 상세 설명 */}
-          {job.description && (
-            <div className="mb-8">
-              <h2 className="text-lg font-bold text-stone-700 mb-3">상세 설명</h2>
-              <p className="text-stone-600 whitespace-pre-wrap leading-relaxed text-sm">
-                {job.description}
-              </p>
+          {/* Right: sticky sidebar */}
+          <div style={{ width: 264, flexShrink: 0, position: 'sticky', top: 88 }}>
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 20px' }}>
+              {job.salary && (
+                <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: '1px solid #E3DDD0' }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 6 }}>급여</p>
+                  <p style={{ fontSize: 20, fontWeight: 700, color: '#23211C' }}>{job.salary}</p>
+                </div>
+              )}
+              <div style={{ marginBottom: 20, paddingBottom: 20, borderBottom: '1px solid #E3DDD0' }}>
+                <p style={{ fontSize: 12, color: '#9A9382', marginBottom: 4 }}>현재 지원자</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C' }}>{applicantCount}명</p>
+              </div>
+              <button onClick={handleApply} disabled={hasApplied} style={{
+                width: '100%', padding: '14px 0', borderRadius: 12, fontSize: 15, fontWeight: 700,
+                background: hasApplied ? '#E3DDD0' : '#23211C',
+                color: hasApplied ? '#9A9382' : '#fff',
+                border: 'none', cursor: hasApplied ? 'not-allowed' : 'pointer', marginBottom: 10,
+              }}>
+                {hasApplied ? '✓ 지원 완료' : '지원하기'}
+              </button>
+              <button onClick={toggleBookmark} style={{
+                width: '100%', padding: '11px 0', borderRadius: 12, fontSize: 14, fontWeight: 600,
+                background: isBookmarked ? '#FDF3E3' : '#F4F1E9',
+                color: isBookmarked ? '#C2922F' : '#76705F',
+                border: `1px solid ${isBookmarked ? '#C2922F' : '#E3DDD0'}`, cursor: 'pointer',
+              }}>
+                {isBookmarked ? '♥ 저장됨' : '♡ 저장하기'}
+              </button>
             </div>
-          )}
-
-          {/* 등록일 */}
-          <div className="border-t border-stone-100 pt-5 mb-6">
-            <p className="text-stone-300 text-xs">
-              등록일: {new Date(job.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </p>
           </div>
-
-          {/* 지원자 수 */}
-          <div className="p-4 bg-emerald-50 rounded-2xl mb-4 text-center">
-            <p className="text-stone-600 text-sm">
-              👥 <span className="font-bold text-green-700">{applicantCount}명</span>이 지원했습니다
-            </p>
-          </div>
-
-          {/* 지원 버튼 */}
-          <button
-            onClick={handleApply}
-            disabled={hasApplied}
-            className={`w-full py-4 rounded-2xl font-semibold text-base transition ${
-              hasApplied
-                ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                : 'bg-green-700 text-white hover:bg-green-800 active:scale-95'
-            }`}
-          >
-            {hasApplied ? '✓ 지원 완료' : '지원하기'}
-          </button>
         </div>
       </div>
 
-      {/* 지원 모달 */}
       {showApplyModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-xl">
-            <h3 className="text-xl font-bold text-stone-800 mb-2">지원하기</h3>
-            <p className="text-stone-500 text-sm mb-5">간단한 메시지를 남겨주세요</p>
-            <textarea
-              value={applyMessage}
-              onChange={(e) => setApplyMessage(e.target.value)}
-              placeholder="자기소개나 지원 동기를 작성해주세요"
-              className="w-full h-32 px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm mb-5 resize-none"
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 16 }}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 32, maxWidth: 440, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#23211C', marginBottom: 6 }}>지원하기</h3>
+            <p style={{ fontSize: 13, color: '#76705F', marginBottom: 20 }}>간단한 메시지를 남겨주세요</p>
+            <textarea value={applyMessage} onChange={e => setApplyMessage(e.target.value)}
+              placeholder="자기소개나 지원 동기를 작성해주세요" rows={4}
+              style={{ width: '100%', padding: '12px 14px', border: '1px solid #E3DDD0', borderRadius: 10, fontSize: 14, color: '#23211C', background: '#F4F1E9', resize: 'none', outline: 'none', boxSizing: 'border-box', marginBottom: 16 }}
             />
-            <div className="flex gap-3">
-              <button
-                onClick={() => { setShowApplyModal(false); setApplyMessage(''); }}
-                className="flex-1 py-3 bg-stone-100 text-stone-600 rounded-xl hover:bg-stone-200 transition font-semibold text-sm"
-              >
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => { setShowApplyModal(false); setApplyMessage(''); }}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, fontSize: 14, fontWeight: 600, background: '#F4F1E9', color: '#76705F', border: 'none', cursor: 'pointer' }}>
                 취소
               </button>
-              <button
-                onClick={submitApplication}
-                className="flex-1 py-3 bg-green-700 text-white rounded-xl hover:bg-green-800 transition font-semibold text-sm"
-              >
+              <button onClick={submitApplication}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, fontSize: 14, fontWeight: 700, background: '#23211C', color: '#fff', border: 'none', cursor: 'pointer' }}>
                 제출
               </button>
             </div>

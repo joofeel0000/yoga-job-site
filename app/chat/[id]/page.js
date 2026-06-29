@@ -124,7 +124,7 @@ export default function ChatRoomPage({ params }) {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20 flex flex-col">
+    <main className="min-h-screen bg-[#F4F1E9] flex flex-col">
       {/* 헤더 */}
       <div className="bg-white border-b border-stone-100 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -166,14 +166,14 @@ export default function ChatRoomPage({ params }) {
                     <div
                       className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
                         isMine
-                          ? 'bg-green-700 text-white'
+                          ? 'bg-[#23211C] text-white'
                           : 'bg-white text-stone-800 border border-stone-200'
                       }`}
                     >
                       <p className="break-words text-sm">{msg.message}</p>
                       <p
                         className={`text-xs mt-1 ${
-                          isMine ? 'text-green-200' : 'text-stone-400'
+                          isMine ? 'text-white/60' : 'text-stone-400'
                         }`}
                       >
                         {formatTime(msg.created_at)}
@@ -197,13 +197,13 @@ export default function ChatRoomPage({ params }) {
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="메시지를 입력하세요..."
-              className="flex-1 px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition text-sm"
+              className="flex-1 px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent transition text-sm"
               disabled={sending}
             />
             <button
               type="submit"
               disabled={!newMessage.trim() || sending}
-              className="px-6 py-3 bg-green-700 text-white rounded-xl hover:bg-green-800 transition disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm"
+              className="px-6 py-3 bg-[#23211C] text-white rounded-xl hover:bg-black transition disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm"
             >
               {sending ? '전송 중...' : '전송'}
             </button>

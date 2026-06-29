@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-const inputClass = "w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition text-sm";
+const inputClass = "w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent transition text-sm";
 const labelClass = "block text-xs font-bold text-stone-500 uppercase tracking-wide mb-2";
 
 export default function PostResume() {
@@ -60,16 +60,16 @@ export default function PostResume() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20">
+      <main className="min-h-screen flex items-center justify-center bg-[#F4F1E9]">
         <div className="text-4xl animate-pulse">🌺</div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20 p-8">
-      <div className="max-w-3xl mx-auto">
-        <Link href="/" className="text-sm text-green-700 hover:text-green-800 font-medium mb-6 inline-block transition-colors">
+    <main className="min-h-screen bg-[#F4F1E9]">
+      <div className="mx-auto" style={{ maxWidth: 720, padding: '32px 24px' }}>
+        <Link href="/" className="text-sm text-[#23211C] hover:text-black font-medium mb-6 inline-block transition-colors">
           ← 홈으로 돌아가기
         </Link>
 
@@ -120,7 +120,7 @@ export default function PostResume() {
             </div>
 
             <button type="submit"
-              className="w-full bg-amber-600 text-white py-4 rounded-2xl font-semibold text-base hover:bg-amber-700 active:scale-95 transition">
+              className="w-full bg-[#23211C] text-white py-4 rounded-2xl font-semibold text-base hover:bg-black active:scale-95 transition">
               이력서 등록하기
             </button>
           </form>

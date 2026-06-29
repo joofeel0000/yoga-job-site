@@ -272,20 +272,39 @@ export default function MyPage() {
   };
 
   return (
-    <main className="min-h-screen p-8 bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+    <main className="min-h-screen bg-[#F4F1E9]">
+      <div className="mx-auto" style={{ maxWidth: 1200, padding: '32px 24px' }}>
+        <div className="bg-white rounded-2xl border border-[#E3DDD0] shadow-sm p-6 mb-6 flex justify-between items-center gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold text-stone-800">마이페이지</h1>
-            <p className="text-stone-500 mt-2">{user?.email}</p>
+            <h1 className="text-2xl font-extrabold text-[#26241D] tracking-[-0.02em]">마이페이지</h1>
+            <p className="text-[#76705F] text-sm mt-1">{user?.email}</p>
           </div>
-          <div className="flex gap-4">
-            <Link href="/profile" className="text-green-700 hover:text-green-800 text-sm font-medium">
+          <div className="flex gap-2 items-center">
+            <Link href="/profile" className="inline-flex items-center px-4 py-2.5 bg-[#23211C] text-white text-sm font-bold rounded-xl hover:bg-black transition">
               프로필 설정 →
             </Link>
-            <Link href="/" className="text-green-700 hover:text-green-800 text-sm font-medium">
+            <Link href="/" className="inline-flex items-center px-4 py-2.5 bg-white text-[#23211C] text-sm font-bold rounded-xl border border-[#E3DDD0] hover:bg-[#EFEBE1] transition">
               ← 홈으로
             </Link>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className="bg-white rounded-2xl border border-[#E3DDD0] p-5">
+            <p className="text-[28px] font-extrabold text-[#23211C] leading-none tracking-[-0.02em]">{myJobs.length}</p>
+            <p className="text-[13px] text-[#76705F] mt-2">내 구인공고</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-[#E3DDD0] p-5">
+            <p className="text-[28px] font-extrabold text-[#23211C] leading-none tracking-[-0.02em]">{myResumes.length}</p>
+            <p className="text-[13px] text-[#76705F] mt-2">내 이력서</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-[#E3DDD0] p-5">
+            <p className="text-[28px] font-extrabold text-[#23211C] leading-none tracking-[-0.02em]">{bookmarkedJobs.length + bookmarkedResumes.length}</p>
+            <p className="text-[13px] text-[#76705F] mt-2">북마크</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-[#E3DDD0] p-5">
+            <p className="text-[28px] font-extrabold text-[#23211C] leading-none tracking-[-0.02em]">{receivedApplications.length + receivedContacts.length}</p>
+            <p className="text-[13px] text-[#76705F] mt-2">받은 지원·연락</p>
           </div>
         </div>
 
@@ -296,7 +315,7 @@ export default function MyPage() {
               onClick={() => setActiveTab('jobs')}
               className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
                 activeTab === 'jobs'
-                  ? 'text-green-700 border-b-2 border-green-700'
+                  ? 'text-[#23211C] border-b-2 border-[#23211C]'
                   : 'text-stone-500 hover:text-stone-700'
               }`}
             >
@@ -306,7 +325,7 @@ export default function MyPage() {
               onClick={() => setActiveTab('resumes')}
               className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
                 activeTab === 'resumes'
-                  ? 'text-amber-600 border-b-2 border-amber-600'
+                  ? 'text-[#23211C] border-b-2 border-[#23211C]'
                   : 'text-stone-500 hover:text-stone-700'
               }`}
             >
@@ -316,7 +335,7 @@ export default function MyPage() {
               onClick={() => setActiveTab('bookmarks')}
               className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
                 activeTab === 'bookmarks'
-                  ? 'text-yellow-600 border-b-2 border-yellow-600'
+                  ? 'text-[#23211C] border-b-2 border-[#23211C]'
                   : 'text-stone-500 hover:text-stone-700'
               }`}
             >
@@ -326,7 +345,7 @@ export default function MyPage() {
               onClick={() => setActiveTab('applications')}
               className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
                 activeTab === 'applications'
-                  ? 'text-emerald-600 border-b-2 border-emerald-600'
+                  ? 'text-[#23211C] border-b-2 border-[#23211C]'
                   : 'text-stone-500 hover:text-stone-700'
               }`}
             >
@@ -336,7 +355,7 @@ export default function MyPage() {
               onClick={() => setActiveTab('received')}
               className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
                 activeTab === 'received'
-                  ? 'text-emerald-600 border-b-2 border-emerald-600'
+                  ? 'text-[#23211C] border-b-2 border-[#23211C]'
                   : 'text-stone-500 hover:text-stone-700'
               }`}
             >
@@ -356,7 +375,7 @@ export default function MyPage() {
             <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
               <p className="text-stone-400 mb-4 text-sm">등록한 구인 공고가 없습니다</p>
               <Link href="/post-job">
-                <button className="px-6 py-3 bg-green-700 text-white rounded-full hover:bg-green-800 transition text-sm font-semibold">
+                <button className="px-6 py-3 bg-[#23211C] text-white rounded-full hover:bg-black transition text-sm font-semibold">
                   구인 공고 등록하기
                 </button>
               </Link>
@@ -388,7 +407,7 @@ export default function MyPage() {
                         </div>
                         <div className="flex gap-2 flex-wrap">
                           <Link href={`/jobs/${job.id}`}>
-                            <button className="px-4 py-2 bg-green-700 text-white rounded-full hover:bg-green-800 transition whitespace-nowrap text-sm font-semibold">
+                            <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
                               보기
                             </button>
                           </Link>
@@ -421,7 +440,7 @@ export default function MyPage() {
                                     alert('연장 실패: ' + error);
                                   }
                                 }}
-                                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition whitespace-nowrap"
+                                className="px-4 py-2 bg-[#ECE9E1]0 text-white rounded-lg hover:bg-[#23211C] transition whitespace-nowrap"
                               >
                                 연장
                               </button>
@@ -437,7 +456,7 @@ export default function MyPage() {
                                   alert('다시 열기 실패: ' + error);
                                 }
                               }}
-                              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition whitespace-nowrap"
+                              className="px-4 py-2 bg-[#ECE9E1]0 text-white rounded-lg hover:bg-[#23211C] transition whitespace-nowrap"
                             >
                               다시 열기
                             </button>
@@ -462,7 +481,7 @@ export default function MyPage() {
             <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
               <p className="text-stone-400 mb-4 text-sm">등록한 이력서가 없습니다</p>
               <Link href="/post-resume">
-                <button className="px-6 py-3 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition text-sm font-semibold">
+                <button className="px-6 py-3 bg-[#23211C] text-white rounded-full hover:bg-black transition text-sm font-semibold">
                   이력서 등록하기
                 </button>
               </Link>
@@ -493,7 +512,7 @@ export default function MyPage() {
                         </div>
                         <div className="flex gap-2 flex-wrap">
                           <Link href={`/resumes/${resume.id}`}>
-                            <button className="px-4 py-2 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition whitespace-nowrap text-sm font-semibold">
+                            <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
                               보기
                             </button>
                           </Link>
@@ -526,7 +545,7 @@ export default function MyPage() {
                                     alert('연장 실패: ' + error);
                                   }
                                 }}
-                                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition whitespace-nowrap"
+                                className="px-4 py-2 bg-[#ECE9E1]0 text-white rounded-lg hover:bg-[#23211C] transition whitespace-nowrap"
                               >
                                 연장
                               </button>
@@ -542,7 +561,7 @@ export default function MyPage() {
                                   alert('다시 열기 실패: ' + error);
                                 }
                               }}
-                              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition whitespace-nowrap"
+                              className="px-4 py-2 bg-[#ECE9E1]0 text-white rounded-lg hover:bg-[#23211C] transition whitespace-nowrap"
                             >
                               다시 열기
                             </button>
@@ -584,7 +603,7 @@ export default function MyPage() {
                             </div>
                           </div>
                           <Link href={`/jobs/${job.id}`}>
-                            <button className="px-4 py-2 bg-green-700 text-white rounded-full hover:bg-green-800 transition text-sm font-semibold">
+                            <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition text-sm font-semibold">
                               보기
                             </button>
                           </Link>
@@ -616,7 +635,7 @@ export default function MyPage() {
                             </div>
                           </div>
                           <Link href={`/resumes/${resume.id}`}>
-                            <button className="px-4 py-2 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition text-sm font-semibold">
+                            <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition text-sm font-semibold">
                               보기
                             </button>
                           </Link>
@@ -647,7 +666,7 @@ export default function MyPage() {
                               <h3 className="text-lg font-bold text-stone-800">
                                 {app.job?.title || '삭제된 공고'}
                               </h3>
-                              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                              <span className="px-3 py-1 bg-[#EAE7DE] text-[#23211C] rounded-full text-xs font-semibold">
                                 지원 완료
                               </span>
                             </div>
@@ -667,7 +686,7 @@ export default function MyPage() {
                           </div>
                           {app.job && (
                             <Link href={`/jobs/${app.job.id}`}>
-                              <button className="px-4 py-2 bg-green-700 text-white rounded-full hover:bg-green-800 transition whitespace-nowrap text-sm font-semibold">
+                              <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
                                 공고 보기
                               </button>
                             </Link>
@@ -697,7 +716,7 @@ export default function MyPage() {
                               <h3 className="text-lg font-bold text-stone-800">
                                 {contact.candidate?.name || '삭제된 이력서'}
                               </h3>
-                              <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">
+                              <span className="px-3 py-1 bg-[#EAE7DE] text-[#23211C] rounded-full text-xs font-semibold">
                                 연락 완료
                               </span>
                             </div>
@@ -717,7 +736,7 @@ export default function MyPage() {
                           </div>
                           {contact.candidate && (
                             <Link href={`/resumes/${contact.candidate.id}`}>
-                              <button className="px-4 py-2 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition whitespace-nowrap text-sm font-semibold">
+                              <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
                                 이력서 보기
                               </button>
                             </Link>
@@ -746,14 +765,14 @@ export default function MyPage() {
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                              <span className="px-3 py-1 bg-[#EAE7DE] text-[#23211C] rounded-full text-xs font-semibold">
                                 새 지원!
                               </span>
                               <h3 className="text-lg font-bold text-stone-800">
                                 {app.job?.title || '삭제된 공고'}
                               </h3>
                             </div>
-                            <div className="bg-emerald-50 p-4 rounded-xl mb-3">
+                            <div className="bg-[#F0ECE2] p-4 rounded-xl mb-3">
                               <p className="text-xs font-bold text-stone-400 uppercase tracking-wide mb-1">지원자 메시지</p>
                               <p className="text-sm text-stone-600">{app.message || '메시지 없음'}</p>
                             </div>
@@ -763,7 +782,7 @@ export default function MyPage() {
                           </div>
                           {app.job && (
                             <Link href={`/jobs/${app.job.id}`}>
-                              <button className="px-4 py-2 bg-green-700 text-white rounded-full hover:bg-green-800 transition whitespace-nowrap text-sm font-semibold">
+                              <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
                                 공고 보기
                               </button>
                             </Link>
@@ -790,14 +809,14 @@ export default function MyPage() {
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">
+                              <span className="px-3 py-1 bg-[#EAE7DE] text-[#23211C] rounded-full text-xs font-semibold">
                                 새 연락!
                               </span>
                               <h3 className="text-lg font-bold text-stone-800">
                                 {contact.candidate?.name || '삭제된 이력서'}
                               </h3>
                             </div>
-                            <div className="bg-amber-50 p-4 rounded-xl mb-3">
+                            <div className="bg-[#F0ECE2] p-4 rounded-xl mb-3">
                               <p className="text-xs font-bold text-stone-400 uppercase tracking-wide mb-1">채용자 메시지</p>
                               <p className="text-sm text-stone-600">{contact.message || '메시지 없음'}</p>
                             </div>
@@ -807,7 +826,7 @@ export default function MyPage() {
                           </div>
                           {contact.candidate && (
                             <Link href={`/resumes/${contact.candidate.id}`}>
-                              <button className="px-4 py-2 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition whitespace-nowrap text-sm font-semibold">
+                              <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
                                 이력서 보기
                               </button>
                             </Link>

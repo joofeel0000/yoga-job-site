@@ -197,7 +197,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen p-8 bg-gray-50">
+      <main className="min-h-screen p-8 bg-[#F4F1E9]">
         <div className="max-w-4xl mx-auto">
           <p className="text-center text-gray-500 py-20">로딩 중...</p>
         </div>
@@ -206,7 +206,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="min-h-screen p-8 bg-gray-50">
+    <main className="min-h-screen p-8 bg-[#F4F1E9]">
       <div className="max-w-4xl mx-auto">
         {/* 헤더 */}
         <div className="flex justify-between items-center mb-6">
@@ -214,7 +214,7 @@ export default function ProfilePage() {
             <h1 className="text-3xl font-bold text-gray-800">프로필 설정</h1>
             <p className="text-gray-600 mt-2">{user?.email}</p>
           </div>
-          <Link href="/mypage" className="text-purple-600 hover:underline">
+          <Link href="/mypage" className="text-[#23211C] hover:underline">
             ← 마이페이지
           </Link>
         </div>
@@ -247,7 +247,7 @@ export default function ProfilePage() {
                   />
                   <label
                     htmlFor="avatar-upload"
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 cursor-pointer inline-block"
+                    className="px-4 py-2 bg-[#23211C] text-white rounded-lg hover:bg-black cursor-pointer inline-block"
                   >
                     사진 업로드
                   </label>
@@ -268,7 +268,7 @@ export default function ProfilePage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="이름을 입력하세요"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-stone-50 border border-[#E3DDD0] rounded-xl text-[#29271F] focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent"
               />
             </div>
 
@@ -282,7 +282,7 @@ export default function ProfilePage() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="010-1234-5678"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-stone-50 border border-[#E3DDD0] rounded-xl text-[#29271F] focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent"
               />
             </div>
 
@@ -295,7 +295,7 @@ export default function ProfilePage() {
                 type="email"
                 value={user?.email || ''}
                 disabled
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500"
+                className="w-full px-4 py-3 bg-stone-50 border border-[#E3DDD0] rounded-xl text-[#29271F] bg-gray-100 text-gray-500"
               />
               <p className="text-xs text-gray-500 mt-1">이메일은 변경할 수 없습니다</p>
             </div>
@@ -304,7 +304,7 @@ export default function ProfilePage() {
             <button
               onClick={handleSaveProfile}
               disabled={saving}
-              className="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-semibold disabled:bg-gray-400"
+              className="w-full py-3 bg-[#23211C] text-white rounded-lg hover:bg-black transition font-semibold disabled:bg-gray-400"
             >
               {saving ? '저장 중...' : '저장'}
             </button>
@@ -326,7 +326,7 @@ export default function ProfilePage() {
                   onChange={(e) => setEmailNotifications(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#CFC9BB] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#23211C]"></div>
               </label>
             </div>
           </div>
@@ -374,7 +374,7 @@ export default function ProfilePage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="새 비밀번호 (6자 이상)"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-stone-50 border border-[#E3DDD0] rounded-xl text-[#29271F] focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent"
                 />
               </div>
 
@@ -387,7 +387,7 @@ export default function ProfilePage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="비밀번호 확인"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-stone-50 border border-[#E3DDD0] rounded-xl text-[#29271F] focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent"
                 />
               </div>
 
@@ -404,7 +404,7 @@ export default function ProfilePage() {
                 </button>
                 <button
                   onClick={handleChangePassword}
-                  className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                  className="flex-1 px-6 py-3 bg-[#23211C] text-white rounded-lg hover:bg-black transition"
                 >
                   변경
                 </button>

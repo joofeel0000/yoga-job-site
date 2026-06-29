@@ -28,20 +28,20 @@ export default function ResetPassword() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-purple-50 to-white">
+    <main className="min-h-screen flex items-center justify-center p-8 bg-[#F4F1E9]">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">
+        <div className="bg-white rounded-2xl border border-[#E3DDD0] shadow-sm p-8">
+          <h1 className="text-2xl font-extrabold text-[#26241D] mb-2 text-center tracking-[-0.02em]">
             비밀번호 찾기
           </h1>
-          <p className="text-gray-600 mb-8 text-center">
+          <p className="text-[#76705F] text-sm mb-8 text-center">
             가입한 이메일을 입력하시면 비밀번호 재설정 링크를 보내드립니다
           </p>
 
           {!sent ? (
             <form onSubmit={handleReset} className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-[13px] font-bold text-[#3A3830] mb-2">
                   이메일
                 </label>
                 <input
@@ -49,7 +49,7 @@ export default function ResetPassword() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="example@email.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-stone-50 border border-[#E3DDD0] rounded-xl text-[#29271F] placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent transition text-sm"
                   required
                 />
               </div>
@@ -57,25 +57,25 @@ export default function ResetPassword() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition disabled:bg-gray-400"
+                className="w-full bg-[#23211C] text-white py-3.5 rounded-xl font-bold text-base hover:bg-black transition disabled:opacity-50"
               >
                 {loading ? '전송 중...' : '재설정 링크 보내기'}
               </button>
             </form>
           ) : (
             <div className="text-center py-8">
-              <div className="text-green-600 text-5xl mb-4">✓</div>
-              <p className="text-gray-700 mb-4">
+              <div className="w-14 h-14 rounded-full bg-[#EAE7DE] text-[#23211C] text-2xl flex items-center justify-center mx-auto mb-4">✓</div>
+              <p className="text-[#3A3830] font-semibold mb-2">
                 이메일을 전송했습니다!
               </p>
-              <p className="text-gray-600 text-sm">
+              <p className="text-[#76705F] text-sm">
                 이메일 함을 확인하고 링크를 클릭하여 비밀번호를 재설정하세요.
               </p>
             </div>
           )}
 
           <div className="mt-6 text-center">
-            <Link href="/login" className="text-purple-600 hover:underline">
+            <Link href="/login" className="text-[#76705F] hover:text-[#23211C] text-sm transition-colors">
               ← 로그인으로 돌아가기
             </Link>
           </div>

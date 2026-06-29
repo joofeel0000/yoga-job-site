@@ -187,15 +187,15 @@ export default function Admin() {
   const thClass    = "px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wide";
   const tdClass    = "px-6 py-4 text-sm text-stone-800";
   const tdSubClass = "px-6 py-4 text-sm text-stone-500";
-  const inputClass = "w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition text-sm";
+  const inputClass = "w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent transition text-sm";
   const labelClass = "block text-xs font-bold text-stone-500 uppercase tracking-wide mb-1";
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20 p-8">
+    <main className="min-h-screen bg-[#F4F1E9] p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-stone-800">관리자 페이지</h1>
-          <Link href="/" className="text-green-700 hover:text-green-800 font-medium text-sm transition-colors">
+          <Link href="/" className="text-[#23211C] hover:text-black font-medium text-sm transition-colors">
             ← 홈으로
           </Link>
         </div>
@@ -204,19 +204,19 @@ export default function Admin() {
         <div className="bg-white rounded-2xl border border-stone-100 shadow-sm mb-6">
           <div className="flex border-b border-stone-100">
             <button onClick={() => setActiveTab('jobs')}
-              className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'jobs' ? 'text-green-700 border-b-2 border-green-700' : 'text-stone-500 hover:text-stone-700'}`}>
+              className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'jobs' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
               구인 공고 ({jobs.length})
             </button>
             <button onClick={() => setActiveTab('resumes')}
-              className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'resumes' ? 'text-amber-600 border-b-2 border-amber-600' : 'text-stone-500 hover:text-stone-700'}`}>
+              className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'resumes' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
               이력서 ({resumes.length})
             </button>
             <button onClick={() => setActiveTab('users')}
-              className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'users' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-stone-500 hover:text-stone-700'}`}>
+              className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'users' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
               회원 관리 ({users.length})
             </button>
             <button onClick={() => setActiveTab('banners')}
-              className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'banners' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-stone-500 hover:text-stone-700'}`}>
+              className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'banners' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
               배너 광고 ({banners.length})
             </button>
           </div>
@@ -254,7 +254,7 @@ export default function Admin() {
                       <td className={tdSubClass}>{new Date(job.created_at).toLocaleDateString('ko-KR')}</td>
                       <td className="px-6 py-4 text-center space-x-2">
                         <Link href={`/jobs/${job.id}`}>
-                          <button className="px-3 py-1 bg-green-700 text-white text-xs rounded-full hover:bg-green-800 transition font-semibold">보기</button>
+                          <button className="px-3 py-1 bg-[#23211C] text-white text-xs rounded-full hover:bg-black transition font-semibold">보기</button>
                         </Link>
                         <button onClick={() => deleteJob(job.id)}
                           className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">삭제</button>
@@ -294,7 +294,7 @@ export default function Admin() {
                       <td className={tdSubClass}>{new Date(resume.created_at).toLocaleDateString('ko-KR')}</td>
                       <td className="px-6 py-4 text-center space-x-2">
                         <Link href={`/resumes/${resume.id}`}>
-                          <button className="px-3 py-1 bg-amber-600 text-white text-xs rounded-full hover:bg-amber-700 transition font-semibold">보기</button>
+                          <button className="px-3 py-1 bg-[#23211C] text-white text-xs rounded-full hover:bg-black transition font-semibold">보기</button>
                         </Link>
                         <button onClick={() => deleteResume(resume.id)}
                           className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">삭제</button>
@@ -356,7 +356,7 @@ export default function Admin() {
 
             {/* 등록/수정 폼 */}
             {showBannerForm && (
-              <div className="bg-white rounded-2xl border border-purple-100 shadow-sm p-6">
+              <div className="bg-white rounded-2xl border border-[#E3DDD0] shadow-sm p-6">
                 <h2 className="text-base font-bold text-stone-800 mb-5">
                   {editingBannerId ? '배너 수정' : '새 배너 등록'}
                 </h2>
@@ -437,7 +437,7 @@ export default function Admin() {
                     <input type="checkbox" id="is_active"
                       checked={bannerForm.is_active}
                       onChange={(e) => setBannerForm(f => ({ ...f, is_active: e.target.checked }))}
-                      className="w-4 h-4 accent-purple-600" />
+                      className="w-4 h-4 accent-[#23211C]" />
                     <label htmlFor="is_active" className="text-sm font-medium text-stone-700">활성화</label>
                   </div>
                 </div>
@@ -458,7 +458,7 @@ export default function Admin() {
                     취소
                   </button>
                   <button onClick={saveBanner}
-                    className="px-5 py-2 bg-purple-600 text-white text-sm rounded-full hover:bg-purple-700 transition font-semibold">
+                    className="px-5 py-2 bg-[#23211C] text-white text-sm rounded-full hover:bg-black transition font-semibold">
                     {editingBannerId ? '수정 저장' : '등록하기'}
                   </button>
                 </div>
@@ -471,7 +471,7 @@ export default function Admin() {
                 <p className="text-sm font-semibold text-stone-700">배너 목록</p>
                 {!showBannerForm && (
                   <button onClick={startNewBanner}
-                    className="px-4 py-2 bg-purple-600 text-white text-xs rounded-full hover:bg-purple-700 transition font-semibold">
+                    className="px-4 py-2 bg-[#23211C] text-white text-xs rounded-full hover:bg-black transition font-semibold">
                     + 새 배너 등록
                   </button>
                 )}
@@ -507,13 +507,13 @@ export default function Admin() {
                             </div>
                           </td>
                           <td className={tdSubClass}>
-                            <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium whitespace-nowrap">
+                            <span className="px-2 py-1 bg-[#EAE7DE] text-[#23211C] rounded-full text-xs font-medium whitespace-nowrap">
                               {POSITION_LABELS[banner.position] || banner.position}
                             </span>
                           </td>
                           <td className="px-6 py-4">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                              banner.is_active ? 'bg-green-100 text-green-700' : 'bg-stone-100 text-stone-500'
+                              banner.is_active ? 'bg-[#EAE7DE] text-[#23211C]' : 'bg-stone-100 text-stone-500'
                             }`}>
                               {banner.is_active ? '활성' : '비활성'}
                             </span>
@@ -537,12 +537,12 @@ export default function Admin() {
                               className={`px-3 py-1 text-white text-xs rounded-full transition font-semibold ${
                                 banner.is_active
                                   ? 'bg-stone-400 hover:bg-stone-500'
-                                  : 'bg-green-600 hover:bg-green-700'
+                                  : 'bg-[#23211C] hover:bg-[#23211C]'
                               }`}>
                               {banner.is_active ? '비활성화' : '활성화'}
                             </button>
                             <button onClick={() => startEditBanner(banner)}
-                              className="px-3 py-1 bg-purple-600 text-white text-xs rounded-full hover:bg-purple-700 transition font-semibold">
+                              className="px-3 py-1 bg-[#23211C] text-white text-xs rounded-full hover:bg-black transition font-semibold">
                               수정
                             </button>
                             <button onClick={() => deleteBanner(banner.id)}

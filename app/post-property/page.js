@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-const inputClass = "w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition text-sm";
+const inputClass = "w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent transition text-sm";
 const labelClass = "block text-xs font-bold text-stone-500 uppercase tracking-wide mb-2";
 
 export default function PostProperty() {
@@ -66,22 +66,22 @@ export default function PostProperty() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-stone-50 to-emerald-50/20 flex items-center justify-center">
+      <main className="min-h-screen bg-[#F4F1E9] flex items-center justify-center">
         <p className="text-stone-400">로딩 중...</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20">
-      <div className="max-w-2xl mx-auto px-8 py-10">
+    <main className="min-h-screen bg-[#F4F1E9]">
+      <div className="mx-auto" style={{ maxWidth: 720, padding: '32px 24px' }}>
 
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-stone-800 tracking-tight">매물 등록</h1>
             <p className="text-stone-400 text-sm mt-1">요가 스튜디오 매물 정보를 등록하세요</p>
           </div>
-          <Link href="/property" className="text-sm text-green-700 hover:text-green-800 font-medium transition-colors">
+          <Link href="/property" className="text-sm text-[#23211C] hover:text-black font-medium transition-colors">
             ← 목록으로
           </Link>
         </div>
@@ -98,7 +98,7 @@ export default function PostProperty() {
                   onClick={() => setFormData({ ...formData, property_type: t })}
                   className={`flex-1 py-3 rounded-xl text-sm font-semibold transition ${
                     formData.property_type === t
-                      ? 'bg-green-700 text-white'
+                      ? 'bg-[#23211C] text-white'
                       : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                   }`}
                 >
@@ -181,7 +181,7 @@ export default function PostProperty() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-4 bg-green-700 text-white font-bold rounded-2xl hover:bg-green-800 active:scale-95 transition disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full py-4 bg-[#23211C] text-white font-bold rounded-2xl hover:bg-black active:scale-95 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {submitting ? '등록 중...' : '매물 등록하기'}
           </button>

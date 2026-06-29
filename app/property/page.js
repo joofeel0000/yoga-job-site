@@ -3,13 +3,21 @@
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const PROPERTY_TYPES = ['전체', '임대', '매매', '양도'];
 
+const STUDIO_IMGS = [
+  'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&auto=format&fit=crop&q=80',
+];
+
 const typeColor = {
-  '임대': 'bg-blue-100 text-blue-700',
-  '매매': 'bg-emerald-100 text-emerald-700',
-  '양도': 'bg-amber-100 text-amber-700',
+  '임대': 'bg-[#EAE7DE] text-[#5E5848]',
+  '매매': 'bg-[#EAE7DE] text-[#5E5848]',
+  '양도': 'bg-[#23211C] text-white',
 };
 
 export default function PropertyPage() {
@@ -44,22 +52,19 @@ export default function PropertyPage() {
   });
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20">
-      <div className="max-w-6xl mx-auto px-8 py-10">
+    <main className="min-h-screen bg-[#F4F1E9]">
+      <div className="mx-auto" style={{ maxWidth: 1200, padding: '32px 24px' }}>
 
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-end mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-stone-800 tracking-tight">요가 매물 정보</h1>
-            <p className="text-stone-400 text-sm mt-1">요가 스튜디오 임대·매매·양도 정보를 확인하세요</p>
+            <h1 style={{ fontSize: 26, fontWeight: 700, color: '#23211C', marginBottom: 4 }}>요가 매물 정보</h1>
+            <p style={{ fontSize: 14, color: '#9A9382' }}>요가 스튜디오 임대·매매·양도 정보를 확인하세요</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
             <Link href="/post-property">
-              <button className="px-5 py-2.5 bg-green-700 text-white text-sm font-semibold rounded-full hover:bg-green-800 transition">
+              <button className="px-5 py-2.5 bg-[#23211C] text-white text-sm font-semibold rounded-full hover:bg-black transition">
                 + 매물 등록
               </button>
-            </Link>
-            <Link href="/" className="text-sm text-green-700 hover:text-green-800 font-medium transition-colors self-center">
-              ← 홈으로
             </Link>
           </div>
         </div>
@@ -73,7 +78,7 @@ export default function PropertyPage() {
                 placeholder="제목, 지역으로 검색..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition text-sm"
+                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent transition text-sm"
               />
             </div>
             <div>
@@ -85,7 +90,7 @@ export default function PropertyPage() {
                     onClick={() => setFilterType(t)}
                     className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
                       filterType === t
-                        ? 'bg-green-700 text-white'
+                        ? 'bg-[#23211C] text-white'
                         : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                     }`}
                   >
@@ -107,26 +112,43 @@ export default function PropertyPage() {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filtered.map((p) => (
+            {filtered.map((p, i) => (
               <Link key={p.id} href={`/property/${p.id}`}>
-                <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-6 hover:shadow-md hover:border-green-200 transition cursor-pointer h-full">
-                  <div className="flex justify-between items-start mb-3">
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${typeColor[p.property_type] || 'bg-stone-100 text-stone-600'}`}>
+                <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden hover:shadow-md hover:border-stone-300 transition cursor-pointer h-full">
+                  {/* thumbnail */}
+                  <div style={{ position: 'relative', height: 160 }}>
+                    <Image
+                      src={STUDIO_IMGS[i % STUDIO_IMGS.length]}
+                      alt={p.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 400px"
+                      style={{ objectFit: 'cover' }}
+                    />
+                    <span style={{
+                      position: 'absolute', top: 10, left: 10,
+                      fontSize: 11, fontWeight: 700,
+                      background: '#23211C', color: '#fff',
+                      padding: '3px 8px', borderRadius: 5,
+                    }}>
                       {p.property_type}
                     </span>
-                    <span className="text-xs text-stone-400">
-                      {new Date(p.created_at).toLocaleDateString('ko-KR')}
-                    </span>
                   </div>
-                  <h3 className="font-bold text-stone-800 text-base mb-2 line-clamp-2">{p.title}</h3>
-                  <div className="space-y-1 text-sm text-stone-500">
-                    {p.location && <div>📍 {p.location}</div>}
-                    {p.area && <div>📐 {p.area}</div>}
-                    {p.price && <div className="text-green-700 font-semibold">💰 {p.price}</div>}
+                  <div className="p-5">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-bold text-stone-800 text-base line-clamp-1 flex-1 mr-2">{p.title}</h3>
+                      <span className="text-xs text-stone-400 shrink-0">
+                        {new Date(p.created_at).toLocaleDateString('ko-KR')}
+                      </span>
+                    </div>
+                    <div className="space-y-1 text-sm text-stone-500">
+                      {p.location && <div>📍 {p.location}</div>}
+                      {p.area && <div>📐 {p.area}</div>}
+                      {p.price && <div className="text-stone-800 font-semibold">💰 {p.price}</div>}
+                    </div>
+                    {p.description && (
+                      <p className="text-xs text-stone-400 mt-2 line-clamp-2">{p.description}</p>
+                    )}
                   </div>
-                  {p.description && (
-                    <p className="text-xs text-stone-400 mt-3 line-clamp-2">{p.description}</p>
-                  )}
                 </div>
               </Link>
             ))}

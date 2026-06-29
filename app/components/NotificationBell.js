@@ -85,7 +85,7 @@ export default function NotificationBell() {
       {/* 알림 벨 아이콘 */}
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 text-stone-500 hover:text-green-700 transition-colors"
+        className="relative p-2 text-stone-500 hover:text-[#23211C] transition-colors"
       >
         <svg
           className="w-6 h-6"
@@ -126,7 +126,7 @@ export default function NotificationBell() {
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="text-xs text-green-700 hover:text-green-800 font-semibold"
+                  className="text-xs text-[#23211C] hover:text-black font-semibold"
                 >
                   모두 읽음
                 </button>
@@ -149,13 +149,13 @@ export default function NotificationBell() {
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
                     className={`p-4 hover:bg-stone-50 cursor-pointer transition ${
-                      !notification.is_read ? 'bg-emerald-50' : ''
+                      !notification.is_read ? 'bg-[#F0ECE2]' : ''
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       {/* 아이콘 */}
                       <div className={`flex-shrink-0 w-2 h-2 mt-2 rounded-full ${
-                        !notification.is_read ? 'bg-green-600' : 'bg-stone-300'
+                        !notification.is_read ? 'bg-[#23211C]' : 'bg-stone-300'
                       }`} />
 
                       {/* 내용 */}
@@ -188,7 +188,7 @@ export default function NotificationBell() {
                 <Link
                   href="/mypage?tab=received"
                   onClick={() => setShowDropdown(false)}
-                  className="text-sm text-green-700 hover:text-green-800 font-semibold"
+                  className="text-sm text-[#23211C] hover:text-black font-semibold"
                 >
                   모든 알림 보기
                 </Link>

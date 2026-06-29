@@ -69,7 +69,7 @@ export default function UpdatePassword() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-purple-50 to-white">
+    <main className="min-h-screen flex items-center justify-center p-8 bg-[#F4F1E9]">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">
@@ -89,7 +89,7 @@ export default function UpdatePassword() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="6자 이상"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-stone-50 border border-[#E3DDD0] rounded-xl text-[#29271F] focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent"
                 required
               />
             </div>
@@ -103,7 +103,7 @@ export default function UpdatePassword() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="비밀번호 재입력"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-stone-50 border border-[#E3DDD0] rounded-xl text-[#29271F] focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent"
                 required
               />
             </div>
@@ -111,7 +111,7 @@ export default function UpdatePassword() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition disabled:bg-gray-400"
+              className="w-full bg-[#23211C] text-white py-3.5 rounded-xl font-bold hover:bg-black transition disabled:opacity-50"
             >
               {loading ? '변경 중...' : '비밀번호 변경'}
             </button>

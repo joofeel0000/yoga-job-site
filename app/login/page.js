@@ -5,16 +5,27 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-const inputClass = "w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition text-sm";
-const labelClass = "block text-xs font-bold text-stone-500 uppercase tracking-wide mb-2";
+function LogoMark({ size = 32 }) {
+  const leafSize = Math.round(size * 0.5);
+  return (
+    <div style={{ position: 'relative', width: size, height: size }}>
+      <div style={{ width: size, height: size, borderRadius: '50%', background: '#23211C' }} />
+      <div style={{
+        position: 'absolute', bottom: Math.round(size * 0.1), right: Math.round(size * 0.1),
+        width: leafSize, height: leafSize, background: '#CFC9BB',
+        borderRadius: '50% 50% 50% 0', transform: 'rotate(-45deg)',
+      }} />
+    </div>
+  );
+}
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -28,62 +39,76 @@ function LoginForm() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-
     if (error) {
       if (error.message.includes('Invalid login credentials')) alert('이메일 또는 비밀번호가 맞지 않습니다.');
-      else if (error.message.includes('Email not confirmed')) alert('이메일 인증이 필요합니다. 이메일을 확인해주세요.');
-      else if (error.message.includes('User not found')) alert('가입되지 않은 이메일입니다.');
+      else if (error.message.includes('Email not confirmed')) alert('이메일 인증이 필요합니다.');
       else alert('로그인에 실패했습니다. 다시 시도해주세요.');
     } else {
-      alert('로그인 성공!');
       router.push(redirect ? `/${redirect}` : '/');
     }
-
     setLoading(false);
   };
 
+  const inputStyle = {
+    width: '100%', padding: '13px 16px', border: '1px solid #E3DDD0', borderRadius: 10,
+    fontSize: 14, color: '#23211C', background: '#F4F1E9', outline: 'none', boxSizing: 'border-box',
+  };
+
   return (
-    <main className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <span className="text-4xl">🌿</span>
-          <p className="text-stone-400 text-sm mt-2">요가 구인구직 플랫폼</p>
+    <main style={{ minHeight: '100vh', background: '#F4F1E9', paddingTop: 68, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '68px 16px 40px' }}>
+      <div style={{ width: '100%', maxWidth: 420 }}>
+
+        {/* Logo */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 32 }}>
+          <LogoMark size={48} />
+          <span style={{ fontSize: 20, fontWeight: 800, color: '#23211C', marginTop: 10, letterSpacing: '-0.02em' }}>요가잡</span>
         </div>
 
-        <div className="bg-white rounded-3xl border border-stone-100 shadow-sm p-8">
-          <h1 className="text-2xl font-bold text-stone-800 mb-1 text-center">로그인</h1>
-          <p className="text-stone-400 text-sm mb-8 text-center">반갑습니다, 다시 오셨군요</p>
+        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E3DDD0', padding: '36px 32px', boxShadow: '0 4px 24px rgba(30,28,24,0.06)' }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#23211C', textAlign: 'center', marginBottom: 6 }}>
+            다시 오신 걸 환영해요
+          </h1>
+          <p style={{ fontSize: 14, color: '#9A9382', textAlign: 'center', marginBottom: 28 }}>요가잡 계정으로 로그인하세요</p>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label className={labelClass}>이메일</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@email.com" className={inputClass} required />
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#76705F', display: 'block', marginBottom: 7 }}>이메일</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="example@email.com" required style={inputStyle} />
             </div>
             <div>
-              <label className={labelClass}>비밀번호</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••" className={inputClass} required />
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#76705F', display: 'block', marginBottom: 7 }}>비밀번호</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••" required style={inputStyle} />
             </div>
-            <button type="submit" disabled={loading}
-              className="w-full bg-green-700 text-white py-3 rounded-2xl font-semibold hover:bg-green-800 transition disabled:bg-stone-300 active:scale-95 mt-2">
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', fontSize: 13, color: '#76705F' }}>
+                <input type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)}
+                  style={{ width: 15, height: 15, accentColor: '#23211C' }} />
+                로그인 상태 유지
+              </label>
+              <Link href="/reset-password" style={{ fontSize: 13, color: '#9A9382', textDecoration: 'none' }}>
+                비밀번호 찾기
+              </Link>
+            </div>
+
+            <button type="submit" disabled={loading} style={{
+              width: '100%', padding: '14px 0', borderRadius: 12, fontSize: 15, fontWeight: 700,
+              background: loading ? '#E3DDD0' : '#23211C', color: loading ? '#9A9382' : '#fff',
+              border: 'none', cursor: loading ? 'not-allowed' : 'pointer', marginTop: 4,
+            }}>
               {loading ? '로그인 중...' : '로그인'}
             </button>
           </form>
 
-          <div className="mt-6 space-y-3 text-center">
-            <p className="text-stone-500 text-sm">
-              계정이 없으신가요?{' '}
-              <Link href="/signup" className="text-green-700 hover:text-green-800 font-semibold">회원가입</Link>
+          <div style={{ marginTop: 24, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <p style={{ fontSize: 14, color: '#76705F' }}>
+              아직 계정이 없으신가요?{' '}
+              <Link href="/signup" style={{ color: '#23211C', fontWeight: 700, textDecoration: 'none' }}>회원가입</Link>
             </p>
-            <Link href="/reset-password" className="block text-stone-400 hover:text-stone-500 text-xs">
-              비밀번호를 잊으셨나요?
-            </Link>
-            <Link href="/" className="block text-stone-400 hover:text-stone-500 text-xs">
-              ← 홈으로 돌아가기
-            </Link>
+            <Link href="/" style={{ fontSize: 13, color: '#9A9382', textDecoration: 'none' }}>← 홈으로 돌아가기</Link>
           </div>
         </div>
       </div>
@@ -94,8 +119,8 @@ function LoginForm() {
 export default function Login() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen flex items-center justify-center bg-stone-50">
-        <div className="text-4xl animate-pulse">🌿</div>
+      <main style={{ minHeight: '100vh', background: '#F4F1E9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: '#9A9382' }}>로딩 중...</p>
       </main>
     }>
       <LoginForm />

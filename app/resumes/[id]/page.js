@@ -4,7 +4,30 @@ import { supabase } from '@/lib/supabase';
 import { createContactNotification } from '@/lib/notifications';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
+
+const AVATAR_IMGS = [
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80',
+];
+
+function avatarImg(id) {
+  if (!id) return AVATAR_IMGS[0];
+  const code = [...String(id)].reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return AVATAR_IMGS[code % AVATAR_IMGS.length];
+}
+
+function StatCard({ label, value }) {
+  return (
+    <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E3DDD0', padding: '16px 20px', textAlign: 'center' }}>
+      <p style={{ fontSize: 20, fontWeight: 700, color: '#23211C', marginBottom: 4 }}>{value}</p>
+      <p style={{ fontSize: 12, color: '#9A9382' }}>{label}</p>
+    </div>
+  );
+}
 
 export default function ResumeDetail() {
   const params = useParams();
@@ -24,18 +47,17 @@ export default function ResumeDetail() {
   }, [id]);
 
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
-    if (user && id) {
-      checkBookmark(user.id);
-      checkContact(user.id);
+    const { data: { user: u } } = await supabase.auth.getUser();
+    setUser(u);
+    if (u && id) {
+      checkBookmark(u.id);
+      checkContact(u.id);
     }
     fetchContactCount();
   };
 
   const checkBookmark = async (userId) => {
-    const { data } = await supabase.from('bookmarks').select('*')
-      .eq('user_id', userId).eq('candidate_id', id).maybeSingle();
+    const { data } = await supabase.from('bookmarks').select('*').eq('user_id', userId).eq('candidate_id', id).maybeSingle();
     setIsBookmarked(!!data);
   };
 
@@ -48,14 +70,12 @@ export default function ResumeDetail() {
   };
 
   const checkContact = async (userId) => {
-    const { data } = await supabase.from('applications').select('*')
-      .eq('user_id', userId).eq('candidate_id', id).maybeSingle();
+    const { data } = await supabase.from('applications').select('*').eq('user_id', userId).eq('candidate_id', id).maybeSingle();
     setHasContacted(!!data);
   };
 
   const fetchContactCount = async () => {
-    const { count } = await supabase.from('applications')
-      .select('*', { count: 'exact', head: true }).eq('candidate_id', id);
+    const { count } = await supabase.from('applications').select('*', { count: 'exact', head: true }).eq('candidate_id', id);
     setContactCount(count || 0);
   };
 
@@ -69,7 +89,6 @@ export default function ResumeDetail() {
     const { data: contactData, error } = await supabase.from('applications')
       .insert([{ user_id: user.id, job_id: null, candidate_id: id, message: contactMessage }])
       .select().single();
-
     if (!error) {
       if (resume.user_id && contactData)
         await createContactNotification(resume.user_id, resume.name, contactData.id);
@@ -86,158 +105,142 @@ export default function ResumeDetail() {
   const toggleBookmark = async () => {
     if (!user) { alert('로그인이 필요합니다'); return; }
     if (isBookmarked) {
-      const { error } = await supabase.from('bookmarks').delete()
-        .eq('user_id', user.id).eq('candidate_id', id);
-      if (!error) { setIsBookmarked(false); alert('북마크가 해제되었습니다'); }
+      const { error } = await supabase.from('bookmarks').delete().eq('user_id', user.id).eq('candidate_id', id);
+      if (!error) setIsBookmarked(false);
     } else {
-      const { error } = await supabase.from('bookmarks')
-        .insert([{ user_id: user.id, job_id: null, candidate_id: id }]);
-      if (!error) { setIsBookmarked(true); alert('북마크에 추가되었습니다'); }
+      const { error } = await supabase.from('bookmarks').insert([{ user_id: user.id, job_id: null, candidate_id: id }]);
+      if (!error) setIsBookmarked(true);
     }
   };
 
   if (loading || !resume) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20">
-        <div className="max-w-4xl mx-auto px-8 py-16 text-center">
-          <div className="text-4xl mb-4 animate-pulse">🌺</div>
-          <p className="text-stone-400 text-sm">
-            {loading ? '불러오는 중...' : '이력서를 찾을 수 없습니다'}
-          </p>
-          {!loading && (
-            <Link href="/resumes" className="mt-4 inline-block text-green-700 hover:text-green-800 text-sm font-medium">
-              ← 목록으로 돌아가기
-            </Link>
-          )}
-        </div>
+      <main style={{ minHeight: '100vh', background: '#F4F1E9', paddingTop: 68, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: '#9A9382', fontSize: 14 }}>{loading ? '불러오는 중...' : '이력서를 찾을 수 없습니다'}</p>
       </main>
     );
   }
 
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-emerald-50/20">
-      <div className="max-w-4xl mx-auto px-8 py-10">
+  const styles = (resume.yoga_styles || '').split(/[,，、]/).map(s => s.trim()).filter(Boolean);
 
-        {/* 상단 */}
-        <div className="flex justify-between items-center mb-6">
-          <Link href="/resumes" className="text-sm text-green-700 hover:text-green-800 font-medium transition-colors">
-            ← 목록으로
-          </Link>
-          {user && (
-            <button
-              onClick={toggleBookmark}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                isBookmarked
-                  ? 'bg-yellow-400 text-white hover:bg-yellow-500'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-              }`}
-            >
-              {isBookmarked ? '⭐ 북마크 해제' : '☆ 북마크'}
-            </button>
-          )}
+  return (
+    <main style={{ minHeight: '100vh', background: '#F4F1E9' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
+
+        <Link href="/resumes" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#76705F', marginBottom: 24, textDecoration: 'none' }}>
+          ← 강사 목록
+        </Link>
+
+        {/* Profile Header */}
+        <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #E3DDD0', padding: '32px', marginBottom: 16 }}>
+          <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+            <div style={{ width: 96, height: 96, borderRadius: '50%', overflow: 'hidden', position: 'relative', flexShrink: 0, border: '3px solid #E3DDD0' }}>
+              <Image src={avatarImg(resume.id)} alt={resume.name} fill sizes="96px" style={{ objectFit: 'cover' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                <h1 style={{ fontSize: 24, fontWeight: 700, color: '#23211C' }}>{resume.name}</h1>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <span style={{ color: '#C2922F', fontSize: 14 }}>★</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#26241D' }}>4.8</span>
+                </div>
+              </div>
+              {resume.location && (
+                <p style={{ fontSize: 13, color: '#9A9382', marginBottom: 12 }}>📍 {resume.location}</p>
+              )}
+              {styles.length > 0 && (
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {styles.map(s => (
+                    <span key={s} style={{ fontSize: 12, color: '#76705F', background: '#F4F1E9', padding: '3px 10px', borderRadius: 8, border: '1px solid #E3DDD0' }}>
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <button onClick={handleContact} disabled={hasContacted} style={{
+                padding: '12px 28px', borderRadius: 12, fontSize: 14, fontWeight: 700,
+                background: hasContacted ? '#E3DDD0' : '#23211C',
+                color: hasContacted ? '#9A9382' : '#fff',
+                border: 'none', cursor: hasContacted ? 'not-allowed' : 'pointer',
+              }}>
+                {hasContacted ? '✓ 연락 완료' : '연락하기'}
+              </button>
+              <button onClick={toggleBookmark} style={{
+                padding: '10px 28px', borderRadius: 12, fontSize: 14, fontWeight: 600,
+                background: isBookmarked ? '#FDF3E3' : 'transparent',
+                color: isBookmarked ? '#C2922F' : '#76705F',
+                border: `1px solid ${isBookmarked ? '#C2922F' : '#E3DDD0'}`, cursor: 'pointer',
+              }}>
+                {isBookmarked ? '♥ 저장됨' : '♡ 저장'}
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* 상세 카드 */}
-        <div className="bg-white rounded-3xl border border-stone-100 shadow-sm p-8">
+        {/* Stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+          <StatCard label="평점" value="4.8 ★" />
+          <StatCard label="경력" value={resume.experience_years || '—'} />
+          <StatCard label="연락" value={`${contactCount}건`} />
+          <StatCard label="등록일" value={new Date(resume.created_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })} />
+        </div>
 
-          {/* 프로필 */}
-          <div className="flex items-start gap-6 mb-8">
-            {resume.photo_url && (
-              <img
-                src={resume.photo_url}
-                alt={resume.name}
-                className="w-28 h-28 rounded-full object-cover ring-2 ring-stone-100 shrink-0"
-                onError={(e) => { e.target.style.display = 'none'; }}
-              />
-            )}
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-stone-800 mb-1">{resume.name}</h1>
-              <p className="text-stone-500">📍 {resume.location}</p>
-            </div>
-          </div>
+        {/* Content Sections */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-          {/* 기본 정보 */}
-          <div className="grid md:grid-cols-2 gap-4 mb-8 p-6 bg-stone-50 rounded-2xl">
-            <div>
-              <p className="text-xs text-stone-400 font-bold uppercase tracking-widest mb-1">전문 분야</p>
-              <p className="text-base font-semibold text-stone-800">🌿 {resume.yoga_styles}</p>
-            </div>
-            {resume.experience_years && (
-              <div>
-                <p className="text-xs text-stone-400 font-bold uppercase tracking-widest mb-1">경력</p>
-                <p className="text-base font-semibold text-stone-800">⏱ {resume.experience_years}</p>
-              </div>
-            )}
-            {resume.certifications && (
-              <div className="md:col-span-2">
-                <p className="text-xs text-stone-400 font-bold uppercase tracking-widest mb-1">자격증</p>
-                <p className="text-base font-semibold text-stone-800">🏆 {resume.certifications}</p>
-              </div>
-            )}
-          </div>
-
-          {/* 자기소개 */}
           {resume.introduction && (
-            <div className="mb-8">
-              <h2 className="text-lg font-bold text-stone-700 mb-3">자기소개</h2>
-              <p className="text-stone-600 whitespace-pre-wrap leading-relaxed text-sm">
-                {resume.introduction}
-              </p>
-            </div>
+            <section style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 28px' }}>
+              <h2 style={{ fontSize: 15, fontWeight: 700, color: '#23211C', marginBottom: 14 }}>자기소개</h2>
+              <p style={{ fontSize: 14, color: '#4A4740', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{resume.introduction}</p>
+            </section>
           )}
 
-          {/* 등록일 */}
-          <div className="border-t border-stone-100 pt-5 mb-6">
-            <p className="text-stone-300 text-xs">
-              등록일: {new Date(resume.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </p>
-          </div>
+          {styles.length > 0 && (
+            <section style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 28px' }}>
+              <h2 style={{ fontSize: 15, fontWeight: 700, color: '#23211C', marginBottom: 14 }}>전문 분야</h2>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {styles.map(s => (
+                  <span key={s} style={{ fontSize: 13, color: '#23211C', background: '#F4F1E9', padding: '6px 14px', borderRadius: 10, border: '1px solid #E3DDD0', fontWeight: 500 }}>
+                    {s}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
 
-          {/* 연락 수 */}
-          <div className="p-4 bg-amber-50 rounded-2xl mb-4 text-center">
-            <p className="text-stone-600 text-sm">
-              💌 <span className="font-bold text-amber-600">{contactCount}개</span>의 센터에서 연락했습니다
-            </p>
-          </div>
-
-          {/* 연락 버튼 */}
-          <button
-            onClick={handleContact}
-            disabled={hasContacted}
-            className={`w-full py-4 rounded-2xl font-semibold text-base transition ${
-              hasContacted
-                ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                : 'bg-amber-600 text-white hover:bg-amber-700 active:scale-95'
-            }`}
-          >
-            {hasContacted ? '✓ 연락 완료' : '연락하기'}
-          </button>
+          {resume.experience_years && (
+            <section style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 28px' }}>
+              <h2 style={{ fontSize: 15, fontWeight: 700, color: '#23211C', marginBottom: 14 }}>경력 및 자격</h2>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                <div style={{ width: 3, height: 40, borderRadius: 2, background: '#C2922F', flexShrink: 0 }} />
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#23211C' }}>요가 강사 경력</p>
+                  <p style={{ fontSize: 13, color: '#76705F', marginTop: 2 }}>{resume.experience_years}</p>
+                </div>
+              </div>
+            </section>
+          )}
         </div>
       </div>
 
-      {/* 연락 모달 */}
       {showContactModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-xl">
-            <h3 className="text-xl font-bold text-stone-800 mb-2">연락하기</h3>
-            <p className="text-stone-500 text-sm mb-5">간단한 메시지를 남겨주세요</p>
-            <textarea
-              value={contactMessage}
-              onChange={(e) => setContactMessage(e.target.value)}
-              placeholder="채용 제안이나 문의 사항을 작성해주세요"
-              className="w-full h-32 px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm mb-5 resize-none"
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 16 }}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 32, maxWidth: 440, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#23211C', marginBottom: 6 }}>연락하기</h3>
+            <p style={{ fontSize: 13, color: '#76705F', marginBottom: 20 }}>채용 제안이나 문의 사항을 작성해주세요</p>
+            <textarea value={contactMessage} onChange={e => setContactMessage(e.target.value)}
+              placeholder="메시지를 입력해주세요" rows={4}
+              style={{ width: '100%', padding: '12px 14px', border: '1px solid #E3DDD0', borderRadius: 10, fontSize: 14, color: '#23211C', background: '#F4F1E9', resize: 'none', outline: 'none', boxSizing: 'border-box', marginBottom: 16 }}
             />
-            <div className="flex gap-3">
-              <button
-                onClick={() => { setShowContactModal(false); setContactMessage(''); }}
-                className="flex-1 py-3 bg-stone-100 text-stone-600 rounded-xl hover:bg-stone-200 transition font-semibold text-sm"
-              >
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => { setShowContactModal(false); setContactMessage(''); }}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, fontSize: 14, fontWeight: 600, background: '#F4F1E9', color: '#76705F', border: 'none', cursor: 'pointer' }}>
                 취소
               </button>
-              <button
-                onClick={submitContact}
-                className="flex-1 py-3 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition font-semibold text-sm"
-              >
+              <button onClick={submitContact}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, fontSize: 14, fontWeight: 700, background: '#23211C', color: '#fff', border: 'none', cursor: 'pointer' }}>
                 제출
               </button>
             </div>
