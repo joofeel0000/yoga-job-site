@@ -191,12 +191,12 @@ export default function Admin() {
   const thClass    = "px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wide";
   const tdClass    = "px-6 py-4 text-sm text-stone-800";
   const tdSubClass = "px-6 py-4 text-sm text-stone-500";
-  const inputClass = "w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent transition text-sm";
-  const labelClass = "block text-xs font-bold text-stone-500 uppercase tracking-wide mb-1";
+  const inputClass = "input-base";
+  const labelClass = "label-field";
 
   return (
-    <main className="min-h-screen bg-[#F4F1E9] p-8">
-      <div className="max-w-7xl mx-auto">
+    <main className="page-root p-8">
+      <div className="content-wrap-wide !py-0">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-stone-800">관리자 페이지</h1>
           <Link href="/" className="text-[#23211C] hover:text-black font-medium text-sm transition-colors">
@@ -205,7 +205,7 @@ export default function Admin() {
         </div>
 
         {/* 탭 */}
-        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm mb-6">
+        <div className="card mb-6">
           <div className="flex border-b border-stone-100">
             <button onClick={() => setActiveTab('jobs')}
               className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'jobs' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
@@ -227,18 +227,18 @@ export default function Admin() {
         </div>
 
         {loading ? (
-          <div className="text-center py-20">
+          <div className="state-center">
             <div className="text-3xl animate-pulse mb-3">🌿</div>
             <p className="text-stone-400 text-sm">로딩 중...</p>
           </div>
 
         ) : activeTab === 'jobs' ? (
           jobs.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-12 text-center">
+            <div className="card-empty">
               <p className="text-stone-400 text-sm">등록된 공고가 없습니다</p>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+            <div className="card">
               <table className="w-full">
                 <thead className="bg-stone-50 border-b border-stone-100">
                   <tr>
@@ -258,7 +258,7 @@ export default function Admin() {
                       <td className={tdSubClass}>{new Date(job.created_at).toLocaleDateString('ko-KR')}</td>
                       <td className="px-6 py-4 text-center space-x-2">
                         <Link href={`/jobs/${job.id}`}>
-                          <button className="px-3 py-1 bg-[#23211C] text-white text-xs rounded-full hover:bg-black transition font-semibold">보기</button>
+                          <button className="btn-pill-sm">보기</button>
                         </Link>
                         <button onClick={() => deleteJob(job.id)}
                           className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">삭제</button>
@@ -272,11 +272,11 @@ export default function Admin() {
 
         ) : activeTab === 'resumes' ? (
           resumes.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-12 text-center">
+            <div className="card-empty">
               <p className="text-stone-400 text-sm">등록된 이력서가 없습니다</p>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+            <div className="card">
               <table className="w-full">
                 <thead className="bg-stone-50 border-b border-stone-100">
                   <tr>
@@ -298,7 +298,7 @@ export default function Admin() {
                       <td className={tdSubClass}>{new Date(resume.created_at).toLocaleDateString('ko-KR')}</td>
                       <td className="px-6 py-4 text-center space-x-2">
                         <Link href={`/resumes/${resume.id}`}>
-                          <button className="px-3 py-1 bg-[#23211C] text-white text-xs rounded-full hover:bg-black transition font-semibold">보기</button>
+                          <button className="btn-pill-sm">보기</button>
                         </Link>
                         <button onClick={() => deleteResume(resume.id)}
                           className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">삭제</button>
@@ -312,11 +312,11 @@ export default function Admin() {
 
         ) : activeTab === 'users' ? (
           users.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-12 text-center">
+            <div className="card-empty">
               <p className="text-stone-400 text-sm">등록된 회원이 없습니다</p>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+            <div className="card">
               <table className="w-full">
                 <thead className="bg-stone-50 border-b border-stone-100">
                   <tr>
@@ -470,7 +470,7 @@ export default function Admin() {
             )}
 
             {/* 배너 목록 */}
-            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+            <div className="card">
               <div className="flex justify-between items-center px-6 py-4 border-b border-stone-100">
                 <p className="text-sm font-semibold text-stone-700">배너 목록</p>
                 {!showBannerForm && (

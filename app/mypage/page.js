@@ -309,8 +309,8 @@ export default function MyPage() {
         </div>
 
         {/* 탭 */}
-        <div className="bg-white rounded-xl border border-stone-100 shadow-sm mb-6 overflow-x-auto">
-          <div className="flex border-b border-stone-100 min-w-max">
+        <div className="bg-white rounded-2xl border border-[#E3DDD0] shadow-sm mb-6 overflow-x-auto">
+          <div className="flex border-b border-[#F0ECE2] min-w-max">
             <button
               onClick={() => setActiveTab('jobs')}
               className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
@@ -367,12 +367,12 @@ export default function MyPage() {
         {/* 내용 */}
         {loading ? (
           <div className="text-center py-20">
-            <div className="text-4xl mb-3 animate-pulse">🌿</div>
+            <div className="w-8 h-8 border-2 border-[#23211C] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
             <p className="text-stone-400 text-sm">불러오는 중...</p>
           </div>
         ) : activeTab === 'jobs' ? (
           myJobs.length === 0 ? (
-            <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+            <div className="card-empty">
               <p className="text-stone-400 mb-4 text-sm">등록한 구인 공고가 없습니다</p>
               <Link href="/post-job">
                 <button className="px-6 py-3 bg-[#23211C] text-white rounded-full hover:bg-black transition text-sm font-semibold">
@@ -381,22 +381,22 @@ export default function MyPage() {
               </Link>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-              <div className="divide-y divide-stone-100">
+            <div className="card">
+              <div className="divide-y divide-[#F0ECE2]">
                 {myJobs.map((job) => {
                   const statusBadge = getStatusBadge(job.status, job.expires_at);
                   
                   return (
-                    <div key={job.id} className="p-6 hover:bg-stone-50">
+                    <div key={job.id} className="p-5 hover:bg-[#FAF8F2] transition">
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <h3 className="text-xl font-bold text-stone-800">{job.title}</h3>
+                            <h3 className="text-[17px] font-bold text-[#26241D]">{job.title}</h3>
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadge.color}`}>
                               {statusBadge.icon} {statusBadge.text}
                             </span>
                           </div>
-                          <div className="flex gap-4 text-sm text-stone-500 mb-3 flex-wrap">
+                          <div className="flex gap-3 text-[13px] text-[#76705F] mb-3 flex-wrap">
                             <span>📍 {job.location}</span>
                             <span>🌿 {job.yoga_style}</span>
                             {job.salary && <span>💰 {job.salary}</span>}
@@ -405,9 +405,9 @@ export default function MyPage() {
                             등록일: {new Date(job.created_at).toLocaleDateString('ko-KR')}
                           </p>
                         </div>
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="flex gap-2 flex-wrap items-center shrink-0">
                           <Link href={`/jobs/${job.id}`}>
-                            <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
+                            <button className="btn-primary">
                               보기
                             </button>
                           </Link>
@@ -426,7 +426,7 @@ export default function MyPage() {
                                     }
                                   }
                                 }}
-                                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition whitespace-nowrap"
+                                className="btn-secondary"
                               >
                                 마감
                               </button>
@@ -440,7 +440,7 @@ export default function MyPage() {
                                     alert('연장 실패: ' + error);
                                   }
                                 }}
-                                className="px-4 py-2 bg-[#ECE9E1]0 text-white rounded-lg hover:bg-[#23211C] transition whitespace-nowrap"
+                                className="btn-secondary"
                               >
                                 연장
                               </button>
@@ -456,7 +456,7 @@ export default function MyPage() {
                                   alert('다시 열기 실패: ' + error);
                                 }
                               }}
-                              className="px-4 py-2 bg-[#ECE9E1]0 text-white rounded-lg hover:bg-[#23211C] transition whitespace-nowrap"
+                              className="btn-secondary"
                             >
                               다시 열기
                             </button>
@@ -464,7 +464,7 @@ export default function MyPage() {
                           
                           <button
                             onClick={() => deleteJob(job.id)}
-                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition whitespace-nowrap"
+                            className="btn-danger"
                           >
                             삭제
                           </button>
@@ -478,7 +478,7 @@ export default function MyPage() {
           )
         ) : activeTab === 'resumes' ? (
           myResumes.length === 0 ? (
-            <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+            <div className="card-empty">
               <p className="text-stone-400 mb-4 text-sm">등록한 이력서가 없습니다</p>
               <Link href="/post-resume">
                 <button className="px-6 py-3 bg-[#23211C] text-white rounded-full hover:bg-black transition text-sm font-semibold">
@@ -487,22 +487,22 @@ export default function MyPage() {
               </Link>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-              <div className="divide-y divide-stone-100">
+            <div className="card">
+              <div className="divide-y divide-[#F0ECE2]">
                 {myResumes.map((resume) => {
                   const statusBadge = getStatusBadge(resume.status, resume.expires_at);
                   
                   return (
-                    <div key={resume.id} className="p-6 hover:bg-stone-50">
+                    <div key={resume.id} className="p-5 hover:bg-[#FAF8F2] transition">
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <h3 className="text-xl font-bold text-stone-800">{resume.name}</h3>
+                            <h3 className="text-[17px] font-bold text-[#26241D]">{resume.name}</h3>
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadge.color}`}>
                               {statusBadge.icon} {statusBadge.text}
                             </span>
                           </div>
-                          <div className="flex gap-4 text-sm text-stone-500 mb-3 flex-wrap">
+                          <div className="flex gap-3 text-[13px] text-[#76705F] mb-3 flex-wrap">
                             <span>📍 {resume.location}</span>
                             <span>🌿 {resume.yoga_styles}</span>
                           </div>
@@ -510,9 +510,9 @@ export default function MyPage() {
                             등록일: {new Date(resume.created_at).toLocaleDateString('ko-KR')}
                           </p>
                         </div>
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="flex gap-2 flex-wrap items-center shrink-0">
                           <Link href={`/resumes/${resume.id}`}>
-                            <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
+                            <button className="btn-primary">
                               보기
                             </button>
                           </Link>
@@ -531,7 +531,7 @@ export default function MyPage() {
                                     }
                                   }
                                 }}
-                                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition whitespace-nowrap"
+                                className="btn-secondary"
                               >
                                 마감
                               </button>
@@ -545,7 +545,7 @@ export default function MyPage() {
                                     alert('연장 실패: ' + error);
                                   }
                                 }}
-                                className="px-4 py-2 bg-[#ECE9E1]0 text-white rounded-lg hover:bg-[#23211C] transition whitespace-nowrap"
+                                className="btn-secondary"
                               >
                                 연장
                               </button>
@@ -561,7 +561,7 @@ export default function MyPage() {
                                   alert('다시 열기 실패: ' + error);
                                 }
                               }}
-                              className="px-4 py-2 bg-[#ECE9E1]0 text-white rounded-lg hover:bg-[#23211C] transition whitespace-nowrap"
+                              className="btn-secondary"
                             >
                               다시 열기
                             </button>
@@ -569,7 +569,7 @@ export default function MyPage() {
                           
                           <button
                             onClick={() => deleteResume(resume.id)}
-                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition whitespace-nowrap"
+                            className="btn-danger"
                           >
                             삭제
                           </button>
@@ -586,14 +586,14 @@ export default function MyPage() {
             <div>
               <h2 className="text-xl font-bold text-stone-800 mb-4">북마크한 구인 공고</h2>
               {bookmarkedJobs.length === 0 ? (
-                <div className="bg-white rounded-xl border border-stone-100 p-8 text-center">
+                <div className="bg-white rounded-2xl border border-[#E3DDD0] p-8 text-center">
                   <p className="text-stone-400 text-sm">북마크한 구인 공고가 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-                  <div className="divide-y divide-stone-100">
+                <div className="card">
+                  <div className="divide-y divide-[#F0ECE2]">
                     {bookmarkedJobs.map((job) => (
-                      <div key={job.id} className="p-6 hover:bg-stone-50">
+                      <div key={job.id} className="p-5 hover:bg-[#FAF8F2] transition">
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
                             <h3 className="text-lg font-bold text-stone-800 mb-2">{job.title}</h3>
@@ -618,14 +618,14 @@ export default function MyPage() {
             <div>
               <h2 className="text-xl font-bold text-stone-800 mb-4">북마크한 강사</h2>
               {bookmarkedResumes.length === 0 ? (
-                <div className="bg-white rounded-xl border border-stone-100 p-8 text-center">
+                <div className="bg-white rounded-2xl border border-[#E3DDD0] p-8 text-center">
                   <p className="text-stone-400 text-sm">북마크한 강사가 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-                  <div className="divide-y divide-stone-100">
+                <div className="card">
+                  <div className="divide-y divide-[#F0ECE2]">
                     {bookmarkedResumes.map((resume) => (
-                      <div key={resume.id} className="p-6 hover:bg-stone-50">
+                      <div key={resume.id} className="p-5 hover:bg-[#FAF8F2] transition">
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
                             <h3 className="text-lg font-bold text-stone-800 mb-2">{resume.name}</h3>
@@ -652,14 +652,14 @@ export default function MyPage() {
             <div>
               <h2 className="text-xl font-bold text-stone-800 mb-4">내가 지원한 공고</h2>
               {myApplications.length === 0 ? (
-                <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+                <div className="card-empty">
                   <p className="text-stone-400 text-sm">아직 지원한 공고가 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-                  <div className="divide-y divide-stone-100">
+                <div className="card">
+                  <div className="divide-y divide-[#F0ECE2]">
                     {myApplications.map((app) => (
-                      <div key={app.id} className="p-6 hover:bg-stone-50">
+                      <div key={app.id} className="p-5 hover:bg-[#FAF8F2] transition">
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -671,7 +671,7 @@ export default function MyPage() {
                               </span>
                             </div>
                             {app.job && (
-                              <div className="flex gap-4 text-sm text-stone-500 mb-3 flex-wrap">
+                              <div className="flex gap-3 text-[13px] text-[#76705F] mb-3 flex-wrap">
                                 <span>📍 {app.job.location}</span>
                                 <span>🌿 {app.job.yoga_style}</span>
                               </div>
@@ -686,7 +686,7 @@ export default function MyPage() {
                           </div>
                           {app.job && (
                             <Link href={`/jobs/${app.job.id}`}>
-                              <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
+                              <button className="btn-primary">
                                 공고 보기
                               </button>
                             </Link>
@@ -702,14 +702,14 @@ export default function MyPage() {
             <div>
               <h2 className="text-xl font-bold text-stone-800 mb-4">내가 연락한 강사</h2>
               {myContacts.length === 0 ? (
-                <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+                <div className="card-empty">
                   <p className="text-stone-400 text-sm">아직 연락한 강사가 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-                  <div className="divide-y divide-stone-100">
+                <div className="card">
+                  <div className="divide-y divide-[#F0ECE2]">
                     {myContacts.map((contact) => (
-                      <div key={contact.id} className="p-6 hover:bg-stone-50">
+                      <div key={contact.id} className="p-5 hover:bg-[#FAF8F2] transition">
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -721,7 +721,7 @@ export default function MyPage() {
                               </span>
                             </div>
                             {contact.candidate && (
-                              <div className="flex gap-4 text-sm text-stone-500 mb-3 flex-wrap">
+                              <div className="flex gap-3 text-[13px] text-[#76705F] mb-3 flex-wrap">
                                 <span>📍 {contact.candidate.location}</span>
                                 <span>🌺 {contact.candidate.yoga_styles}</span>
                               </div>
@@ -736,7 +736,7 @@ export default function MyPage() {
                           </div>
                           {contact.candidate && (
                             <Link href={`/resumes/${contact.candidate.id}`}>
-                              <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
+                              <button className="btn-primary">
                                 이력서 보기
                               </button>
                             </Link>
@@ -754,14 +754,14 @@ export default function MyPage() {
             <div>
               <h2 className="text-xl font-bold text-stone-800 mb-4">내 공고에 온 지원</h2>
               {receivedApplications.length === 0 ? (
-                <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+                <div className="card-empty">
                   <p className="text-stone-400 text-sm">아직 받은 지원이 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-                  <div className="divide-y divide-stone-100">
+                <div className="card">
+                  <div className="divide-y divide-[#F0ECE2]">
                     {receivedApplications.map((app) => (
-                      <div key={app.id} className="p-6 hover:bg-stone-50">
+                      <div key={app.id} className="p-5 hover:bg-[#FAF8F2] transition">
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -782,7 +782,7 @@ export default function MyPage() {
                           </div>
                           {app.job && (
                             <Link href={`/jobs/${app.job.id}`}>
-                              <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
+                              <button className="btn-primary">
                                 공고 보기
                               </button>
                             </Link>
@@ -798,14 +798,14 @@ export default function MyPage() {
             <div>
               <h2 className="text-xl font-bold text-stone-800 mb-4">내 이력서에 온 연락</h2>
               {receivedContacts.length === 0 ? (
-                <div className="bg-white rounded-xl border border-stone-100 p-12 text-center">
+                <div className="card-empty">
                   <p className="text-stone-400 text-sm">아직 받은 연락이 없습니다</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-                  <div className="divide-y divide-stone-100">
+                <div className="card">
+                  <div className="divide-y divide-[#F0ECE2]">
                     {receivedContacts.map((contact) => (
-                      <div key={contact.id} className="p-6 hover:bg-stone-50">
+                      <div key={contact.id} className="p-5 hover:bg-[#FAF8F2] transition">
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -826,7 +826,7 @@ export default function MyPage() {
                           </div>
                           {contact.candidate && (
                             <Link href={`/resumes/${contact.candidate.id}`}>
-                              <button className="px-4 py-2 bg-[#23211C] text-white rounded-full hover:bg-black transition whitespace-nowrap text-sm font-semibold">
+                              <button className="btn-primary">
                                 이력서 보기
                               </button>
                             </Link>

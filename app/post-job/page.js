@@ -5,8 +5,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-const inputClass = "w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent transition text-sm";
-const labelClass = "block text-xs font-bold text-stone-500 uppercase tracking-wide mb-2";
+const inputClass = "input-base";
+const labelClass = "label-field";
 
 export default function PostJob() {
   const router = useRouter();
