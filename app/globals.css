@@ -33,179 +33,276 @@ body {
 }
 
 /* ════════════════════════════════════════════════════════
-   Component layer — 반복 패턴 추출, 반응형 작업 기준점
+   공통 컴포넌트 클래스 — raw CSS (no @apply)
+   Turbopack에서 @layer components + @apply 조합이 무시되므로
+   @layer 없이 일반 CSS 규칙으로 작성
    ════════════════════════════════════════════════════════ */
-@layer components {
 
-  /* ── Layout ──────────────────────────────────────────── */
+/* ── Layout ──────────────────────────────────────────── */
+.page-root {
+  min-height: 100vh;
+  background-color: #F4F1E9;
+}
 
-  /* 페이지 루트 래퍼 */
-  .page-root {
-    @apply min-h-screen bg-[#F4F1E9];
-  }
+.page-root-center {
+  min-height: 100vh;
+  background-color: #F4F1E9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  /* 로그인/회원가입 등 가운데 정렬 페이지 */
-  .page-root-center {
-    @apply min-h-screen bg-[#F4F1E9] flex items-center justify-center;
-  }
+.content-wrap {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2rem 1.5rem;
+}
 
-  /* 본문 최대 너비 컨테이너 — max-w-[1200px] + 좌우·상하 여백 */
-  .content-wrap {
-    @apply max-w-[1200px] mx-auto px-6 py-8;
-  }
+.content-wrap-narrow {
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2rem 1.5rem;
+}
 
-  /* 좁은 폼 페이지용 컨테이너 (post, profile 등) */
-  .content-wrap-narrow {
-    @apply max-w-3xl mx-auto px-6 py-8;
-  }
+.content-wrap-wide {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2rem 1.5rem;
+}
 
-  /* admin 전용 넓은 컨테이너 */
-  .content-wrap-wide {
-    @apply max-w-7xl mx-auto px-6 py-8;
-  }
+/* ── Card ────────────────────────────────────────────── */
+.card {
+  background-color: #fff;
+  border-radius: 1rem;
+  border: 1px solid #E3DDD0;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  overflow: hidden;
+}
 
-  /* ── Card ────────────────────────────────────────────── */
+.card-p {
+  background-color: #fff;
+  border-radius: 1rem;
+  border: 1px solid #E3DDD0;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  padding: 1.25rem;
+}
 
-  /* 기본 카드 (패딩 없음, overflow-hidden 포함) */
-  .card {
-    @apply bg-white rounded-2xl border border-[#E3DDD0] shadow-sm overflow-hidden;
-  }
+.card-lg {
+  background-color: #fff;
+  border-radius: 1rem;
+  border: 1px solid #E3DDD0;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  padding: 2rem;
+}
 
-  /* 패딩 포함 카드 (p-5) */
-  .card-p {
-    @apply bg-white rounded-2xl border border-[#E3DDD0] shadow-sm p-5;
-  }
+.card-empty {
+  background-color: #fff;
+  border-radius: 1rem;
+  border: 1px solid #E3DDD0;
+  padding: 3rem;
+  text-align: center;
+}
 
-  /* 패딩 큰 카드 (p-8, 섹션 단위) */
-  .card-lg {
-    @apply bg-white rounded-2xl border border-[#E3DDD0] shadow-sm p-8;
-  }
+.card-row {
+  padding: 1.25rem;
+  transition: background-color 0.15s;
+}
+.card-row:hover { background-color: #FAF8F2; }
 
-  /* 빈 상태 / 안내 카드 (p-12 가운데 정렬) */
-  .card-empty {
-    @apply bg-white rounded-2xl border border-[#E3DDD0] p-12 text-center;
-  }
+.divide-sand > * + * { border-top: 1px solid #F0ECE2; }
 
-  /* 카드 내부 리스트 행 (hover 포함) */
-  .card-row {
-    @apply p-5 hover:bg-[#FAF8F2] transition-colors;
-  }
+/* ── Button ──────────────────────────────────────────── */
+.btn-primary {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: #23211C;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+  display: inline-flex;
+  align-items: center;
+}
+.btn-primary:hover { background-color: #000; }
 
-  /* 카드 내부 구분선 */
-  .divide-sand {
-    @apply divide-y divide-[#F0ECE2];
-  }
+.btn-secondary {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: #fff;
+  color: #23211C;
+  border: 1px solid #E3DDD0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+  display: inline-flex;
+  align-items: center;
+}
+.btn-secondary:hover { background-color: #EFEBE1; }
 
-  /* ── Button ──────────────────────────────────────────── */
+.btn-pill {
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: #23211C;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.btn-pill:hover { background-color: #000; }
 
-  /* 기본 다크 버튼 (사각 라운드) */
-  .btn-primary {
-    @apply px-4 py-2 rounded-lg text-sm font-semibold
-           bg-[#23211C] text-white
-           hover:bg-black transition whitespace-nowrap;
-  }
+.btn-pill-sm {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #23211C;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.btn-pill-sm:hover { background-color: #000; }
 
-  /* 테두리 아웃라인 버튼 */
-  .btn-secondary {
-    @apply px-4 py-2 rounded-lg text-sm font-semibold
-           bg-white text-[#23211C] border border-[#E3DDD0]
-           hover:bg-[#EFEBE1] transition whitespace-nowrap;
-  }
+.btn-full {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: #23211C;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-full:hover { background-color: #000; }
+.btn-full:active { transform: scale(0.95); }
 
-  /* 필 모양 버튼 (pill, 더 넉넉한 패딩) */
-  .btn-pill {
-    @apply px-6 py-3 rounded-full text-sm font-semibold
-           bg-[#23211C] text-white
-           hover:bg-black transition;
-  }
+.btn-danger {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: #fff;
+  color: #B4524A;
+  border: 1px solid #E8D6D2;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+}
+.btn-danger:hover { background-color: #F7EEEC; }
 
-  /* 작은 필 버튼 (뱃지·태그 옆 액션) */
-  .btn-pill-sm {
-    @apply px-3 py-1 rounded-full text-xs font-semibold
-           bg-[#23211C] text-white
-           hover:bg-black transition;
-  }
+/* ── Form ────────────────────────────────────────────── */
+.input-base {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  background-color: rgb(250 250 249);
+  border: 1px solid #E3DDD0;
+  border-radius: 0.75rem;
+  color: #29271F;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.input-base::placeholder { color: rgb(168 162 158); }
+.input-base:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #23211C;
+  border-color: transparent;
+}
 
-  /* 풀 너비 제출 버튼 (로그인·폼 하단) */
-  .btn-full {
-    @apply w-full py-4 rounded-2xl text-base font-semibold
-           bg-[#23211C] text-white
-           hover:bg-black active:scale-95 transition;
-  }
+.label-field {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgb(161 161 170);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
 
-  /* 위험/삭제 아웃라인 버튼 */
-  .btn-danger {
-    @apply px-4 py-2 rounded-lg text-sm font-semibold
-           bg-white text-[#B4524A] border border-[#E8D6D2]
-           hover:bg-[#F7EEEC] transition whitespace-nowrap;
-  }
+/* ── Tag / Badge ─────────────────────────────────────── */
+.tag {
+  padding: 0.25rem 0.75rem;
+  background-color: #EAE7DE;
+  color: #23211C;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
 
-  /* ── Form ────────────────────────────────────────────── */
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
 
-  /* 공통 인풋 / 셀렉트 / 텍스트에리어 */
-  .input-base {
-    @apply w-full px-4 py-3 text-sm
-           bg-stone-50 border border-[#E3DDD0] rounded-xl
-           text-[#29271F] placeholder-stone-400
-           focus:outline-none focus:ring-2 focus:ring-[#23211C] focus:border-transparent
-           transition;
-  }
+/* ── Grid — 반응형 ───────────────────────────────────── */
+.grid-2col {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+@media (min-width: 48rem) {
+  .grid-2col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
-  /* 폼 필드 레이블 */
-  .label-field {
-    @apply block text-xs font-bold text-stone-400 uppercase tracking-wide mb-1;
-  }
+.grid-3col {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+@media (min-width: 40rem) {
+  .grid-3col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 64rem) {
+  .grid-3col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 
-  /* ── Tag / Badge ─────────────────────────────────────── */
+.grid-4col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+@media (min-width: 48rem) {
+  .grid-4col { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 
-  /* 기본 태그 (요가종류, 지역 등) */
-  .tag {
-    @apply px-3 py-1 bg-[#EAE7DE] text-[#23211C] rounded-full text-xs font-semibold;
-  }
+/* ── Typography ──────────────────────────────────────── */
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: rgb(41 37 36);
+  margin-bottom: 1rem;
+}
 
-  /* 상태 뱃지 기본 (색상은 인라인 추가) */
-  .badge {
-    @apply px-3 py-1 rounded-full text-xs font-semibold;
-  }
+.text-muted {
+  font-size: 0.875rem;
+  color: rgb(161 161 170);
+}
 
-  /* ── Grid ────────────────────────────────────────────── */
+.text-meta {
+  font-size: 0.8125rem;
+  color: #76705F;
+}
 
-  /* 2열 반응형 그리드 */
-  .grid-2col {
-    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
-  }
-
-  /* 3열 반응형 그리드 (카드 목록) */
-  .grid-3col {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5;
-  }
-
-  /* 4열 반응형 그리드 (통계, 강사 등) */
-  .grid-4col {
-    @apply grid grid-cols-2 md:grid-cols-4 gap-4;
-  }
-
-  /* ── Typography ──────────────────────────────────────── */
-
-  /* 섹션 제목 */
-  .section-title {
-    @apply text-xl font-bold text-stone-800 mb-4;
-  }
-
-  /* 보조 텍스트 (회색, 소형) */
-  .text-muted {
-    @apply text-sm text-stone-400;
-  }
-
-  /* 메타 정보 텍스트 (지역, 날짜 등) */
-  .text-meta {
-    @apply text-[13px] text-[#76705F];
-  }
-
-  /* ── State ───────────────────────────────────────────── */
-
-  /* 로딩 / 빈 목록 공통 */
-  .state-center {
-    @apply text-center py-20 text-stone-400 text-sm;
-  }
+/* ── State ───────────────────────────────────────────── */
+.state-center {
+  text-align: center;
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  color: rgb(161 161 170);
+  font-size: 0.875rem;
 }

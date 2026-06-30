@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from './components/Navbar';  // ← 추가!
+import Footer from './components/Footer';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "요가브릿지 | 요가 강사·스튜디오 채용 플랫폼",
+  title: "요가잡 | 요가 강사·스튜디오 채용 플랫폼",
   description: "요가 강사와 스튜디오를 연결하는 채용 플랫폼",
 };
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
       >
         <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );

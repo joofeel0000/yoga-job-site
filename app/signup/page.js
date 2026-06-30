@@ -62,7 +62,7 @@ export default function Signup() {
   };
 
   return (
-    <main style={{ minHeight: '100vh', background: '#F4F1E9', paddingTop: 68, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '68px 16px 40px' }}>
+    <main style={{ minHeight: '100vh', background: '#F4F1E9', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '32px 16px 40px' }}>
       <div style={{ width: '100%', maxWidth: 460 }}>
 
         {/* Logo */}
