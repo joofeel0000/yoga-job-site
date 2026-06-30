@@ -5,6 +5,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import BannerZone from '@/app/components/BannerZone';
 
 const JOB_IMGS = [
   'https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=120&auto=format&fit=crop&q=80',
@@ -221,7 +222,9 @@ function JobsContent() {
               ))}
             </div>
           )}
+          <BannerZone position="jobs_bottom" />
         </div>
+        <BannerZone position="jobs_top" />
       </div>
     </main>
   );

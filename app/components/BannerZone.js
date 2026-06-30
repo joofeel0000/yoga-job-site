@@ -106,6 +106,102 @@ function StripBanner({ banners }) {
   );
 }
 
+// ── 스폰서 카드 (이미지 꽉 채움 + 하단 그라데이션 오버레이) ──
+function SponsorCard({ banner }) {
+  const card = (
+    <div style={{
+      borderRadius: 16, overflow: 'hidden',
+      border: '1px solid #E3DDD0',
+      position: 'relative', height: 180,
+    }}>
+      <img
+        src={banner.image_url}
+        alt={banner.title}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        onError={(e) => { e.target.parentElement.style.display = 'none'; }}
+      />
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(to top, rgba(30,28,24,0.78) 0%, rgba(30,28,24,0) 55%)',
+      }} />
+      <span style={{
+        position: 'absolute', top: 10, right: 10,
+        background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(4px)',
+        color: '#fff', fontSize: 10, fontWeight: 700,
+        padding: '2px 7px', borderRadius: 4,
+      }}>AD</span>
+      {banner.title && (
+        <div style={{ position: 'absolute', bottom: 14, left: 14 }}>
+          <p style={{ color: '#fff', fontSize: 14, fontWeight: 700, margin: 0 }}>{banner.title}</p>
+        </div>
+      )}
+    </div>
+  );
+  if (banner.link_url) {
+    return (
+      <a href={banner.link_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
+        {card}
+      </a>
+    );
+  }
+  return card;
+}
+
+// ── jobs_bottom / resumes_bottom: 3열 스폰서 카드 그리드 ──────
+function SponsorGridBanner({ banners }) {
+  return (
+    <div style={{ marginTop: 32 }}>
+      <div style={{ marginBottom: 10 }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', letterSpacing: '0.1em' }}>SPONSORED</span>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        {banners.map(b => <SponsorCard key={b.id} banner={b} />)}
+      </div>
+    </div>
+  );
+}
+
+// ── community_top / property_top: 풀width 와이드 배너 ──────────
+function WideTopBanner({ banners }) {
+  const b = banners[0];
+  const inner = (
+    <div style={{
+      position: 'relative', borderRadius: 16, overflow: 'hidden',
+      height: 140, marginBottom: 24,
+    }}>
+      <img
+        src={b.image_url}
+        alt={b.title}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        onError={(e) => { e.target.parentElement.style.display = 'none'; }}
+      />
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(90deg, rgba(30,28,24,0.72) 0%, rgba(30,28,24,0) 60%)',
+      }} />
+      <span style={{
+        position: 'absolute', top: 12, right: 12,
+        background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(4px)',
+        color: '#fff', fontSize: 10, fontWeight: 700,
+        padding: '2px 7px', borderRadius: 4,
+      }}>AD</span>
+      {b.title && (
+        <div style={{ position: 'absolute', top: '50%', left: 28, transform: 'translateY(-50%)' }}>
+          <p style={{ color: '#fff', fontSize: 18, fontWeight: 800, margin: 0 }}>{b.title}</p>
+        </div>
+      )}
+    </div>
+  );
+  if (b.link_url) {
+    return (
+      <a href={b.link_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
+        {inner}
+      </a>
+    );
+  }
+  return inner;
+}
+
 // ── jobs_top / resumes_top: 우측 사이드바 ──────────────────
 function SidebarBanner({ banners }) {
   return (
@@ -156,7 +252,11 @@ export default function BannerZone({ position }) {
     case 'home_bottom': return <GridBanner banners={banners} />;
     case 'home_strip':  return <StripBanner banners={banners} />;
     case 'jobs_top':
-    case 'resumes_top': return <SidebarBanner banners={banners} />;
-    default:            return null;
+    case 'resumes_top':    return <SidebarBanner banners={banners} />;
+    case 'jobs_bottom':
+    case 'resumes_bottom': return <SponsorGridBanner banners={banners} />;
+    case 'community_top':
+    case 'property_top':   return <WideTopBanner banners={banners} />;
+    default:               return null;
   }
 }

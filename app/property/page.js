@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import BannerZone from '@/app/components/BannerZone';
 
 const PROPERTY_TYPES = ['전체', '임대', '매매', '양도'];
 
@@ -101,6 +102,8 @@ export default function PropertyPage() {
             </div>
           </div>
         </div>
+
+        <BannerZone position="property_top" />
 
         {loading ? (
           <div className="flex justify-center py-20 text-stone-400">불러오는 중...</div>

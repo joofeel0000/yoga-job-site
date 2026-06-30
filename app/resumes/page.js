@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import BannerZone from '@/app/components/BannerZone';
 
 const AVATAR_IMGS = [
   'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
@@ -161,59 +162,65 @@ export default function Resumes() {
           <p style={{ fontSize: 13, color: '#9A9382' }}>총 <strong style={{ color: '#23211C' }}>{filteredResumes.length}</strong>명</p>
         </div>
 
-        {/* Filter Bar */}
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E3DDD0', padding: '16px 20px', marginBottom: 24 }}>
-          <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: 200 }}>
-              <input
-                type="text"
-                placeholder="이름, 전문분야, 지역으로 검색..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%', padding: '9px 14px', border: '1px solid #E3DDD0', borderRadius: 9,
-                  fontSize: 13, color: '#23211C', background: '#F4F1E9', outline: 'none', boxSizing: 'border-box',
-                }}
-              />
-            </div>
-            <div>
-              <p style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>지역</p>
-              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                {REGIONS.map(r => (
-                  <FilterChip key={r} label={r} active={selectedRegions.includes(r)} onClick={() => toggleFilter(selectedRegions, setSelectedRegions, r)} />
-                ))}
+        <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {/* Filter Bar */}
+            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E3DDD0', padding: '16px 20px', marginBottom: 24 }}>
+              <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <input
+                    type="text"
+                    placeholder="이름, 전문분야, 지역으로 검색..."
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    style={{
+                      width: '100%', padding: '9px 14px', border: '1px solid #E3DDD0', borderRadius: 9,
+                      fontSize: 13, color: '#23211C', background: '#F4F1E9', outline: 'none', boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>지역</p>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                    {REGIONS.map(r => (
+                      <FilterChip key={r} label={r} active={selectedRegions.includes(r)} onClick={() => toggleFilter(selectedRegions, setSelectedRegions, r)} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>전문분야</p>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                    {SPECIALTIES.map(s => (
+                      <FilterChip key={s} label={s} active={selectedSpecialties.includes(s)} onClick={() => toggleFilter(selectedSpecialties, setSelectedSpecialties, s)} />
+                    ))}
+                  </div>
+                </div>
+                {hasFilters && (
+                  <button onClick={clearAll} style={{ alignSelf: 'flex-end', padding: '7px 14px', border: '1px solid #E3DDD0', borderRadius: 8, fontSize: 13, color: '#76705F', background: '#fff', cursor: 'pointer' }}>
+                    초기화
+                  </button>
+                )}
               </div>
             </div>
-            <div>
-              <p style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>전문분야</p>
-              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                {SPECIALTIES.map(s => (
-                  <FilterChip key={s} label={s} active={selectedSpecialties.includes(s)} onClick={() => toggleFilter(selectedSpecialties, setSelectedSpecialties, s)} />
-                ))}
-              </div>
-            </div>
-            {hasFilters && (
-              <button onClick={clearAll} style={{ alignSelf: 'flex-end', padding: '7px 14px', border: '1px solid #E3DDD0', borderRadius: 8, fontSize: 13, color: '#76705F', background: '#fff', cursor: 'pointer' }}>
-                초기화
-              </button>
-            )}
-          </div>
-        </div>
 
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '80px 0', color: '#9A9382', fontSize: 14 }}>불러오는 중...</div>
-        ) : filteredResumes.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px 24px', background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0' }}>
-            <p style={{ color: '#76705F', fontSize: 15, fontWeight: 600 }}>강사를 찾을 수 없습니다</p>
-            <p style={{ color: '#9A9382', fontSize: 13, marginTop: 6 }}>다른 조건으로 검색해보세요</p>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '80px 0', color: '#9A9382', fontSize: 14 }}>불러오는 중...</div>
+            ) : filteredResumes.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '80px 24px', background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0' }}>
+                <p style={{ color: '#76705F', fontSize: 15, fontWeight: 600 }}>강사를 찾을 수 없습니다</p>
+                <p style={{ color: '#9A9382', fontSize: 13, marginTop: 6 }}>다른 조건으로 검색해보세요</p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                {filteredResumes.map((resume, idx) => (
+                  <ResumeCard key={resume.id} resume={resume} idx={idx} />
+                ))}
+              </div>
+            )}
+            <BannerZone position="resumes_bottom" />
           </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-            {filteredResumes.map((resume, idx) => (
-              <ResumeCard key={resume.id} resume={resume} idx={idx} />
-            ))}
-          </div>
-        )}
+          <BannerZone position="resumes_top" />
+        </div>
       </div>
     </main>
   );

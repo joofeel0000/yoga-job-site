@@ -3,6 +3,7 @@
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BannerZone from '@/app/components/BannerZone';
 
 const TABS = ['전체', '자유게시판', '강사Q&A', '노하우', '후기'];
 
@@ -89,6 +90,8 @@ export default function CommunityPage() {
             </button>
           ))}
         </div>
+
+        <BannerZone position="community_top" />
 
         {/* 2-col layout */}
         <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
