@@ -72,23 +72,21 @@ function CarouselBanner({ banners }) {
   );
 }
 
-// ── home_bottom: 3열 그리드 카드 ───────────────────────────
+// ── home_bottom: 3열 스폰서 카드 그리드 ────────────────────
 function GridBanner({ banners }) {
   return (
-    <div className="my-4">
-      <div className="flex justify-end mb-1.5">
-        <span className="text-xs text-stone-300 px-1">광고</span>
+    <section style={{ marginBottom: 56 }}>
+      <div style={{ marginBottom: 10 }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', letterSpacing: '0.1em' }}>SPONSORED</span>
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        {banners.map(b => (
-          <BannerImg key={b.id} banner={b} imgClass="w-full h-20 object-cover rounded-xl" />
-        ))}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        {banners.map(b => <SponsorCard key={b.id} banner={b} height={200} />)}
       </div>
-    </div>
+    </section>
   );
 }
 
-// ── home_strip: 풀width 띠배너 ─────────────────────────────
+// ── home_strip: 풀width 와이드 배너 (160px, 그라데이션) ──────
 function StripBanner({ banners }) {
   const [idx, setIdx] = useState(0);
 
@@ -98,21 +96,44 @@ function StripBanner({ banners }) {
     return () => clearInterval(t);
   }, [banners.length]);
 
-  return (
-    <div className="w-full overflow-hidden relative">
-      <BannerImg banner={banners[idx]} imgClass="w-full h-16 object-cover" />
-      <span className="absolute bottom-1 right-2 text-xs text-white/50 pointer-events-none">광고</span>
+  const b = banners[idx];
+  const inner = (
+    <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', height: 160, marginBottom: 56 }}>
+      <img
+        src={b.image_url} alt={b.title}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        onError={(e) => { e.target.parentElement.style.display = 'none'; }}
+      />
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(90deg, rgba(30,28,24,0.72) 0%, rgba(30,28,24,0) 60%)',
+      }} />
+      <span style={{
+        position: 'absolute', top: 12, left: 12,
+        background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(4px)',
+        color: '#fff', fontSize: 11, fontWeight: 700,
+        padding: '2px 7px', borderRadius: 4,
+      }}>AD</span>
+      {b.title && (
+        <div style={{ position: 'absolute', top: '50%', left: 32, transform: 'translateY(-50%)' }}>
+          <p style={{ color: '#fff', fontSize: 20, fontWeight: 800, margin: 0 }}>{b.title}</p>
+        </div>
+      )}
     </div>
   );
+  if (b.link_url) {
+    return <a href={b.link_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>{inner}</a>;
+  }
+  return inner;
 }
 
 // ── 스폰서 카드 (이미지 꽉 채움 + 하단 그라데이션 오버레이) ──
-function SponsorCard({ banner }) {
+function SponsorCard({ banner, height = 180 }) {
   const card = (
     <div style={{
       borderRadius: 16, overflow: 'hidden',
       border: '1px solid #E3DDD0',
-      position: 'relative', height: 180,
+      position: 'relative', height,
     }}>
       <img
         src={banner.image_url}

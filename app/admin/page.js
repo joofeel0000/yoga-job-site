@@ -5,11 +5,15 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const POSITION_LABELS = {
-  home_top:    '메인 상단 (슬라이드)',
-  home_strip:  '메인 띠배너 (풀width)',
-  home_bottom: '메인 하단 (그리드)',
-  jobs_top:    '구인공고 사이드바',
-  resumes_top: '강사찾기 사이드바',
+  home_top:       '메인 상단 (슬라이드 캐러셀)',
+  home_strip:     '메인 와이드 배너 (160px)',
+  home_bottom:    '메인 스폰서 카드 (3열 그리드)',
+  jobs_top:       '구인공고 우측 사이드바',
+  jobs_bottom:    '구인공고 하단 스폰서 카드',
+  resumes_top:    '강사찾기 우측 사이드바',
+  resumes_bottom: '강사찾기 하단 스폰서 카드',
+  community_top:  '커뮤니티 상단 와이드 배너',
+  property_top:   '매물정보 상단 와이드 배너',
 };
 
 const BLANK_BANNER = {

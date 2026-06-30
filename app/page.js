@@ -5,26 +5,9 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import BannerZone from '@/app/components/BannerZone';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=800&auto=format&fit=crop&q=80';
-const BANNER_IMG = 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&auto=format&fit=crop&q=80';
-const SMALL_ADS = [
-  {
-    img: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&auto=format&fit=crop&q=80',
-    brand: '루루레몬 코리아',
-    category: '요가복 브랜드',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&auto=format&fit=crop&q=80',
-    brand: '스튜디오 무브먼트',
-    category: '필라테스 스튜디오',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&auto=format&fit=crop&q=80',
-    brand: '제주 웰니스 리트릿',
-    category: '웰니스 리트릿',
-  },
-];
 const POPULAR_KEYWORDS = ['하타요가', '강남', '정규직', '대강', '빈야사'];
 
 // 공고 카드 아이콘 이미지 풀
@@ -307,27 +290,8 @@ export default function Home() {
       {/* ── Main content ─────────────────────────────────────── */}
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '56px 24px 0' }}>
 
-        {/* Main banner ad */}
-        <div style={{
-          position: 'relative', borderRadius: 16, overflow: 'hidden',
-          height: 160, marginBottom: 56,
-        }}>
-          <Image src={BANNER_IMG} alt="광고 배너" fill sizes="(max-width: 1200px) 100vw, 1200px" style={{ objectFit: 'cover' }} />
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(90deg,rgba(30,28,24,0.72) 0%,rgba(30,28,24,0) 60%)',
-          }} />
-          <span style={{
-            position: 'absolute', top: 12, left: 12,
-            background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(4px)',
-            color: '#fff', fontSize: 11, fontWeight: 700,
-            padding: '2px 7px', borderRadius: 4,
-          }}>AD</span>
-          <div style={{ position: 'absolute', top: '50%', left: 32, transform: 'translateY(-50%)' }}>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, margin: '0 0 6px' }}>광고 문의</p>
-            <p style={{ color: '#fff', fontSize: 20, fontWeight: 800, margin: 0 }}>요가브릿지와 함께 성장하세요</p>
-          </div>
-        </div>
+        <BannerZone position="home_top" />
+        <BannerZone position="home_strip" />
 
         {/* Recommended jobs */}
         <section style={{ marginBottom: 56 }}>
@@ -345,46 +309,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Sponsor ads */}
-        <section style={{ marginBottom: 56 }}>
-          <div style={{ marginBottom: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', letterSpacing: '0.1em' }}>SPONSORED</span>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
-            {SMALL_ADS.map((ad, i) => (
-              <div key={i} style={{
-                borderRadius: 16, overflow: 'hidden',
-                border: '1px solid #E3DDD0', cursor: 'pointer',
-                position: 'relative', height: 200,
-              }}>
-                <Image
-                  src={ad.img}
-                  alt={ad.brand}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 400px"
-                  style={{ objectFit: 'cover' }}
-                />
-                {/* bottom gradient overlay */}
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: 'linear-gradient(to top, rgba(30,28,24,0.78) 0%, rgba(30,28,24,0) 55%)',
-                }} />
-                {/* AD label — top right */}
-                <span style={{
-                  position: 'absolute', top: 10, right: 10,
-                  background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(4px)',
-                  color: '#fff', fontSize: 10, fontWeight: 700,
-                  padding: '2px 7px', borderRadius: 4,
-                }}>AD</span>
-                {/* brand text — bottom left */}
-                <div style={{ position: 'absolute', bottom: 14, left: 14 }}>
-                  <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 11, margin: '0 0 2px' }}>{ad.category}</p>
-                  <p style={{ color: '#fff', fontSize: 15, fontWeight: 700, margin: 0 }}>{ad.brand}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <BannerZone position="home_bottom" />
 
         {/* Featured instructors */}
         <section style={{ marginBottom: 56 }}>
@@ -456,42 +381,6 @@ export default function Home() {
           </div>
         </section>
       </div>
-
-      {/* ── Footer ───────────────────────────────────────────── */}
-      <footer style={{ background: '#2A2A23', marginTop: 24 }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '48px 24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                <LogoMark size={32} inner={12} dark />
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#C9C3B4' }}>요가브릿지</span>
-              </div>
-              <p style={{ fontSize: 13, color: '#7E786B', lineHeight: 1.7, margin: 0 }}>
-                요가 강사와 스튜디오를 연결하는<br />채용 플랫폼
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: 56 }}>
-              <FooterCol title="서비스" items={[
-                { label: '구인구직', href: '/jobs' },
-                { label: '강사찾기', href: '/resumes' },
-                { label: '매물정보', href: '/property' },
-                { label: '커뮤니티', href: '/community' },
-              ]} />
-              <FooterCol title="고객지원" items={[
-                { label: '공지사항', href: '/community' },
-                { label: '이용약관', href: '/' },
-                { label: '개인정보처리방침', href: '/' },
-                { label: '광고문의', href: '/' },
-              ]} />
-            </div>
-          </div>
-        </div>
-        <div style={{ borderTop: '1px solid #3E3B33' }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 24px' }}>
-            <p style={{ fontSize: 12, color: '#7E786B', margin: 0 }}>© 2026 요가브릿지. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }
@@ -718,19 +607,6 @@ function CommunityRow({ post, rank, isLast }) {
           {post.author_email?.split('@')[0]} · 조회 {post.views ?? 0}
         </p>
       </div>
-    </div>
-  );
-}
-
-function FooterCol({ title, items }) {
-  return (
-    <div>
-      <p style={{ fontSize: 12, fontWeight: 700, color: '#C9C3B4', marginBottom: 14, letterSpacing: '0.05em' }}>{title}</p>
-      {items.map(({ label, href }) => (
-        <Link key={label} href={href} style={{ display: 'block', fontSize: 13, color: '#7E786B', marginBottom: 10, textDecoration: 'none' }}>
-          {label}
-        </Link>
-      ))}
     </div>
   );
 }
