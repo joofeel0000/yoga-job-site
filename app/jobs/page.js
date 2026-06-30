@@ -23,15 +23,11 @@ function Chip({ label, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      style={{
-        padding: '5px 12px', borderRadius: 20, fontSize: 13,
-        fontWeight: active ? 600 : 400,
-        background: active ? '#23211C' : 'transparent',
-        color: active ? '#fff' : '#76705F',
-        border: `1px solid ${active ? '#23211C' : '#E3DDD0'}`,
-        cursor: 'pointer', transition: 'all 0.15s',
-        whiteSpace: 'nowrap',
-      }}
+      className={`px-3 py-[5px] rounded-full text-[13px] border cursor-pointer transition-all duration-150 whitespace-nowrap ${
+        active
+          ? 'bg-[#23211C] text-white border-[#23211C] font-semibold'
+          : 'bg-transparent text-[#76705F] border-[#E3DDD0] font-normal'
+      }`}
     >
       {label}
     </button>
@@ -40,11 +36,9 @@ function Chip({ label, active, onClick }) {
 
 function FilterSection({ title, options, selected, onToggle }) {
   return (
-    <div style={{ marginBottom: 24 }}>
-      <p style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
-        {title}
-      </p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+    <div className="mb-6">
+      <p className="text-[11px] font-bold text-[#9A9382] tracking-[0.08em] uppercase mb-[10px]">{title}</p>
+      <div className="flex flex-wrap gap-[6px]">
         {options.map(opt => (
           <Chip key={opt} label={opt} active={selected.includes(opt)} onClick={() => onToggle(opt)} />
         ))}
@@ -144,22 +138,17 @@ function JobsContent() {
   };
 
   return (
-    <main style={{ minHeight: '100vh', background: '#F4F1E9' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px', display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+    <main className="page-root">
+      <div className="content-wrap flex gap-6 items-start">
 
         {/* Left Sidebar */}
-        <aside style={{
-          width: 216, flexShrink: 0,
-          background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0',
-          padding: '22px 18px', position: 'sticky', top: 88,
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: '#23211C' }}>필터</span>
+        <aside className="w-[216px] shrink-0 bg-white rounded-2xl border border-[#E3DDD0] px-[18px] py-[22px] sticky top-[88px]">
+          <div className="flex justify-between items-center mb-5">
+            <span className="text-[15px] font-bold text-[#23211C]">필터</span>
             {hasFilters && (
-              <button onClick={clearAll} style={{
-                fontSize: 12, color: '#9A9382', cursor: 'pointer',
-                background: 'none', border: 'none', padding: 0,
-              }}>초기화</button>
+              <button onClick={clearAll} className="text-xs text-[#9A9382] cursor-pointer bg-transparent border-none p-0">
+                초기화
+              </button>
             )}
           </div>
           <FilterSection title="지역" options={REGIONS} selected={selectedRegions} onToggle={(v) => toggleFilter(selectedRegions, setSelectedRegions, v)} />
@@ -168,48 +157,43 @@ function JobsContent() {
         </aside>
 
         {/* Main Content */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="flex-1 min-w-0">
 
           {/* Search + Sort */}
-          <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center' }}>
+          <div className="flex gap-3 mb-4 items-center">
             <input
               type="text"
               placeholder="공고명, 스튜디오명으로 검색..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              style={{
-                flex: 1, padding: '10px 16px', border: '1px solid #E3DDD0', borderRadius: 10,
-                fontSize: 14, color: '#23211C', background: '#fff', outline: 'none',
-              }}
+              className="flex-1 px-4 py-[10px] border border-[#E3DDD0] rounded-[10px] text-sm text-[#23211C] bg-white outline-none"
             />
-            <div style={{ display: 'flex', gap: 4, background: '#fff', border: '1px solid #E3DDD0', borderRadius: 10, padding: 4 }}>
+            <div className="flex gap-1 bg-white border border-[#E3DDD0] rounded-[10px] p-1">
               {SORT_OPTIONS.map(opt => (
-                <button key={opt} onClick={() => setSortBy(opt)} style={{
-                  padding: '6px 13px', borderRadius: 7, fontSize: 13,
-                  fontWeight: sortBy === opt ? 600 : 400,
-                  background: sortBy === opt ? '#23211C' : 'transparent',
-                  color: sortBy === opt ? '#fff' : '#76705F',
-                  border: 'none', cursor: 'pointer', transition: 'all 0.15s',
-                }}>
+                <button key={opt} onClick={() => setSortBy(opt)} className={`px-[13px] py-[6px] rounded-[7px] text-[13px] border-none cursor-pointer transition-all duration-150 ${
+                  sortBy === opt
+                    ? 'bg-[#23211C] text-white font-semibold'
+                    : 'bg-transparent text-[#76705F] font-normal'
+                }`}>
                   {opt}
                 </button>
               ))}
             </div>
           </div>
 
-          <p style={{ fontSize: 13, color: '#9A9382', marginBottom: 14 }}>
-            총 <strong style={{ color: '#23211C' }}>{sortedJobs.length}</strong>개 공고
+          <p className="text-[13px] text-[#9A9382] mb-[14px]">
+            총 <strong className="text-[#23211C]">{sortedJobs.length}</strong>개 공고
           </p>
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '80px 0', color: '#9A9382', fontSize: 14 }}>불러오는 중...</div>
+            <div className="state-center">불러오는 중...</div>
           ) : sortedJobs.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '80px 24px', background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0' }}>
-              <p style={{ color: '#76705F', fontSize: 15, fontWeight: 600 }}>공고가 없습니다</p>
-              <p style={{ color: '#9A9382', fontSize: 13, marginTop: 6 }}>다른 조건으로 검색해보세요</p>
+            <div className="card-empty">
+              <p className="text-[#76705F] text-[15px] font-semibold">공고가 없습니다</p>
+              <p className="text-[#9A9382] text-[13px] mt-[6px]">다른 조건으로 검색해보세요</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="flex flex-col gap-[10px]">
               {sortedJobs.map((job, idx) => (
                 <JobCard
                   key={job.id}
@@ -231,78 +215,57 @@ function JobsContent() {
 }
 
 function JobCard({ job, idx, isBookmarked, onBookmark, timeAgo }) {
-  const [hover, setHover] = useState(false);
   return (
-    <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        background: '#fff', borderRadius: 14,
-        border: `1px solid ${hover ? '#23211C' : '#E3DDD0'}`,
-        boxShadow: hover ? '0 4px 16px rgba(30,28,24,0.08)' : 'none',
-        padding: '16px 20px', display: 'flex', gap: 16, alignItems: 'center',
-        transition: 'all 0.15s',
-      }}
-    >
+    <div className="bg-white rounded-[14px] border border-[#E3DDD0] hover:border-[#23211C] hover:shadow-[0_4px_16px_rgba(30,28,24,0.08)] px-5 py-4 flex gap-4 items-center transition-all duration-150">
       {/* Thumbnail */}
-      <div style={{ width: 60, height: 60, borderRadius: 12, overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
-        <Image src={JOB_IMGS[idx % JOB_IMGS.length]} alt={job.title} fill sizes="60px" style={{ objectFit: 'cover' }} />
+      <div className="w-[60px] h-[60px] rounded-xl overflow-hidden shrink-0 relative">
+        <Image src={JOB_IMGS[idx % JOB_IMGS.length]} alt={job.title} fill sizes="60px" className="object-cover" />
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-          <span style={{ fontSize: 12, color: '#9A9382' }}>요가스튜디오</span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-[6px] mb-1">
+          <span className="text-xs text-[#9A9382]">요가스튜디오</span>
           {idx % 4 === 0 && (
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#C2922F', background: '#FDF3E3', padding: '1px 7px', borderRadius: 10 }}>추천</span>
+            <span className="text-[11px] font-bold text-[#C2922F] bg-[#FDF3E3] px-[7px] py-[1px] rounded-[10px]">추천</span>
           )}
         </div>
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#23211C', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {job.title}
-        </h3>
-        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+        <h3 className="text-[15px] font-bold text-[#23211C] mb-[6px] truncate">{job.title}</h3>
+        <div className="flex gap-[5px] flex-wrap">
           {job.location && (
-            <span style={{ fontSize: 12, color: '#76705F', background: '#F4F1E9', padding: '2px 8px', borderRadius: 6 }}>{job.location}</span>
+            <span className="text-xs text-[#76705F] bg-[#F4F1E9] px-2 py-[2px] rounded-[6px]">{job.location}</span>
           )}
           {job.yoga_style && (
-            <span style={{ fontSize: 12, color: '#76705F', background: '#F4F1E9', padding: '2px 8px', borderRadius: 6 }}>{job.yoga_style}</span>
+            <span className="text-xs text-[#76705F] bg-[#F4F1E9] px-2 py-[2px] rounded-[6px]">{job.yoga_style}</span>
           )}
           {job.experience && (
-            <span style={{ fontSize: 12, color: '#76705F', background: '#F4F1E9', padding: '2px 8px', borderRadius: 6 }}>{job.experience}</span>
+            <span className="text-xs text-[#76705F] bg-[#F4F1E9] px-2 py-[2px] rounded-[6px]">{job.experience}</span>
           )}
         </div>
       </div>
 
       {/* Salary + time */}
-      <div style={{ textAlign: 'right', flexShrink: 0, marginRight: 8 }}>
+      <div className="text-right shrink-0 mr-2">
         {job.salary && (
-          <p style={{ fontSize: 14, fontWeight: 700, color: '#23211C', marginBottom: 4 }}>{job.salary}</p>
+          <p className="text-sm font-bold text-[#23211C] mb-1">{job.salary}</p>
         )}
-        <p style={{ fontSize: 12, color: '#9A9382' }}>{timeAgo(job.created_at)}</p>
+        <p className="text-xs text-[#9A9382]">{timeAgo(job.created_at)}</p>
       </div>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+      <div className="flex gap-2 items-center shrink-0">
         <button
           onClick={(e) => onBookmark(e, job.id)}
-          style={{
-            width: 36, height: 36, borderRadius: 8,
-            border: `1px solid ${isBookmarked ? '#C2922F' : '#E3DDD0'}`,
-            background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', fontSize: 17,
-            color: isBookmarked ? '#C2922F' : '#9A9382', transition: 'all 0.15s',
-          }}
+          className={`w-9 h-9 rounded-[8px] border flex items-center justify-center cursor-pointer text-[17px] transition-all duration-150 bg-white ${
+            isBookmarked
+              ? 'border-[#C2922F] text-[#C2922F]'
+              : 'border-[#E3DDD0] text-[#9A9382]'
+          }`}
         >
           {isBookmarked ? '♥' : '♡'}
         </button>
         <Link href={`/jobs/${job.id}`}>
-          <button style={{
-            padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-            background: '#23211C', color: '#fff', border: 'none', cursor: 'pointer',
-            whiteSpace: 'nowrap',
-          }}>
-            상세보기
-          </button>
+          <button className="btn-primary text-[13px]">상세보기</button>
         </Link>
       </div>
     </div>

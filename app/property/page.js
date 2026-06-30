@@ -54,12 +54,12 @@ export default function PropertyPage() {
 
   return (
     <main className="min-h-screen bg-[#F4F1E9]">
-      <div className="mx-auto" style={{ maxWidth: 1200, padding: '32px 24px' }}>
+      <div className="content-wrap">
 
         <div className="flex justify-between items-end mb-6">
           <div>
-            <h1 style={{ fontSize: 26, fontWeight: 700, color: '#23211C', marginBottom: 4 }}>요가 매물 정보</h1>
-            <p style={{ fontSize: 14, color: '#9A9382' }}>요가 스튜디오 임대·매매·양도 정보를 확인하세요</p>
+            <h1 className="text-[26px] font-bold text-[#23211C] mb-1">요가 매물 정보</h1>
+            <p className="text-sm text-[#9A9382]">요가 스튜디오 임대·매매·양도 정보를 확인하세요</p>
           </div>
           <div className="flex gap-3 items-center">
             <Link href="/post-property">
@@ -119,20 +119,15 @@ export default function PropertyPage() {
               <Link key={p.id} href={`/property/${p.id}`}>
                 <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden hover:shadow-md hover:border-stone-300 transition cursor-pointer h-full">
                   {/* thumbnail */}
-                  <div style={{ position: 'relative', height: 160 }}>
+                  <div className="relative h-40">
                     <Image
                       src={STUDIO_IMGS[i % STUDIO_IMGS.length]}
                       alt={p.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 400px"
-                      style={{ objectFit: 'cover' }}
+                      className="object-cover"
                     />
-                    <span style={{
-                      position: 'absolute', top: 10, left: 10,
-                      fontSize: 11, fontWeight: 700,
-                      background: '#23211C', color: '#fff',
-                      padding: '3px 8px', borderRadius: 5,
-                    }}>
+                    <span className="absolute top-[10px] left-[10px] text-[11px] font-bold bg-[#23211C] text-white px-2 py-[3px] rounded-[5px]">
                       {p.property_type}
                     </span>
                   </div>

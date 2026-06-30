@@ -57,35 +57,32 @@ export default function CommunityPage() {
   });
 
   return (
-    <main style={{ minHeight: '100vh', background: '#F4F1E9' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
+    <main className="page-root">
+      <div className="content-wrap">
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 style={{ fontSize: 26, fontWeight: 700, color: '#23211C', marginBottom: 4 }}>커뮤니티</h1>
-            <p style={{ fontSize: 14, color: '#9A9382' }}>요가 강사와 센터가 소통하는 공간</p>
+            <h1 className="text-[26px] font-bold text-[#23211C] mb-1">커뮤니티</h1>
+            <p className="text-sm text-[#9A9382]">요가 강사와 센터가 소통하는 공간</p>
           </div>
           <Link href="/post-community">
-            <button style={{
-              padding: '10px 20px', borderRadius: 10, fontSize: 14, fontWeight: 700,
-              background: '#23211C', color: '#fff', border: 'none', cursor: 'pointer',
-            }}>
-              + 글쓰기
-            </button>
+            <button className="btn-primary px-5 py-[10px] text-sm">+ 글쓰기</button>
           </Link>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 0, marginBottom: 20, borderBottom: '2px solid #E3DDD0' }}>
+        <div className="flex mb-5 border-b-2 border-[#E3DDD0]">
           {TABS.map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)} style={{
-              padding: '10px 20px', fontSize: 14, fontWeight: activeTab === tab ? 700 : 400,
-              color: activeTab === tab ? '#23211C' : '#76705F',
-              background: 'transparent', border: 'none', cursor: 'pointer',
-              borderBottom: activeTab === tab ? '2px solid #23211C' : '2px solid transparent',
-              marginBottom: -2, transition: 'all 0.15s',
-            }}>
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-5 py-[10px] text-sm border-none cursor-pointer bg-transparent transition-all duration-150 -mb-[2px] border-b-2 ${
+                activeTab === tab
+                  ? 'font-bold text-[#23211C] border-b-[#23211C]'
+                  : 'font-normal text-[#76705F] border-b-transparent'
+              }`}
+            >
               {tab}
             </button>
           ))}
@@ -94,21 +91,21 @@ export default function CommunityPage() {
         <BannerZone position="community_top" />
 
         {/* 2-col layout */}
-        <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+        <div className="flex gap-5 items-start">
 
           {/* Left: post list */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="flex-1 min-w-0">
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '60px 0', color: '#9A9382', fontSize: 14 }}>불러오는 중...</div>
+              <div className="state-center">불러오는 중...</div>
             ) : filtered.length === 0 ? (
-              <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E3DDD0', padding: '60px 24px', textAlign: 'center' }}>
-                <p style={{ color: '#76705F', fontSize: 15, fontWeight: 600 }}>게시글이 없습니다</p>
-                <Link href="/post-community" style={{ display: 'inline-block', marginTop: 12, fontSize: 13, color: '#23211C', textDecoration: 'underline' }}>
+              <div className="card-empty">
+                <p className="text-[#76705F] text-[15px] font-semibold">게시글이 없습니다</p>
+                <Link href="/post-community" className="inline-block mt-3 text-[13px] text-[#23211C] underline">
                   첫 글을 작성해보세요
                 </Link>
               </div>
             ) : (
-              <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E3DDD0', overflow: 'hidden' }}>
+              <div className="bg-white rounded-[14px] border border-[#E3DDD0] overflow-hidden">
                 {filtered.map((post, idx) => {
                   const commentCount = post.community_comments?.[0]?.count ?? 0;
                   return (
@@ -120,24 +117,22 @@ export default function CommunityPage() {
           </div>
 
           {/* Right sidebar */}
-          <div style={{ width: 260, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="w-[260px] shrink-0 flex flex-col gap-[14px]">
 
             {/* 주간 인기글 */}
-            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E3DDD0', padding: '20px 18px' }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#23211C', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div className="bg-white rounded-[14px] border border-[#E3DDD0] px-[18px] py-5">
+              <h3 className="text-sm font-bold text-[#23211C] mb-[14px] flex items-center gap-[6px]">
                 🔥 주간 인기글
               </h3>
               {hotPosts.length === 0 ? (
-                <p style={{ fontSize: 13, color: '#9A9382' }}>인기글이 없습니다</p>
+                <p className="text-[13px] text-[#9A9382]">인기글이 없습니다</p>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div className="flex flex-col gap-[10px]">
                   {hotPosts.map((p, i) => (
-                    <Link key={p.id} href={`/community/${p.id}`} style={{ textDecoration: 'none' }}>
-                      <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: i < 3 ? '#C2922F' : '#9A9382', flexShrink: 0, width: 16 }}>{i + 1}</span>
-                        <p style={{ fontSize: 13, color: '#23211C', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {p.title}
-                        </p>
+                    <Link key={p.id} href={`/community/${p.id}`} className="no-underline">
+                      <div className="flex gap-[10px] items-start">
+                        <span className={`text-[13px] font-bold shrink-0 w-4 ${i < 3 ? 'text-[#C2922F]' : 'text-[#9A9382]'}`}>{i + 1}</span>
+                        <p className="text-[13px] text-[#23211C] leading-snug truncate">{p.title}</p>
                       </div>
                     </Link>
                   ))}
@@ -146,17 +141,14 @@ export default function CommunityPage() {
             </div>
 
             {/* 강사 인증 프로모 */}
-            <div style={{ background: '#23211C', borderRadius: 14, padding: '20px 18px' }}>
-              <p style={{ fontSize: 12, color: '#CFC9BB', marginBottom: 6, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>강사 인증</p>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 8, lineHeight: 1.4 }}>
+            <div className="bg-[#23211C] rounded-[14px] px-[18px] py-5">
+              <p className="text-xs text-[#CFC9BB] mb-[6px] font-semibold tracking-[0.05em] uppercase">강사 인증</p>
+              <h3 className="text-[15px] font-bold text-white mb-2 leading-snug">
                 자격증을 등록하고<br />신뢰도를 높이세요
               </h3>
-              <p style={{ fontSize: 12, color: '#9A9382', marginBottom: 16 }}>인증 배지로 더 많은 기회를</p>
+              <p className="text-xs text-[#9A9382] mb-4">인증 배지로 더 많은 기회를</p>
               <Link href="/certify">
-                <button style={{
-                  width: '100%', padding: '10px 0', borderRadius: 9, fontSize: 13, fontWeight: 700,
-                  background: '#C2922F', color: '#fff', border: 'none', cursor: 'pointer',
-                }}>
+                <button className="w-full py-[10px] rounded-[9px] text-[13px] font-bold bg-[#C2922F] text-white border-none cursor-pointer">
                   인증 신청하기
                 </button>
               </Link>
@@ -169,30 +161,20 @@ export default function CommunityPage() {
 }
 
 function PostRow({ post, commentCount, isLast }) {
-  const [hover, setHover] = useState(false);
   return (
-    <Link href={`/community/${post.id}`} style={{ textDecoration: 'none', display: 'block' }}>
-      <div
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        style={{
-          padding: '16px 20px',
-          borderBottom: isLast ? 'none' : '1px solid #F4F1E9',
-          background: hover ? '#FAFAF8' : '#fff',
-          transition: 'background 0.1s',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+    <Link href={`/community/${post.id}`} className="no-underline block">
+      <div className={`px-5 py-4 hover:bg-[#FAFAF8] transition-colors duration-100 ${isLast ? '' : 'border-b border-[#F4F1E9]'}`}>
+        <div className="flex items-center gap-2 mb-[6px]">
           <CatBadge cat={post.category} />
         </div>
-        <h3 style={{ fontSize: 14, fontWeight: 600, color: '#23211C', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <h3 className="text-sm font-semibold text-[#23211C] mb-[6px] truncate">
           {post.title}
         </h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, color: '#9A9382' }}>
+        <div className="flex items-center gap-3 text-xs text-[#9A9382]">
           <span>{post.author_email?.split('@')[0]}</span>
           <span>{new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
           <span>👁 {post.views ?? 0}</span>
-          {commentCount > 0 && <span style={{ color: '#23211C', fontWeight: 600 }}>💬 {commentCount}</span>}
+          {commentCount > 0 && <span className="text-[#23211C] font-semibold">💬 {commentCount}</span>}
         </div>
       </div>
     </Link>

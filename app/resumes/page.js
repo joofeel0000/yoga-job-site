@@ -20,65 +20,47 @@ const SPECIALTIES = ['하타', '빈야사', '아쉬탕가', '인요가', '키즈
 
 function FilterChip({ label, active, onClick }) {
   return (
-    <button onClick={onClick} style={{
-      padding: '4px 11px', borderRadius: 16, fontSize: 12,
-      fontWeight: active ? 600 : 400,
-      background: active ? '#23211C' : 'transparent',
-      color: active ? '#fff' : '#76705F',
-      border: `1px solid ${active ? '#23211C' : '#E3DDD0'}`,
-      cursor: 'pointer', transition: 'all 0.15s',
-    }}>
+    <button onClick={onClick} className={`px-[11px] py-1 rounded-2xl text-xs border cursor-pointer transition-all duration-150 ${
+      active
+        ? 'bg-[#23211C] text-white border-[#23211C] font-semibold'
+        : 'bg-transparent text-[#76705F] border-[#E3DDD0] font-normal'
+    }`}>
       {label}
     </button>
   );
 }
 
 function ResumeCard({ resume, idx }) {
-  const [hover, setHover] = useState(false);
   const rating = (4.5 + (idx % 5) * 0.1).toFixed(1);
   const styles = (resume.yoga_styles || '').split(/[,，、]/).map(s => s.trim()).filter(Boolean).slice(0, 3);
 
   return (
-    <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        background: '#fff', borderRadius: 16,
-        border: `1px solid ${hover ? '#23211C' : '#E3DDD0'}`,
-        boxShadow: hover ? '0 10px 28px rgba(30,28,24,0.12)' : 'none',
-        padding: '24px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center',
-        transition: 'all 0.15s',
-      }}
-    >
-      <div style={{ width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', position: 'relative', marginBottom: 10, border: '2px solid #E3DDD0', flexShrink: 0 }}>
-        <Image src={AVATAR_IMGS[idx % AVATAR_IMGS.length]} alt={resume.name} fill sizes="72px" style={{ objectFit: 'cover' }} />
+    <div className="bg-white rounded-2xl border border-[#E3DDD0] hover:border-[#23211C] hover:shadow-[0_10px_28px_rgba(30,28,24,0.12)] px-5 py-6 flex flex-col items-center transition-all duration-150">
+      <div className="w-[72px] h-[72px] rounded-full overflow-hidden relative mb-[10px] border-2 border-[#E3DDD0] shrink-0">
+        <Image src={AVATAR_IMGS[idx % AVATAR_IMGS.length]} alt={resume.name} fill sizes="72px" className="object-cover" />
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-        <span style={{ color: '#C2922F', fontSize: 13 }}>★</span>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#26241D' }}>{rating}</span>
+      <div className="flex items-center gap-1 mb-1">
+        <span className="text-[#C2922F] text-[13px]">★</span>
+        <span className="text-[13px] font-semibold text-[#26241D]">{rating}</span>
       </div>
 
-      <h3 style={{ fontSize: 16, fontWeight: 700, color: '#23211C', marginBottom: 4 }}>{resume.name}</h3>
+      <h3 className="text-base font-bold text-[#23211C] mb-1">{resume.name}</h3>
 
       {resume.location && (
-        <p style={{ fontSize: 12, color: '#9A9382', marginBottom: 10 }}>📍 {resume.location}</p>
+        <p className="text-xs text-[#9A9382] mb-[10px]">📍 {resume.location}</p>
       )}
 
       {resume.introduction && (
-        <p style={{
-          fontSize: 12, color: '#76705F', textAlign: 'center', lineHeight: 1.6, marginBottom: 12,
-          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-          width: '100%',
-        }}>
+        <p className="text-xs text-[#76705F] text-center leading-relaxed mb-3 line-clamp-2 w-full">
           {resume.introduction}
         </p>
       )}
 
       {styles.length > 0 && (
-        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 10 }}>
+        <div className="flex gap-[5px] flex-wrap justify-center mb-[10px]">
           {styles.map(s => (
-            <span key={s} style={{ fontSize: 11, color: '#76705F', background: '#F4F1E9', padding: '2px 8px', borderRadius: 8, border: '1px solid #E3DDD0' }}>
+            <span key={s} className="text-[11px] text-[#76705F] bg-[#F4F1E9] px-2 py-[2px] rounded-[8px] border border-[#E3DDD0]">
               {s}
             </span>
           ))}
@@ -86,23 +68,17 @@ function ResumeCard({ resume, idx }) {
       )}
 
       {resume.experience_years && (
-        <span style={{ fontSize: 11, fontWeight: 600, color: '#23211C', border: '1px solid #23211C', padding: '2px 10px', borderRadius: 10, marginBottom: 16 }}>
+        <span className="text-[11px] font-semibold text-[#23211C] border border-[#23211C] px-[10px] py-[2px] rounded-[10px] mb-4">
           경력 {resume.experience_years}
         </span>
       )}
 
-      <div style={{ display: 'flex', gap: 8, width: '100%', marginTop: 'auto' }}>
-        <button style={{
-          flex: 1, padding: '9px 0', borderRadius: 9, fontSize: 13, fontWeight: 600,
-          background: '#23211C', color: '#fff', border: 'none', cursor: 'pointer',
-        }}>
+      <div className="flex gap-2 w-full mt-auto">
+        <button className="flex-1 py-[9px] rounded-[9px] text-[13px] font-semibold bg-[#23211C] text-white border-none cursor-pointer">
           제안하기
         </button>
-        <Link href={`/resumes/${resume.id}`} style={{ flex: 1 }}>
-          <button style={{
-            width: '100%', padding: '9px 0', borderRadius: 9, fontSize: 13, fontWeight: 600,
-            background: 'transparent', color: '#23211C', border: '1px solid #23211C', cursor: 'pointer',
-          }}>
+        <Link href={`/resumes/${resume.id}`} className="flex-1">
+          <button className="w-full py-[9px] rounded-[9px] text-[13px] font-semibold bg-transparent text-[#23211C] border border-[#23211C] cursor-pointer">
             프로필
           </button>
         </Link>
@@ -151,52 +127,49 @@ export default function Resumes() {
   };
 
   return (
-    <main style={{ minHeight: '100vh', background: '#F4F1E9' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
+    <main className="page-root">
+      <div className="content-wrap">
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24 }}>
+        <div className="flex justify-between items-end mb-6">
           <div>
-            <h1 style={{ fontSize: 26, fontWeight: 700, color: '#23211C', marginBottom: 4 }}>강사 찾기</h1>
-            <p style={{ fontSize: 14, color: '#9A9382' }}>센터에 어울리는 요가 강사를 찾아보세요</p>
+            <h1 className="text-[26px] font-bold text-[#23211C] mb-1">강사 찾기</h1>
+            <p className="text-sm text-[#9A9382]">센터에 어울리는 요가 강사를 찾아보세요</p>
           </div>
-          <p style={{ fontSize: 13, color: '#9A9382' }}>총 <strong style={{ color: '#23211C' }}>{filteredResumes.length}</strong>명</p>
+          <p className="text-[13px] text-[#9A9382]">총 <strong className="text-[#23211C]">{filteredResumes.length}</strong>명</p>
         </div>
 
-        <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="flex gap-6 items-start">
+          <div className="flex-1 min-w-0">
             {/* Filter Bar */}
-            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E3DDD0', padding: '16px 20px', marginBottom: 24 }}>
-              <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: 200 }}>
+            <div className="bg-white rounded-[14px] border border-[#E3DDD0] px-5 py-4 mb-6">
+              <div className="flex gap-5 items-start flex-wrap">
+                <div className="flex-1 min-w-[200px]">
                   <input
                     type="text"
                     placeholder="이름, 전문분야, 지역으로 검색..."
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
-                    style={{
-                      width: '100%', padding: '9px 14px', border: '1px solid #E3DDD0', borderRadius: 9,
-                      fontSize: 13, color: '#23211C', background: '#F4F1E9', outline: 'none', boxSizing: 'border-box',
-                    }}
+                    className="w-full px-[14px] py-[9px] border border-[#E3DDD0] rounded-[9px] text-[13px] text-[#23211C] bg-[#F4F1E9] outline-none box-border"
                   />
                 </div>
                 <div>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>지역</p>
-                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                  <p className="text-[11px] font-bold text-[#9A9382] uppercase tracking-[0.07em] mb-[7px]">지역</p>
+                  <div className="flex gap-[5px] flex-wrap">
                     {REGIONS.map(r => (
                       <FilterChip key={r} label={r} active={selectedRegions.includes(r)} onClick={() => toggleFilter(selectedRegions, setSelectedRegions, r)} />
                     ))}
                   </div>
                 </div>
                 <div>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>전문분야</p>
-                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                  <p className="text-[11px] font-bold text-[#9A9382] uppercase tracking-[0.07em] mb-[7px]">전문분야</p>
+                  <div className="flex gap-[5px] flex-wrap">
                     {SPECIALTIES.map(s => (
                       <FilterChip key={s} label={s} active={selectedSpecialties.includes(s)} onClick={() => toggleFilter(selectedSpecialties, setSelectedSpecialties, s)} />
                     ))}
                   </div>
                 </div>
                 {hasFilters && (
-                  <button onClick={clearAll} style={{ alignSelf: 'flex-end', padding: '7px 14px', border: '1px solid #E3DDD0', borderRadius: 8, fontSize: 13, color: '#76705F', background: '#fff', cursor: 'pointer' }}>
+                  <button onClick={clearAll} className="self-end px-[14px] py-[7px] border border-[#E3DDD0] rounded-[8px] text-[13px] text-[#76705F] bg-white cursor-pointer">
                     초기화
                   </button>
                 )}
@@ -204,14 +177,14 @@ export default function Resumes() {
             </div>
 
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '80px 0', color: '#9A9382', fontSize: 14 }}>불러오는 중...</div>
+              <div className="state-center">불러오는 중...</div>
             ) : filteredResumes.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '80px 24px', background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0' }}>
-                <p style={{ color: '#76705F', fontSize: 15, fontWeight: 600 }}>강사를 찾을 수 없습니다</p>
-                <p style={{ color: '#9A9382', fontSize: 13, marginTop: 6 }}>다른 조건으로 검색해보세요</p>
+              <div className="card-empty">
+                <p className="text-[#76705F] text-[15px] font-semibold">강사를 찾을 수 없습니다</p>
+                <p className="text-[#9A9382] text-[13px] mt-[6px]">다른 조건으로 검색해보세요</p>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+              <div className="grid-3col">
                 {filteredResumes.map((resume, idx) => (
                   <ResumeCard key={resume.id} resume={resume} idx={idx} />
                 ))}

@@ -10,14 +10,12 @@ import BannerZone from '@/app/components/BannerZone';
 const HERO_IMG = 'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=800&auto=format&fit=crop&q=80';
 const POPULAR_KEYWORDS = ['하타요가', '강남', '정규직', '대강', '빈야사'];
 
-// 공고 카드 아이콘 이미지 풀
 const JOB_IMGS = [
   'https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=96&h=96&fit=crop&q=80',
   'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=96&h=96&fit=crop&q=80',
   'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=96&h=96&fit=crop&q=80',
 ];
 
-// 강사 아바타 이미지 풀
 const AVATAR_IMGS = [
   'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=128&h=128&fit=crop&q=80',
   'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=128&h=128&fit=crop&q=80',
@@ -25,7 +23,6 @@ const AVATAR_IMGS = [
   'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=128&h=128&fit=crop&q=80',
 ];
 
-// 매물 썸네일 이미지 풀
 const STUDIO_IMGS = [
   'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=160&h=160&fit=crop&q=80',
   'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=160&h=160&fit=crop&q=80',
@@ -33,91 +30,21 @@ const STUDIO_IMGS = [
   'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=160&h=160&fit=crop&q=80',
 ];
 
-function CardHover({ children, style, ...props }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <div
-      {...props}
-      style={{
-        ...style,
-        borderColor: hovered ? '#23211C' : '#E3DDD0',
-        boxShadow: hovered ? '0 10px 28px rgba(30,28,24,0.12)' : 'none',
-        transition: 'all .15s',
-      }}
-      onMouseOver={() => setHovered(true)}
-      onMouseOut={() => setHovered(false)}
-    >
-      {children}
-    </div>
-  );
-}
-
-function OutlineBtn({ href, children }) {
-  const [hovered, setHovered] = useState(false);
-  const btn = (
-    <button
-      style={{
-        border: '1px solid #E3DDD0',
-        background: hovered ? '#EFEBE1' : 'transparent',
-        borderRadius: 9,
-        padding: '8px 16px',
-        fontSize: 13,
-        fontWeight: 600,
-        color: '#23211C',
-        cursor: 'pointer',
-        transition: 'background .12s',
-        whiteSpace: 'nowrap',
-      }}
-      onMouseOver={() => setHovered(true)}
-      onMouseOut={() => setHovered(false)}
-    >
-      {children}
-    </button>
-  );
-  return href ? <Link href={href}>{btn}</Link> : btn;
-}
-
 function SectionHeader({ title, moreHref, moreLabel = '더보기' }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-      <h2 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', color: '#26241D', margin: 0 }}>
-        {title}
-      </h2>
-      {moreHref && <OutlineBtn href={moreHref}>{moreLabel}</OutlineBtn>}
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-[26px] font-extrabold tracking-tight text-[#26241D]">{title}</h2>
+      {moreHref && (
+        <Link href={moreHref}>
+          <button className="btn-secondary text-[13px]">{moreLabel}</button>
+        </Link>
+      )}
     </div>
   );
 }
 
 function Chip({ children }) {
-  return (
-    <span style={{
-      fontSize: 12, fontWeight: 600,
-      background: '#EFEBE1', color: '#23211C',
-      padding: '3px 10px', borderRadius: 999,
-      display: 'inline-block',
-    }}>
-      {children}
-    </span>
-  );
-}
-
-function LogoMark({ size = 32, inner = 12, dark = false }) {
-  return (
-    <div style={{
-      width: size, height: size,
-      borderRadius: '50%',
-      background: dark ? '#3E3B33' : '#23211C',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      flexShrink: 0,
-    }}>
-      <div style={{
-        width: inner, height: inner,
-        background: '#CFC9BB',
-        borderRadius: '50% 50% 50% 0',
-        transform: 'rotate(45deg)',
-      }} />
-    </div>
-  );
+  return <span className="tag">{children}</span>;
 }
 
 export default function Home() {
@@ -169,61 +96,36 @@ export default function Home() {
   };
 
   return (
-    <main style={{ background: '#F4F1E9', minHeight: '100vh' }}>
+    <main className="page-root">
 
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <section style={{ background: 'linear-gradient(180deg,#ECE9E1 0%,#F4F1E9 100%)', paddingTop: 56, paddingBottom: 80 }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: 48, alignItems: 'center' }}>
+      {/* ── Hero ─────────────────────────────────────────── */}
+      <section className="bg-gradient-to-b from-[#ECE9E1] to-[#F4F1E9] pt-14 pb-20">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <div className="grid grid-cols-[1.05fr_0.95fr] gap-12 items-center">
 
             {/* Left */}
             <div>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center',
-                background: '#EAE7DE', border: '1px solid #E3DDD0',
-                borderRadius: 999, padding: '6px 14px', marginBottom: 20,
-              }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#23211C' }}>요가 강사·스튜디오 채용 플랫폼</span>
+              <div className="inline-flex items-center bg-[#EAE7DE] border border-[#E3DDD0] rounded-full px-[14px] py-[6px] mb-5">
+                <span className="text-xs font-semibold text-[#23211C]">요가 강사·스튜디오 채용 플랫폼</span>
               </div>
 
-              <h1 style={{
-                fontSize: 48, fontWeight: 800, lineHeight: 1.18,
-                letterSpacing: '-0.03em', color: '#26241D',
-                margin: '0 0 16px',
-              }}>
+              <h1 className="text-5xl font-extrabold leading-[1.18] tracking-[-0.03em] text-[#26241D] mb-4">
                 요가 강사와 스튜디오를,<br />가장 가깝게 잇다
               </h1>
 
-              <p style={{ fontSize: 15, lineHeight: 1.6, color: '#76705F', margin: '0 0 28px' }}>
+              <p className="text-[15px] leading-relaxed text-[#76705F] mb-7">
                 지역·전문분야별 맞춤 공고부터 검증된 강사 프로필, 스튜디오<br />매물까지. 요가 일자리의 모든 것.
               </p>
 
               {/* Search bar */}
-              <form onSubmit={handleSearch} style={{ marginBottom: 14 }}>
-                <div style={{
-                  background: '#fff',
-                  borderRadius: 14,
-                  boxShadow: '0 8px 24px rgba(30,28,24,0.10)',
-                  border: '1px solid #E3DDD0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '5px 5px 5px 0',
-                }}>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    padding: '0 16px', borderRight: '1px solid #E3DDD0',
-                    minWidth: 130,
-                  }}>
-                    <span style={{ fontSize: 14 }}>📍</span>
+              <form onSubmit={handleSearch} className="mb-[14px]">
+                <div className="bg-white rounded-[14px] shadow-[0_8px_24px_rgba(30,28,24,0.10)] border border-[#E3DDD0] flex items-center pr-[5px] py-[5px]">
+                  <div className="flex items-center gap-[6px] px-4 border-r border-[#E3DDD0] min-w-[130px]">
+                    <span className="text-sm">📍</span>
                     <select
                       value={searchRegion}
                       onChange={e => setSearchRegion(e.target.value)}
-                      style={{
-                        border: 'none', background: 'transparent',
-                        fontSize: 14, fontWeight: 600, color: '#23211C',
-                        cursor: 'pointer', outline: 'none',
-                        fontFamily: 'inherit',
-                      }}
+                      className="border-none bg-transparent text-sm font-semibold text-[#23211C] cursor-pointer outline-none"
                     >
                       {['전체 지역', '서울', '경기', '인천', '부산', '대구', '광주', '대전', '기타'].map(r => (
                         <option key={r}>{r}</option>
@@ -235,33 +137,39 @@ export default function Home() {
                     placeholder="포지션, 스튜디오, 키워드 검색"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    style={{
-                      flex: 1, border: 'none', outline: 'none',
-                      fontSize: 14, color: '#29271F',
-                      padding: '10px 16px', background: 'transparent',
-                      fontFamily: 'inherit',
-                    }}
+                    className="flex-1 border-none outline-none text-sm text-[#29271F] px-4 py-[10px] bg-transparent"
                   />
-                  <SearchButton />
+                  <button
+                    type="submit"
+                    className="bg-[#23211C] hover:bg-black text-white border-none rounded-[10px] px-[18px] py-[10px] text-sm font-bold cursor-pointer transition-colors shrink-0"
+                  >
+                    검색
+                  </button>
                 </div>
               </form>
 
               {/* Popular keywords */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 13, color: '#9A9382' }}>인기 검색:</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[13px] text-[#9A9382]">인기 검색:</span>
                 {POPULAR_KEYWORDS.map(kw => (
-                  <KeywordLink key={kw} kw={kw} onSelect={() => router.push(`/jobs?keyword=${encodeURIComponent(kw)}`)} />
+                  <button
+                    key={kw}
+                    onClick={() => router.push(`/jobs?keyword=${encodeURIComponent(kw)}`)}
+                    className="text-[13px] text-[#76705F] hover:text-[#23211C] bg-transparent border-none cursor-pointer p-0 transition-colors"
+                  >
+                    {kw}
+                  </button>
                 ))}
               </div>
             </div>
 
             {/* Right: hero image */}
-            <div style={{ borderRadius: 20, overflow: 'hidden', aspectRatio: '4/3', position: 'relative' }}>
+            <div className="rounded-[20px] overflow-hidden aspect-[4/3] relative">
               <Image
                 src={HERO_IMG}
                 alt="요가 클래스"
                 fill
-                style={{ objectFit: 'cover' }}
+                className="object-cover"
                 priority
               />
             </div>
@@ -269,37 +177,31 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Stats bar ────────────────────────────────────────── */}
-      <div style={{ maxWidth: 1200, margin: '-28px auto 0', padding: '0 24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
+      {/* ── Stats bar ────────────────────────────────────── */}
+      <div className="max-w-[1200px] mx-auto px-6 -mt-7">
+        <div className="grid-4col">
           {stats.map(stat => (
-            <div key={stat.label} style={{
-              background: '#fff',
-              border: '1px solid #E3DDD0',
-              borderRadius: 16, padding: '20px 24px',
-              textAlign: 'center',
-              boxShadow: '0 4px 12px rgba(30,28,24,0.06)',
-            }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#23211C', letterSpacing: '-0.02em' }}>{stat.num}</div>
-              <div style={{ fontSize: 13, color: '#9A9382', marginTop: 4 }}>{stat.label}</div>
+            <div key={stat.label} className="bg-white border border-[#E3DDD0] rounded-2xl px-6 py-5 text-center shadow-[0_4px_12px_rgba(30,28,24,0.06)]">
+              <div className="text-[28px] font-extrabold text-[#23211C] tracking-tight">{stat.num}</div>
+              <div className="text-[13px] text-[#9A9382] mt-1">{stat.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── Main content ─────────────────────────────────────── */}
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '56px 24px 0' }}>
+      {/* ── Main content ─────────────────────────────────── */}
+      <div className="max-w-[1200px] mx-auto px-6 pt-14">
 
         <BannerZone position="home_top" />
         <BannerZone position="home_strip" />
 
         {/* Recommended jobs */}
-        <section style={{ marginBottom: 56 }}>
+        <section className="mb-14">
           <SectionHeader title="오늘의 추천 공고" moreHref="/jobs" moreLabel="전체 공고 보기" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+          <div className="grid-3col">
             {(recentJobs.length > 0 ? recentJobs : [null, null, null]).map((job, i) => (
               job ? (
-                <Link key={job.id} href={`/jobs/${job.id}`} style={{ textDecoration: 'none' }}>
+                <Link key={job.id} href={`/jobs/${job.id}`} className="no-underline">
                   <JobCard job={job} idx={i} />
                 </Link>
               ) : (
@@ -312,12 +214,12 @@ export default function Home() {
         <BannerZone position="home_bottom" />
 
         {/* Featured instructors */}
-        <section style={{ marginBottom: 56 }}>
+        <section className="mb-14">
           <SectionHeader title="주목받는 강사" moreHref="/resumes" moreLabel="전체 강사 보기" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
+          <div className="grid-4col">
             {(candidates.length > 0 ? candidates : [null, null, null, null]).map((c, i) => (
               c ? (
-                <Link key={c.id} href={`/resumes/${c.id}`} style={{ textDecoration: 'none' }}>
+                <Link key={c.id} href={`/resumes/${c.id}`} className="no-underline">
                   <InstructorCard candidate={c} idx={i} />
                 </Link>
               ) : (
@@ -328,22 +230,20 @@ export default function Home() {
         </section>
 
         {/* Property + Community */}
-        <section style={{ marginBottom: 56 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 24 }}>
+        <section className="mb-14">
+          <div className="grid grid-cols-[1.4fr_1fr] gap-6">
 
             {/* Property */}
             <div>
               <SectionHeader title="요가원 매물" moreHref="/property" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div className="flex flex-col gap-[10px]">
                 {recentProperties.length === 0 ? (
-                  <div style={{
-                    background: '#fff', border: '1px dashed #E3DDD0',
-                    borderRadius: 16, padding: 28, textAlign: 'center',
-                    fontSize: 14, color: '#9A9382',
-                  }}>등록된 매물이 없습니다</div>
+                  <div className="bg-white border border-dashed border-[#E3DDD0] rounded-2xl p-7 text-center text-sm text-[#9A9382]">
+                    등록된 매물이 없습니다
+                  </div>
                 ) : (
                   recentProperties.map((p, i) => (
-                    <Link key={p.id} href={`/property/${p.id}`} style={{ textDecoration: 'none' }}>
+                    <Link key={p.id} href={`/property/${p.id}`} className="no-underline">
                       <PropertyCard property={p} idx={i} />
                     </Link>
                   ))
@@ -354,24 +254,16 @@ export default function Home() {
             {/* Community */}
             <div>
               <SectionHeader title="커뮤니티 인기글" moreHref="/community" />
-              <div style={{
-                background: '#fff', border: '1px solid #E3DDD0',
-                borderRadius: 16, overflow: 'hidden',
-              }}>
-                <div style={{
-                  padding: '12px 16px', borderBottom: '1px solid #F0ECE2',
-                  display: 'flex', gap: 6, alignItems: 'center',
-                }}>
+              <div className="bg-white border border-[#E3DDD0] rounded-2xl overflow-hidden">
+                <div className="px-4 py-3 border-b border-[#F0ECE2] flex gap-[6px] items-center">
                   <span>🔥</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#23211C' }}>주간 인기글</span>
+                  <span className="text-[13px] font-bold text-[#23211C]">주간 인기글</span>
                 </div>
                 {recentPosts.length === 0 ? (
-                  <div style={{ padding: 24, textAlign: 'center', color: '#9A9382', fontSize: 14 }}>
-                    게시글이 없습니다
-                  </div>
+                  <div className="p-6 text-center text-[#9A9382] text-sm">게시글이 없습니다</div>
                 ) : (
                   recentPosts.map((post, idx) => (
-                    <Link key={post.id} href={`/community/${post.id}`} style={{ textDecoration: 'none' }}>
+                    <Link key={post.id} href={`/community/${post.id}`} className="no-underline">
                       <CommunityRow post={post} rank={idx + 1} isLast={idx === recentPosts.length - 1} />
                     </Link>
                   ))
@@ -385,80 +277,28 @@ export default function Home() {
   );
 }
 
-/* ── Sub-components ──────────────────────────────────────────── */
-
-function SearchButton() {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <button
-      type="submit"
-      style={{
-        background: hovered ? '#000' : '#23211C',
-        color: '#fff', border: 'none',
-        borderRadius: 10, padding: '10px 18px',
-        fontSize: 14, fontWeight: 700,
-        cursor: 'pointer', transition: 'background .12s',
-        fontFamily: 'inherit', flexShrink: 0,
-      }}
-      onMouseOver={() => setHovered(true)}
-      onMouseOut={() => setHovered(false)}
-    >
-      검색
-    </button>
-  );
-}
-
-function KeywordLink({ kw, onSelect }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <button
-      onClick={onSelect}
-      style={{
-        fontSize: 13, color: hovered ? '#23211C' : '#76705F',
-        background: 'none', border: 'none', cursor: 'pointer',
-        padding: 0, fontFamily: 'inherit', transition: 'color .12s',
-      }}
-      onMouseOver={() => setHovered(true)}
-      onMouseOut={() => setHovered(false)}
-    >
-      {kw}
-    </button>
-  );
-}
+/* ── Sub-components ──────────────────────────────────────── */
 
 function JobCard({ job, idx = 0 }) {
-  const [hovered, setHovered] = useState(false);
   const styles = Array.isArray(job.yoga_style) ? job.yoga_style : job.yoga_style ? [job.yoga_style] : [];
   return (
-    <div
-      style={{
-        background: '#fff', borderRadius: 16, padding: '20px',
-        border: `1px solid ${hovered ? '#23211C' : '#E3DDD0'}`,
-        boxShadow: hovered ? '0 10px 28px rgba(30,28,24,0.12)' : 'none',
-        transition: 'all .15s', cursor: 'pointer', height: '100%',
-      }}
-      onMouseOver={() => setHovered(true)}
-      onMouseOut={() => setHovered(false)}
-    >
-      <div style={{
-        width: 48, height: 48, borderRadius: 10, marginBottom: 12,
-        overflow: 'hidden', flexShrink: 0,
-      }}>
+    <div className="bg-white rounded-2xl p-5 border border-[#E3DDD0] hover:border-[#23211C] hover:shadow-[0_10px_28px_rgba(30,28,24,0.12)] transition-all duration-150 cursor-pointer h-full">
+      <div className="w-12 h-12 rounded-[10px] mb-3 overflow-hidden shrink-0">
         <Image
           src={JOB_IMGS[idx % JOB_IMGS.length]}
           alt="공고 이미지"
           width={48} height={48}
-          style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+          className="object-cover w-full h-full"
         />
       </div>
-      <p style={{ fontSize: 12, color: '#9A9382', margin: '0 0 4px' }}>{job.location}</p>
-      <h3 style={{ fontSize: 16, fontWeight: 700, color: '#26241D', margin: '0 0 10px', lineHeight: 1.4 }}>{job.title}</h3>
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+      <p className="text-xs text-[#9A9382] mb-1">{job.location}</p>
+      <h3 className="text-base font-bold text-[#26241D] mb-[10px] leading-snug">{job.title}</h3>
+      <div className="flex gap-[6px] flex-wrap mb-[10px]">
         {styles.slice(0, 2).map(s => <Chip key={s}>{s}</Chip>)}
         {job.experience && <Chip>{job.experience}</Chip>}
       </div>
       {job.salary && (
-        <p style={{ fontSize: 14, fontWeight: 700, color: '#23211C', margin: 0 }}>{job.salary}</p>
+        <p className="text-sm font-bold text-[#23211C]">{job.salary}</p>
       )}
     </div>
   );
@@ -466,53 +306,36 @@ function JobCard({ job, idx = 0 }) {
 
 function JobCardSkeleton() {
   return (
-    <div style={{
-      background: '#fff', borderRadius: 16, padding: '20px',
-      border: '1px solid #E3DDD0', minHeight: 180,
-    }}>
-      <div style={{ width: 48, height: 48, background: '#F4F1E9', borderRadius: 10, marginBottom: 12 }} />
-      <div style={{ width: '60%', height: 14, background: '#F4F1E9', borderRadius: 6, marginBottom: 8 }} />
-      <div style={{ width: '80%', height: 18, background: '#F4F1E9', borderRadius: 6, marginBottom: 12 }} />
-      <div style={{ width: '40%', height: 22, background: '#F4F1E9', borderRadius: 999 }} />
+    <div className="bg-white rounded-2xl p-5 border border-[#E3DDD0] min-h-[180px]">
+      <div className="w-12 h-12 bg-[#F4F1E9] rounded-[10px] mb-3" />
+      <div className="w-3/5 h-[14px] bg-[#F4F1E9] rounded mb-2" />
+      <div className="w-4/5 h-[18px] bg-[#F4F1E9] rounded mb-3" />
+      <div className="w-2/5 h-[22px] bg-[#F4F1E9] rounded-full" />
     </div>
   );
 }
 
 function InstructorCard({ candidate, idx = 0 }) {
-  const [hovered, setHovered] = useState(false);
   const styles = Array.isArray(candidate.yoga_styles)
     ? candidate.yoga_styles
     : candidate.yoga_styles ? [candidate.yoga_styles] : [];
   return (
-    <div
-      style={{
-        background: '#fff', borderRadius: 16, padding: '24px 16px',
-        textAlign: 'center',
-        border: `1px solid ${hovered ? '#23211C' : '#E3DDD0'}`,
-        boxShadow: hovered ? '0 8px 22px rgba(30,28,24,0.10)' : 'none',
-        transition: 'all .15s', cursor: 'pointer',
-      }}
-      onMouseOver={() => setHovered(true)}
-      onMouseOut={() => setHovered(false)}
-    >
-      <div style={{
-        width: 64, height: 64, borderRadius: '50%',
-        overflow: 'hidden', margin: '0 auto 12px', flexShrink: 0,
-      }}>
+    <div className="bg-white rounded-2xl py-6 px-4 text-center border border-[#E3DDD0] hover:border-[#23211C] hover:shadow-[0_8px_22px_rgba(30,28,24,0.10)] transition-all duration-150 cursor-pointer">
+      <div className="w-16 h-16 rounded-full overflow-hidden mx-auto mb-3 shrink-0">
         <Image
           src={AVATAR_IMGS[idx % AVATAR_IMGS.length]}
           alt={candidate.name}
           width={64} height={64}
-          style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+          className="object-cover w-full h-full"
         />
       </div>
-      <h3 style={{ fontSize: 15, fontWeight: 700, color: '#26241D', margin: '0 0 4px' }}>{candidate.name}</h3>
-      <p style={{ fontSize: 13, color: '#9A9382', margin: '0 0 10px' }}>
+      <h3 className="text-[15px] font-bold text-[#26241D] mb-1">{candidate.name}</h3>
+      <p className="text-[13px] text-[#9A9382] mb-[10px]">
         {candidate.experience_years ? `경력 ${candidate.experience_years}년` : ''}
         {candidate.experience_years && candidate.location ? ' · ' : ''}
         {candidate.location || ''}
       </p>
-      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div className="flex gap-1 flex-wrap justify-center">
         {styles.slice(0, 2).map(s => <Chip key={s}>{s}</Chip>)}
       </div>
     </div>
@@ -521,89 +344,49 @@ function InstructorCard({ candidate, idx = 0 }) {
 
 function InstructorCardSkeleton() {
   return (
-    <div style={{
-      background: '#fff', borderRadius: 16, padding: '24px 16px',
-      textAlign: 'center', border: '1px solid #E3DDD0',
-    }}>
-      <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#F4F1E9', margin: '0 auto 12px' }} />
-      <div style={{ width: '60%', height: 16, background: '#F4F1E9', borderRadius: 6, margin: '0 auto 8px' }} />
-      <div style={{ width: '80%', height: 12, background: '#F4F1E9', borderRadius: 6, margin: '0 auto' }} />
+    <div className="bg-white rounded-2xl py-6 px-4 text-center border border-[#E3DDD0]">
+      <div className="w-16 h-16 rounded-full bg-[#F4F1E9] mx-auto mb-3" />
+      <div className="w-3/5 h-4 bg-[#F4F1E9] rounded mx-auto mb-2" />
+      <div className="w-4/5 h-3 bg-[#F4F1E9] rounded mx-auto" />
     </div>
   );
 }
 
 function PropertyCard({ property: p, idx = 0 }) {
-  const [hovered, setHovered] = useState(false);
   return (
-    <div
-      style={{
-        display: 'flex', gap: 14, alignItems: 'center',
-        background: '#fff', borderRadius: 16, padding: '14px 16px',
-        border: `1px solid ${hovered ? '#23211C' : '#E3DDD0'}`,
-        boxShadow: hovered ? '0 8px 22px rgba(30,28,24,0.10)' : 'none',
-        transition: 'all .15s', cursor: 'pointer',
-      }}
-      onMouseOver={() => setHovered(true)}
-      onMouseOut={() => setHovered(false)}
-    >
-      <div style={{ width: 60, height: 60, borderRadius: 12, overflow: 'hidden', flexShrink: 0 }}>
+    <div className="flex gap-[14px] items-center bg-white rounded-2xl px-4 py-[14px] border border-[#E3DDD0] hover:border-[#23211C] hover:shadow-[0_8px_22px_rgba(30,28,24,0.10)] transition-all duration-150 cursor-pointer">
+      <div className="w-[60px] h-[60px] rounded-xl overflow-hidden shrink-0">
         <Image
           src={STUDIO_IMGS[idx % STUDIO_IMGS.length]}
           alt={p.title}
           width={60} height={60}
-          style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+          className="object-cover w-full h-full"
         />
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ marginBottom: 4 }}>
-          <span style={{
-            fontSize: 11, fontWeight: 700, background: '#23211C', color: '#fff',
-            padding: '2px 7px', borderRadius: 4,
-          }}>{p.property_type}</span>
+      <div className="flex-1 min-w-0">
+        <div className="mb-1">
+          <span className="text-[11px] font-bold bg-[#23211C] text-white px-[7px] py-[2px] rounded">{p.property_type}</span>
         </div>
-        <p style={{ fontSize: 15, fontWeight: 700, color: '#26241D', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</p>
-        <p style={{ fontSize: 13, color: '#9A9382', margin: 0 }}>{p.location}{p.area ? ` · ${p.area}` : ''}</p>
-        {p.price && <p style={{ fontSize: 14, fontWeight: 700, color: '#23211C', margin: '4px 0 0' }}>{p.price}</p>}
+        <p className="text-[15px] font-bold text-[#26241D] mb-[2px] truncate">{p.title}</p>
+        <p className="text-[13px] text-[#9A9382]">{p.location}{p.area ? ` · ${p.area}` : ''}</p>
+        {p.price && <p className="text-sm font-bold text-[#23211C] mt-1">{p.price}</p>}
       </div>
     </div>
   );
 }
 
 function CommunityRow({ post, rank, isLast }) {
-  const [hovered, setHovered] = useState(false);
   return (
-    <div
-      style={{
-        padding: '12px 16px',
-        borderBottom: isLast ? 'none' : '1px solid #F0ECE2',
-        background: hovered ? '#FAF8F2' : 'transparent',
-        transition: 'background .12s',
-        display: 'flex', gap: 10, alignItems: 'flex-start',
-        cursor: 'pointer',
-      }}
-      onMouseOver={() => setHovered(true)}
-      onMouseOut={() => setHovered(false)}
-    >
-      <span style={{
-        fontSize: 12, fontWeight: 800,
-        color: rank <= 3 ? '#23211C' : '#C4BEB0',
-        minWidth: 16, marginTop: 2, flexShrink: 0,
-      }}>{rank}</span>
-      <div style={{ flex: 1, minWidth: 0 }}>
+    <div className={`px-4 py-3 flex gap-[10px] items-start cursor-pointer hover:bg-[#FAF8F2] transition-colors duration-100 ${isLast ? '' : 'border-b border-[#F0ECE2]'}`}>
+      <span className={`text-xs font-extrabold mt-[2px] shrink-0 min-w-[16px] ${rank <= 3 ? 'text-[#23211C]' : 'text-[#C4BEB0]'}`}>{rank}</span>
+      <div className="flex-1 min-w-0">
         {post.category && (
-          <span style={{
-            fontSize: 11, fontWeight: 600,
-            background: '#EFEBE1', color: '#76705F',
-            padding: '1px 7px', borderRadius: 999,
-            marginBottom: 4, display: 'inline-block',
-          }}>{post.category}</span>
+          <span className="text-[11px] font-semibold bg-[#EFEBE1] text-[#76705F] px-[7px] py-[1px] rounded-full mb-1 inline-block">
+            {post.category}
+          </span>
         )}
-        <p style={{
-          fontSize: 14, fontWeight: 600, color: '#26241D',
-          margin: '0 0 2px', lineHeight: 1.4,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>{post.title}</p>
-        <p style={{ fontSize: 12, color: '#9A9382', margin: 0 }}>
+        <p className="text-sm font-semibold text-[#26241D] mb-[2px] leading-snug truncate">{post.title}</p>
+        <p className="text-xs text-[#9A9382]">
           {post.author_email?.split('@')[0]} · 조회 {post.views ?? 0}
         </p>
       </div>
