@@ -130,12 +130,9 @@ export default function Resumes() {
     <main className="page-root">
       <div className="content-wrap">
 
-        <div className="flex justify-between items-end mb-6">
-          <div>
-            <h1 className="text-[26px] font-bold text-[#23211C] mb-1">강사 찾기</h1>
-            <p className="text-sm text-[#9A9382]">센터에 어울리는 요가 강사를 찾아보세요</p>
-          </div>
-          <p className="text-[13px] text-[#9A9382]">총 <strong className="text-[#23211C]">{filteredResumes.length}</strong>명</p>
+        <div className="mb-6">
+          <h1 className="text-[26px] font-bold text-[#23211C] mb-1">강사 찾기</h1>
+          <p className="text-sm text-[#9A9382]">센터에 어울리는 요가 강사를 찾아보세요</p>
         </div>
 
         <div className="flex gap-6 items-start">
@@ -175,6 +172,8 @@ export default function Resumes() {
                 )}
               </div>
             </div>
+
+            <p className="text-[13px] text-[#9A9382] mb-3">총 <strong className="text-[#23211C]">{filteredResumes.length}</strong>명</p>
 
             {loading ? (
               <div className="state-center">불러오는 중...</div>
