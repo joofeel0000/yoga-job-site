@@ -8,6 +8,8 @@ import BannerZone from '@/app/components/BannerZone';
 
 const PROPERTY_TYPES = ['전체', '임대', '매매', '양도'];
 
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=600&auto=format&fit=crop&q=80';
+
 const STUDIO_IMGS = [
   'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=600&auto=format&fit=crop&q=80',
@@ -16,7 +18,7 @@ const STUDIO_IMGS = [
   'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1593811167562-9cef47bfc4d7?w=600&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1588286840104-8957b019727f?w=600&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1616699002947-dc021b063673?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=600&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop&q=80',
@@ -34,6 +36,20 @@ const typeColor = {
   '매매': 'bg-[#EAE7DE] text-[#5E5848]',
   '양도': 'bg-[#23211C] text-white',
 };
+
+function PropertyThumb({ src, alt }) {
+  const [imgSrc, setImgSrc] = useState(src);
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      fill
+      sizes="(max-width: 768px) 100vw, 400px"
+      className="object-cover"
+      onError={() => setImgSrc(FALLBACK_IMG)}
+    />
+  );
+}
 
 export default function PropertyPage() {
   const [properties, setProperties] = useState([]);
@@ -134,13 +150,7 @@ export default function PropertyPage() {
                 <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden hover:shadow-md hover:border-stone-300 transition cursor-pointer h-full">
                   {/* thumbnail */}
                   <div className="relative h-40">
-                    <Image
-                      src={STUDIO_IMGS[i % STUDIO_IMGS.length]}
-                      alt={p.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 400px"
-                      className="object-cover"
-                    />
+                    <PropertyThumb src={STUDIO_IMGS[i % STUDIO_IMGS.length]} alt={p.title} />
                     <span className="absolute top-[10px] left-[10px] text-[11px] font-bold bg-[#23211C] text-white px-2 py-[3px] rounded-[5px]">
                       {p.property_type}
                     </span>
