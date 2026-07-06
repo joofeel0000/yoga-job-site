@@ -155,6 +155,8 @@ export default function CommunityPage() {
             </div>
           </div>
         </div>
+
+        <BannerZone position="community_strip" />
       </div>
     </main>
   );
@@ -166,6 +168,9 @@ function PostRow({ post, commentCount, isLast }) {
       <div className={`px-5 py-4 hover:bg-[#FAFAF8] transition-colors duration-100 ${isLast ? '' : 'border-b border-[#F4F1E9]'}`}>
         <div className="flex items-center gap-2 mb-[6px]">
           <CatBadge cat={post.category} />
+          {post.is_dummy && (
+            <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 6, background: '#EDEBE5', color: '#A09B8E', border: '1px solid #DEDAD2' }}>샘플</span>
+          )}
         </div>
         <h3 className="text-sm font-semibold text-[#23211C] mb-[6px] truncate">
           {post.title}

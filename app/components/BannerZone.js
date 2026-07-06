@@ -3,6 +3,26 @@
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 
+// ── 통계 추적 헬퍼 ──────────────────────────────────────────
+function trackEvent(bannerId, eventType) {
+  supabase.from('banner_clicks').insert({
+    banner_id:  bannerId,
+    event_type: eventType,
+    page_url:   typeof window !== 'undefined' ? window.location.pathname : null,
+    user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+  }).then(() => {});
+}
+
+// 세션 당 한 번만 노출 카운트
+function trackView(bannerId) {
+  if (typeof sessionStorage === 'undefined') return;
+  const key = `bv_${bannerId}`;
+  if (!sessionStorage.getItem(key)) {
+    sessionStorage.setItem(key, '1');
+    trackEvent(bannerId, 'view');
+  }
+}
+
 // ── 공통 이미지 래퍼 ────────────────────────────────────────
 function BannerImg({ banner, imgClass }) {
   const img = (
@@ -16,7 +36,8 @@ function BannerImg({ banner, imgClass }) {
   if (banner.link_url) {
     return (
       <a href={banner.link_url} target="_blank" rel="noopener noreferrer"
-        className="block hover:opacity-95 transition">
+        className="block hover:opacity-95 transition"
+        onClick={() => trackEvent(banner.id, 'click')}>
         {img}
       </a>
     );
@@ -28,6 +49,10 @@ function BannerImg({ banner, imgClass }) {
 function CarouselBanner({ banners }) {
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    banners.forEach(b => trackView(b.id));
+  }, [banners]);
 
   useEffect(() => {
     if (banners.length <= 1 || paused) return;
@@ -74,6 +99,7 @@ function CarouselBanner({ banners }) {
 
 // ── home_bottom: 3열 스폰서 카드 그리드 ────────────────────
 function GridBanner({ banners }) {
+  useEffect(() => { banners.forEach(b => trackView(b.id)); }, [banners]);
   return (
     <section style={{ marginBottom: 56 }}>
       <div style={{ marginBottom: 10 }}>
@@ -89,6 +115,8 @@ function GridBanner({ banners }) {
 // ── home_strip: 풀width 와이드 배너 (160px, 그라데이션) ──────
 function StripBanner({ banners }) {
   const [idx, setIdx] = useState(0);
+
+  useEffect(() => { banners.forEach(b => trackView(b.id)); }, [banners]);
 
   useEffect(() => {
     if (banners.length <= 1) return;
@@ -122,13 +150,14 @@ function StripBanner({ banners }) {
     </div>
   );
   if (b.link_url) {
-    return <a href={b.link_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>{inner}</a>;
+    return <a href={b.link_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }} onClick={() => trackEvent(b.id, 'click')}>{inner}</a>;
   }
   return inner;
 }
 
 // ── 스폰서 카드 (이미지 꽉 채움 + 하단 그라데이션 오버레이) ──
 function SponsorCard({ banner, height = 180 }) {
+  useEffect(() => { trackView(banner.id); }, [banner.id]);
   const card = (
     <div style={{
       borderRadius: 16, overflow: 'hidden',
@@ -160,7 +189,7 @@ function SponsorCard({ banner, height = 180 }) {
   );
   if (banner.link_url) {
     return (
-      <a href={banner.link_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
+      <a href={banner.link_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }} onClick={() => trackEvent(banner.id, 'click')}>
         {card}
       </a>
     );
@@ -185,6 +214,7 @@ function SponsorGridBanner({ banners }) {
 // ── community_top / property_top: 풀width 와이드 배너 ──────────
 function WideTopBanner({ banners }) {
   const b = banners[0];
+  useEffect(() => { trackView(b.id); }, [b.id]);
   const inner = (
     <div style={{
       position: 'relative', borderRadius: 16, overflow: 'hidden',
@@ -215,7 +245,7 @@ function WideTopBanner({ banners }) {
   );
   if (b.link_url) {
     return (
-      <a href={b.link_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
+      <a href={b.link_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }} onClick={() => trackEvent(b.id, 'click')}>
         {inner}
       </a>
     );
@@ -225,6 +255,7 @@ function WideTopBanner({ banners }) {
 
 // ── jobs_top / resumes_top: 우측 사이드바 ──────────────────
 function SidebarBanner({ banners }) {
+  useEffect(() => { banners.forEach(b => trackView(b.id)); }, [banners]);
   return (
     <aside className="w-44 shrink-0 hidden lg:block">
       <div className="sticky top-6">
@@ -278,6 +309,8 @@ export default function BannerZone({ position }) {
     case 'resumes_bottom': return <SponsorGridBanner banners={banners} />;
     case 'community_top':
     case 'property_top':   return <WideTopBanner banners={banners} />;
+    case 'property_strip':
+    case 'community_strip': return <StripBanner banners={banners} />;
     default:               return null;
   }
 }

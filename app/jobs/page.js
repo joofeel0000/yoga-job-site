@@ -226,6 +226,9 @@ function JobCard({ job, idx, isBookmarked, onBookmark, timeAgo }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-[6px] mb-1">
           <span className="text-xs text-[#9A9382]">요가스튜디오</span>
+          {job.is_dummy && (
+            <span className="text-[11px] text-[#A09B8E] bg-[#EDEBE5] border border-[#DEDAD2] px-[7px] py-[1px] rounded-[6px]">샘플</span>
+          )}
           {idx % 4 === 0 && (
             <span className="text-[11px] font-bold text-[#C2922F] bg-[#FDF3E3] px-[7px] py-[1px] rounded-[10px]">추천</span>
           )}

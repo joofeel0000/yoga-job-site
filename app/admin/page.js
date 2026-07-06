@@ -31,6 +31,8 @@ export default function Admin() {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [bannerClicks, setBannerClicks] = useState([]);
+  const [statsPeriod, setStatsPeriod] = useState(7);
 
   const [showBannerForm, setShowBannerForm] = useState(false);
   const [editingBannerId, setEditingBannerId] = useState(null);
@@ -68,17 +70,19 @@ export default function Admin() {
   const fetchAllData = async () => {
     setLoading(true);
 
-    const [jobsRes, resumesRes, usersRes, bannersRes] = await Promise.all([
+    const [jobsRes, resumesRes, usersRes, bannersRes, clicksRes] = await Promise.all([
       supabase.from('job').select('*').order('created_at', { ascending: false }),
       supabase.from('candidate').select('*').order('created_at', { ascending: false }),
       supabase.from('profiles').select('*').order('created_at', { ascending: false }),
       supabase.from('banners').select('*').order('position').order('display_order'),
+      supabase.from('banner_clicks').select('banner_id, event_type, clicked_at').order('clicked_at', { ascending: false }),
     ]);
 
     if (jobsRes.data)    setJobs(jobsRes.data);
     if (resumesRes.data) setResumes(resumesRes.data);
     if (usersRes.data)   setUsers(usersRes.data);
     if (bannersRes.data) setBanners(bannersRes.data);
+    if (clicksRes.data)  setBannerClicks(clicksRes.data);
 
     setLoading(false);
   };
@@ -195,10 +199,13 @@ export default function Admin() {
   const labelClass = "label-field";
 
   return (
-    <main className="page-root p-8">
-      <div className="content-wrap-wide !py-0">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-stone-800">관리자 페이지</h1>
+    <main className="page-root">
+      <div className="content-wrap">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-[26px] font-bold text-[#23211C] mb-1">관리자 페이지</h1>
+            <p className="text-sm text-[#9A9382]">구인공고·이력서·회원·배너 광고를 관리합니다</p>
+          </div>
           <Link href="/" className="text-[#23211C] hover:text-black font-medium text-sm transition-colors">
             ← 홈으로
           </Link>
@@ -357,6 +364,83 @@ export default function Admin() {
 
         ) : activeTab === 'banners' ? (
           <div className="space-y-6">
+
+            {/* 통계 섹션 */}
+            {(() => {
+              const since = new Date(Date.now() - statsPeriod * 86400000).toISOString();
+              const periodClicks = bannerClicks.filter(c => c.clicked_at >= since);
+              const statsMap = {};
+              periodClicks.forEach(c => {
+                if (!statsMap[c.banner_id]) statsMap[c.banner_id] = { views: 0, clicks: 0 };
+                if (c.event_type === 'view')  statsMap[c.banner_id].views++;
+                if (c.event_type === 'click') statsMap[c.banner_id].clicks++;
+              });
+              const hasStats = banners.some(b => statsMap[b.id]);
+              return (
+                <div className="card">
+                  <div className="flex justify-between items-center px-6 py-4 border-b border-stone-100">
+                    <p className="text-sm font-semibold text-stone-700">📊 배너 통계</p>
+                    <div className="flex gap-1 bg-stone-100 rounded-lg p-1">
+                      {[7, 30].map(d => (
+                        <button key={d} onClick={() => setStatsPeriod(d)}
+                          className={`px-3 py-1 rounded-md text-xs font-semibold transition ${statsPeriod === d ? 'bg-[#23211C] text-white' : 'text-stone-500'}`}>
+                          최근 {d}일
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {!hasStats ? (
+                    <div className="px-6 py-8 text-center text-stone-400 text-sm">
+                      해당 기간의 통계 데이터가 없습니다
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[560px]">
+                        <thead className="bg-stone-50 border-b border-stone-100">
+                          <tr>
+                            <th className={thClass}>배너</th>
+                            <th className={thClass}>위치</th>
+                            <th className="px-6 py-4 text-right text-xs font-bold text-stone-500 uppercase tracking-wide">노출수</th>
+                            <th className="px-6 py-4 text-right text-xs font-bold text-stone-500 uppercase tracking-wide">클릭수</th>
+                            <th className="px-6 py-4 text-right text-xs font-bold text-stone-500 uppercase tracking-wide">CTR</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stone-100">
+                          {banners.map(b => {
+                            const s = statsMap[b.id] || { views: 0, clicks: 0 };
+                            const ctr = s.views > 0 ? ((s.clicks / s.views) * 100).toFixed(1) : '0.0';
+                            return (
+                              <tr key={b.id} className="hover:bg-stone-50">
+                                <td className={tdClass}>
+                                  <div className="flex items-center gap-3">
+                                    <img src={b.image_url} alt={b.title}
+                                      className="w-14 h-8 object-cover rounded-lg border border-stone-100 shrink-0"
+                                      onError={e => { e.target.style.display = 'none'; }} />
+                                    <span className="font-medium truncate max-w-[160px]">{b.title}</span>
+                                  </div>
+                                </td>
+                                <td className={tdSubClass}>
+                                  <span className="px-2 py-1 bg-[#EAE7DE] text-[#23211C] rounded-full text-xs font-medium whitespace-nowrap">
+                                    {POSITION_LABELS[b.position] || b.position}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 text-right text-sm font-semibold text-stone-700">{s.views.toLocaleString()}</td>
+                                <td className="px-6 py-4 text-right text-sm font-semibold text-[#23211C]">{s.clicks.toLocaleString()}</td>
+                                <td className="px-6 py-4 text-right">
+                                  <span className={`text-sm font-bold ${parseFloat(ctr) >= 1 ? 'text-[#16A34A]' : 'text-stone-500'}`}>
+                                    {ctr}%
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* 등록/수정 폼 */}
             {showBannerForm && (

@@ -1,7 +1,9 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
+import { getOrCreateChatRoom } from '@/lib/chat';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import BannerZone from '@/app/components/BannerZone';
@@ -30,7 +32,7 @@ function FilterChip({ label, active, onClick }) {
   );
 }
 
-function ResumeCard({ resume, idx }) {
+function ResumeCard({ resume, idx, onSuggest, isSuggesting }) {
   const rating = (4.5 + (idx % 5) * 0.1).toFixed(1);
   const styles = (resume.yoga_styles || '').split(/[,，、]/).map(s => s.trim()).filter(Boolean).slice(0, 3);
 
@@ -45,7 +47,12 @@ function ResumeCard({ resume, idx }) {
         <span className="text-[13px] font-semibold text-[#26241D]">{rating}</span>
       </div>
 
-      <h3 className="text-base font-bold text-[#23211C] mb-1">{resume.name}</h3>
+      <div className="flex items-center gap-[6px] mb-1">
+        <h3 className="text-base font-bold text-[#23211C]">{resume.name}</h3>
+        {resume.is_dummy && (
+          <span className="text-[11px] text-[#A09B8E] bg-[#EDEBE5] border border-[#DEDAD2] px-[7px] py-[1px] rounded-[6px]">샘플</span>
+        )}
+      </div>
 
       {resume.location && (
         <p className="text-xs text-[#9A9382] mb-[10px]">📍 {resume.location}</p>
@@ -74,8 +81,17 @@ function ResumeCard({ resume, idx }) {
       )}
 
       <div className="flex gap-2 w-full mt-auto">
-        <button className="flex-1 py-[9px] rounded-[9px] text-[13px] font-semibold bg-[#23211C] text-white border-none cursor-pointer">
-          제안하기
+        <button
+          onClick={() => onSuggest(resume)}
+          disabled={isSuggesting}
+          className="flex-1 py-[9px] rounded-[9px] text-[13px] font-semibold bg-[#23211C] text-white border-none cursor-pointer disabled:opacity-60 flex items-center justify-center gap-1"
+        >
+          {isSuggesting ? (
+            <>
+              <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              처리 중
+            </>
+          ) : '제안하기'}
         </button>
         <Link href={`/resumes/${resume.id}`} className="flex-1">
           <button className="w-full py-[9px] rounded-[9px] text-[13px] font-semibold bg-transparent text-[#23211C] border border-[#23211C] cursor-pointer">
@@ -88,14 +104,18 @@ function ResumeCard({ resume, idx }) {
 }
 
 export default function Resumes() {
+  const router = useRouter();
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [selectedSpecialties, setSelectedSpecialties] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+  const [suggestingId, setSuggestingId] = useState(null);
 
   useEffect(() => {
     fetchResumes();
+    supabase.auth.getUser().then(({ data: { user } }) => setCurrentUser(user));
   }, []);
 
   const fetchResumes = async () => {
@@ -104,6 +124,25 @@ export default function Resumes() {
     if (error) console.error('에러:', error);
     else setResumes(data || []);
     setLoading(false);
+  };
+
+  const handleSuggest = async (resume) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push('/login?redirect=resumes');
+      return;
+    }
+
+    setSuggestingId(resume.id);
+    const { data: room, error } = await getOrCreateChatRoom(resume.user_id, null, resume.id);
+    setSuggestingId(null);
+
+    if (error || !room) {
+      alert('채팅방을 만들 수 없습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    router.push(`/chat/${room.id}`);
   };
 
   const toggleFilter = (selected, setSelected, val) => {
@@ -185,7 +224,7 @@ export default function Resumes() {
             ) : (
               <div className="grid-3col">
                 {filteredResumes.map((resume, idx) => (
-                  <ResumeCard key={resume.id} resume={resume} idx={idx} />
+                  <ResumeCard key={resume.id} resume={resume} idx={idx} onSuggest={handleSuggest} isSuggesting={suggestingId === resume.id} />
                 ))}
               </div>
             )}

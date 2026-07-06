@@ -4,15 +4,16 @@ import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { 
-  closeJob, 
-  reopenJob, 
+import {
+  closeJob,
+  reopenJob,
   extendJobExpiry,
   closeResume,
   reopenResume,
   extendResumeExpiry,
-  getStatusBadge 
+  getStatusBadge
 } from '@/lib/expiry';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function MyPage() {
   const router = useRouter();
@@ -27,6 +28,9 @@ export default function MyPage() {
   const [receivedContacts, setReceivedContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('jobs');
+  const [myBanners, setMyBanners] = useState([]);
+  const [adClicks, setAdClicks] = useState([]);
+  const [adPeriod, setAdPeriod] = useState(7);
 
   useEffect(() => {
     // URL에서 탭 정보 읽기
@@ -236,6 +240,25 @@ export default function MyPage() {
       }
     }
 
+    // 내 배너 + 통계
+    const { data: bannersData } = await supabase
+      .from('banners')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (bannersData) {
+      setMyBanners(bannersData);
+      if (bannersData.length > 0) {
+        const bannerIds = bannersData.map(b => b.id);
+        const { data: clicksData } = await supabase
+          .from('banner_clicks')
+          .select('banner_id, event_type, clicked_at')
+          .in('banner_id', bannerIds)
+          .order('clicked_at', { ascending: true });
+        if (clicksData) setAdClicks(clicksData);
+      }
+    }
+
     setLoading(false);
   };
 
@@ -360,6 +383,16 @@ export default function MyPage() {
               }`}
             >
               받은 지원/연락 ({receivedApplications.length + receivedContacts.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('adstats')}
+              className={`flex-1 py-4 px-4 font-semibold transition whitespace-nowrap text-sm ${
+                activeTab === 'adstats'
+                  ? 'text-[#23211C] border-b-2 border-[#23211C]'
+                  : 'text-stone-500 hover:text-stone-700'
+              }`}
+            >
+              광고 통계
             </button>
           </div>
         </div>
@@ -838,6 +871,142 @@ export default function MyPage() {
                 </div>
               )}
             </div>
+          </div>
+        ) : activeTab === 'adstats' ? (
+          <div className="space-y-6">
+            {myBanners.length === 0 ? (
+              <div className="card-empty">
+                <p className="text-stone-400 text-sm mb-3">등록된 배너 광고가 없습니다</p>
+                <Link href="/advertise">
+                  <button className="btn-primary text-sm">광고 신청하기</button>
+                </Link>
+              </div>
+            ) : (() => {
+              const since = new Date(Date.now() - adPeriod * 86400000);
+
+              // 날짜별 집계
+              const dayMap = {};
+              for (let i = adPeriod - 1; i >= 0; i--) {
+                const d = new Date(Date.now() - i * 86400000);
+                const key = d.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' });
+                dayMap[key] = { date: key, 노출수: 0, 클릭수: 0 };
+              }
+              adClicks.forEach(c => {
+                const d = new Date(c.clicked_at);
+                if (d < since) return;
+                const key = d.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' });
+                if (!dayMap[key]) return;
+                if (c.event_type === 'view')  dayMap[key].노출수++;
+                if (c.event_type === 'click') dayMap[key].클릭수++;
+              });
+              const chartData = Object.values(dayMap);
+
+              // 배너별 집계
+              const bannerMap = {};
+              adClicks.forEach(c => {
+                if (new Date(c.clicked_at) < since) return;
+                if (!bannerMap[c.banner_id]) bannerMap[c.banner_id] = { views: 0, clicks: 0 };
+                if (c.event_type === 'view')  bannerMap[c.banner_id].views++;
+                if (c.event_type === 'click') bannerMap[c.banner_id].clicks++;
+              });
+              const totalViews  = Object.values(bannerMap).reduce((s, v) => s + v.views, 0);
+              const totalClicks = Object.values(bannerMap).reduce((s, v) => s + v.clicks, 0);
+              const totalCtr    = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(1) : '0.0';
+
+              return (
+                <>
+                  {/* 기간 필터 + 요약 */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-1 bg-white border border-[#E3DDD0] rounded-lg p-1">
+                      {[7, 30].map(d => (
+                        <button key={d} onClick={() => setAdPeriod(d)}
+                          className={`px-3 py-1 rounded-md text-xs font-semibold transition ${adPeriod === d ? 'bg-[#23211C] text-white' : 'text-stone-500'}`}>
+                          최근 {d}일
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 요약 카드 */}
+                  <div className="grid grid-cols-3 gap-4">
+                    {[
+                      { label: '총 노출수', value: totalViews.toLocaleString(), sub: `최근 ${adPeriod}일` },
+                      { label: '총 클릭수', value: totalClicks.toLocaleString(), sub: `최근 ${adPeriod}일` },
+                      { label: 'CTR', value: `${totalCtr}%`, sub: '클릭률' },
+                    ].map(s => (
+                      <div key={s.label} className="bg-white rounded-2xl border border-[#E3DDD0] p-5">
+                        <p className="text-[13px] text-[#76705F] mb-1">{s.label}</p>
+                        <p className="text-[26px] font-extrabold text-[#23211C] leading-none">{s.value}</p>
+                        <p className="text-[12px] text-[#9A9382] mt-1">{s.sub}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* 차트 */}
+                  <div className="bg-white rounded-2xl border border-[#E3DDD0] p-6">
+                    <p className="text-sm font-bold text-[#23211C] mb-5">일별 노출수 / 클릭수</p>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <BarChart data={chartData} margin={{ top: 0, right: 8, left: -16, bottom: 0 }}>
+                        <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9A9382' }} tickLine={false} axisLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: '#9A9382' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                        <Tooltip
+                          contentStyle={{ border: '1px solid #E3DDD0', borderRadius: 10, fontSize: 12 }}
+                          cursor={{ fill: '#F4F1E9' }}
+                        />
+                        <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+                        <Bar dataKey="노출수" fill="#CFC9BB" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="클릭수" fill="#23211C" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* 배너별 테이블 */}
+                  <div className="bg-white rounded-2xl border border-[#E3DDD0] overflow-hidden">
+                    <div className="px-6 py-4 border-b border-stone-100">
+                      <p className="text-sm font-bold text-[#23211C]">배너별 상세</p>
+                    </div>
+                    <table className="w-full">
+                      <thead className="bg-stone-50 border-b border-stone-100">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-bold text-stone-500 uppercase tracking-wide">배너</th>
+                          <th className="px-6 py-3 text-right text-xs font-bold text-stone-500 uppercase tracking-wide">노출수</th>
+                          <th className="px-6 py-3 text-right text-xs font-bold text-stone-500 uppercase tracking-wide">클릭수</th>
+                          <th className="px-6 py-3 text-right text-xs font-bold text-stone-500 uppercase tracking-wide">CTR</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-stone-100">
+                        {myBanners.map(b => {
+                          const s = bannerMap[b.id] || { views: 0, clicks: 0 };
+                          const ctr = s.views > 0 ? ((s.clicks / s.views) * 100).toFixed(1) : '0.0';
+                          return (
+                            <tr key={b.id} className="hover:bg-stone-50">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-3">
+                                  <img src={b.image_url} alt={b.title}
+                                    className="w-14 h-8 object-cover rounded-lg border border-stone-100 shrink-0"
+                                    onError={e => { e.target.style.display = 'none'; }} />
+                                  <div>
+                                    <p className="text-sm font-semibold text-[#23211C] truncate max-w-[200px]">{b.title}</p>
+                                    <p className="text-xs text-[#9A9382]">{b.position}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 text-right text-sm font-semibold text-stone-700">{s.views.toLocaleString()}</td>
+                              <td className="px-6 py-4 text-right text-sm font-semibold text-[#23211C]">{s.clicks.toLocaleString()}</td>
+                              <td className="px-6 py-4 text-right">
+                                <span className={`text-sm font-bold ${parseFloat(ctr) >= 1 ? 'text-[#16A34A]' : 'text-stone-500'}`}>
+                                  {ctr}%
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         ) : null}
       </div>

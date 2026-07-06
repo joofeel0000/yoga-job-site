@@ -154,6 +154,9 @@ export default function PropertyPage() {
                     <span className="absolute top-[10px] left-[10px] text-[11px] font-bold bg-[#23211C] text-white px-2 py-[3px] rounded-[5px]">
                       {p.property_type}
                     </span>
+                    {p.is_dummy && (
+                      <span className="absolute top-[10px] right-[10px] text-[11px] text-[#A09B8E] bg-white/90 border border-[#DEDAD2] px-[7px] py-[2px] rounded-[5px]">샘플</span>
+                    )}
                   </div>
                   <div className="p-5">
                     <div className="flex justify-between items-center mb-2">
@@ -176,6 +179,8 @@ export default function PropertyPage() {
             ))}
           </div>
         )}
+
+        <BannerZone position="property_strip" />
       </div>
     </main>
   );

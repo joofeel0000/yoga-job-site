@@ -353,6 +353,7 @@ function makeJob() {
     user_id: SEED_USER_ID,
     status: 'active',
     expires_at: expiresAt(30),
+    is_dummy: true,
   };
 }
 
@@ -371,6 +372,7 @@ function makeCandidate() {
     user_id: SEED_USER_ID,
     status: 'active',
     expires_at: expiresAt(30),
+    is_dummy: true,
   };
 }
 
@@ -402,6 +404,7 @@ function makeProperty() {
     contact: pick(PROPERTY_CONTACTS),
     user_id: SEED_USER_ID,
     status: 'active',
+    is_dummy: true,
   };
 }
 
@@ -471,6 +474,7 @@ function makeCommunityPost() {
     user_id: SEED_USER_ID,
     author_email: pick(AUTHOR_EMAILS),
     views: randomViews(10, 400),
+    is_dummy: true,
   };
 }
 

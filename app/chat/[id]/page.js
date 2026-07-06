@@ -3,11 +3,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { getMessages, sendMessage, markMessagesAsRead } from '@/lib/chat';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function ChatRoomPage({ params }) {
+export default function ChatRoomPage() {
   const router = useRouter();
+  const { id: chatRoomId } = useParams();
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -15,7 +16,6 @@ export default function ChatRoomPage({ params }) {
   const [sending, setSending] = useState(false);
   const [otherUser, setOtherUser] = useState(null);
   const messagesEndRef = useRef(null);
-  const chatRoomId = params.id;
 
   useEffect(() => {
     checkUser();

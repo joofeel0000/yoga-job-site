@@ -54,6 +54,7 @@ export default function Navbar() {
     { href: '/resumes', label: '강사찾기', prefix: true },
     { href: '/property', label: '매물정보', prefix: true },
     { href: '/community', label: '커뮤니티', prefix: true },
+    { href: '/advertise', label: '광고 문의', prefix: true },
   ];
 
   return (
