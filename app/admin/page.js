@@ -3,17 +3,20 @@
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ImageUpload from '@/app/components/ImageUpload';
 
 const POSITION_LABELS = {
-  home_top:       '메인 상단 (슬라이드 캐러셀)',
-  home_strip:     '메인 와이드 배너 (160px)',
-  home_bottom:    '메인 스폰서 카드 (3열 그리드)',
-  jobs_top:       '구인공고 우측 사이드바',
-  jobs_bottom:    '구인공고 하단 스폰서 카드',
-  resumes_top:    '강사찾기 우측 사이드바',
-  resumes_bottom: '강사찾기 하단 스폰서 카드',
-  community_top:  '커뮤니티 상단 와이드 배너',
-  property_top:   '매물정보 상단 와이드 배너',
+  home_top:        '메인 상단 (슬라이드 캐러셀)',
+  home_strip:      '메인 와이드 배너 (160px)',
+  home_bottom:     '메인 스폰서 카드 (3열 그리드)',
+  jobs_top:        '구인공고 우측 사이드바',
+  jobs_bottom:     '구인공고 하단 스폰서 카드',
+  resumes_top:     '강사찾기 우측 사이드바',
+  resumes_bottom:  '강사찾기 하단 스폰서 카드',
+  community_top:   '커뮤니티 상단 와이드 배너',
+  property_top:    '매물정보 상단 와이드 배너',
+  property_strip:  '매물정보 와이드 배너 (띠)',
+  community_strip: '커뮤니티 와이드 배너 (띠)',
 };
 
 const BLANK_BANNER = {
@@ -185,6 +188,19 @@ export default function Admin() {
     else { alert('삭제되었습니다!'); fetchAllData(); }
   };
 
+  const approveBanner = async (id) => {
+    const { error } = await supabase.from('banners').update({ is_active: true }).eq('id', id);
+    if (error) alert('승인 실패: ' + error.message);
+    else fetchAllData();
+  };
+
+  const rejectBanner = async (id) => {
+    if (!confirm('이 신청을 거절하시겠습니까?\n해당 배너 데이터가 삭제됩니다.')) return;
+    const { error } = await supabase.from('banners').delete().eq('id', id);
+    if (error) alert('거절 실패: ' + error.message);
+    else fetchAllData();
+  };
+
   const toggleBannerActive = async (id, isActive) => {
     const { error } = await supabase.from('banners').update({ is_active: !isActive }).eq('id', id);
     if (error) alert('변경 실패');
@@ -229,6 +245,11 @@ export default function Admin() {
             <button onClick={() => setActiveTab('banners')}
               className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'banners' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
               배너 광고 ({banners.length})
+              {banners.filter(b => !b.is_active && b.user_id).length > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center w-[18px] h-[18px] bg-amber-500 text-white rounded-full text-[9px] font-bold align-middle">
+                  {banners.filter(b => !b.is_active && b.user_id).length}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -442,6 +463,84 @@ export default function Admin() {
               );
             })()}
 
+            {/* 광고 신청 검토 */}
+            {(() => {
+              const pending = banners.filter(b => !b.is_active && b.user_id);
+              if (pending.length === 0) return null;
+              return (
+                <div className="card" style={{ borderLeft: '3px solid #F59E0B' }}>
+                  <div className="flex items-center gap-3 px-6 py-4 border-b border-stone-100">
+                    <p className="text-sm font-semibold text-stone-700">📬 광고 신청 검토</p>
+                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
+                      {pending.length}건 대기
+                    </span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[760px]">
+                      <thead className="bg-stone-50 border-b border-stone-100">
+                        <tr>
+                          <th className={thClass}>광고주</th>
+                          <th className={thClass}>위치</th>
+                          <th className={thClass}>이미지</th>
+                          <th className={thClass}>기간</th>
+                          <th className={thClass}>문의 내용</th>
+                          <th className="px-6 py-4 text-center text-xs font-bold text-stone-500 uppercase tracking-wide">처리</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-stone-100">
+                        {pending.map(b => (
+                          <tr key={b.id} className="hover:bg-amber-50 transition">
+                            <td className={tdClass}>
+                              <p className="font-semibold truncate max-w-[160px]">{b.title}</p>
+                              {b.link_url && (
+                                <p className="text-xs text-stone-400 truncate max-w-[160px] mt-0.5">{b.link_url}</p>
+                              )}
+                            </td>
+                            <td className={tdSubClass}>
+                              <span className="px-2 py-1 bg-[#EAE7DE] text-[#23211C] rounded-full text-xs font-medium whitespace-nowrap">
+                                {POSITION_LABELS[b.position] || b.position}
+                              </span>
+                            </td>
+                            <td className={tdSubClass}>
+                              <img src={b.image_url} alt={b.title}
+                                className="w-20 h-10 object-cover rounded-lg border border-stone-100"
+                                onError={e => { e.target.style.display = 'none'; }} />
+                            </td>
+                            <td className={tdSubClass}>
+                              <div className="text-xs space-y-0.5">
+                                {b.starts_at ? <p>시작: {new Date(b.starts_at).toLocaleDateString('ko-KR')}</p> : null}
+                                {b.ends_at   ? <p>종료: {new Date(b.ends_at).toLocaleDateString('ko-KR')}</p>   : null}
+                                {!b.starts_at && !b.ends_at ? <p className="text-stone-300">기간 미지정</p> : null}
+                              </div>
+                            </td>
+                            <td className={tdSubClass}>
+                              <p className="text-xs max-w-[180px] line-clamp-3 leading-relaxed">
+                                {b.notes || '—'}
+                              </p>
+                            </td>
+                            <td className="px-6 py-4 text-center whitespace-nowrap space-x-1.5">
+                              <button onClick={() => approveBanner(b.id)}
+                                className="px-3 py-1 bg-[#16A34A] text-white text-xs rounded-full hover:bg-[#15803D] transition font-semibold">
+                                승인
+                              </button>
+                              <button onClick={() => startEditBanner(b)}
+                                className="px-3 py-1 bg-[#23211C] text-white text-xs rounded-full hover:bg-black transition font-semibold">
+                                수정
+                              </button>
+                              <button onClick={() => rejectBanner(b.id)}
+                                className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">
+                                거절
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* 등록/수정 폼 */}
             {showBannerForm && (
               <div className="bg-white rounded-2xl border border-[#E3DDD0] shadow-sm p-6">
@@ -467,11 +566,12 @@ export default function Admin() {
                     </select>
                   </div>
                   <div className="md:col-span-2">
-                    <label className={labelClass}>이미지 URL *</label>
-                    <input type="url" placeholder="https://example.com/banner.jpg"
+                    <label className={labelClass}>이미지 *</label>
+                    <ImageUpload
+                      bucket="banners"
                       value={bannerForm.image_url}
-                      onChange={(e) => setBannerForm(f => ({ ...f, image_url: e.target.value }))}
-                      className={inputClass} />
+                      onChange={(url) => setBannerForm(f => ({ ...f, image_url: url }))}
+                    />
                   </div>
                   <div className="md:col-span-2">
                     <label className={labelClass}>링크 URL</label>
@@ -529,16 +629,6 @@ export default function Admin() {
                     <label htmlFor="is_active" className="text-sm font-medium text-stone-700">활성화</label>
                   </div>
                 </div>
-
-                {/* 이미지 미리보기 */}
-                {bannerForm.image_url && (
-                  <div className="mt-5">
-                    <p className={labelClass}>이미지 미리보기</p>
-                    <img src={bannerForm.image_url} alt="미리보기"
-                      className="max-h-28 w-full object-cover rounded-xl border border-stone-100"
-                      onError={(e) => { e.target.style.display = 'none'; }} />
-                  </div>
-                )}
 
                 <div className="flex justify-end gap-3 mt-6">
                   <button onClick={cancelBannerForm}

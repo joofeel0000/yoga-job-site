@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ImageUpload from '@/app/components/ImageUpload';
 
 const inputClass = "input-base";
 const labelClass = "label-field";
@@ -107,10 +108,13 @@ export default function PostResume() {
                 placeholder="예: 요가지도자 2급, RYT 200" className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>프로필 사진 URL</label>
-              <input type="url" name="photoUrl" value={formData.photoUrl} onChange={handleChange}
-                placeholder="https://example.com/photo.jpg" className={inputClass} />
-              <p className="text-xs text-stone-400 mt-1">이미지 URL을 입력하세요 (선택사항)</p>
+              <label className={labelClass}>프로필 사진</label>
+              <ImageUpload
+                bucket="avatars"
+                value={formData.photoUrl}
+                onChange={(url) => setFormData(f => ({ ...f, photoUrl: url }))}
+                hint="선택사항 · JPG · PNG · WebP · 최대 5MB"
+              />
             </div>
             <div>
               <label className={labelClass}>자기소개 *</label>

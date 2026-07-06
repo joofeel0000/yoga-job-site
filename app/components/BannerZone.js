@@ -2,6 +2,11 @@
 
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 
 // ── 통계 추적 헬퍼 ──────────────────────────────────────────
 function trackEvent(bannerId, eventType) {
@@ -45,54 +50,102 @@ function BannerImg({ banner, imgClass }) {
   return <div>{img}</div>;
 }
 
-// ── home_top: 자동 슬라이드 캐러셀 ─────────────────────────
+// ── home_top: Swiper 캐러셀 ────────────────────────────────
 function CarouselBanner({ banners }) {
-  const [idx, setIdx] = useState(0);
-  const [paused, setPaused] = useState(false);
+  useEffect(() => { banners.forEach(b => trackView(b.id)); }, [banners]);
 
-  useEffect(() => {
-    banners.forEach(b => trackView(b.id));
-  }, [banners]);
+  const adBadge = (
+    <span style={{
+      position: 'absolute', top: 10, right: 12, zIndex: 10,
+      fontSize: 11, color: 'rgba(255,255,255,0.7)',
+      background: 'rgba(0,0,0,0.28)', padding: '2px 8px', borderRadius: 20,
+      pointerEvents: 'none',
+    }}>광고</span>
+  );
 
-  useEffect(() => {
-    if (banners.length <= 1 || paused) return;
-    const t = setInterval(() => setIdx(i => (i + 1) % banners.length), 3000);
-    return () => clearInterval(t);
-  }, [banners.length, paused]);
+  // 단일 배너 — 정적 표시
+  if (banners.length === 1) {
+    const b = banners[0];
+    const img = (
+      <img src={b.image_url} alt={b.title}
+        style={{ width: '100%', height: 250, objectFit: 'cover', display: 'block' }}
+        onError={e => { e.target.style.display = 'none'; }} />
+    );
+    return (
+      <div style={{ borderRadius: 16, overflow: 'hidden', position: 'relative', marginBottom: 0 }}>
+        {adBadge}
+        {b.link_url
+          ? <a href={b.link_url} target="_blank" rel="noopener noreferrer"
+              style={{ display: 'block' }} onClick={() => trackEvent(b.id, 'click')}>{img}</a>
+          : img}
+      </div>
+    );
+  }
 
-  const prev = () => setIdx(i => (i - 1 + banners.length) % banners.length);
-  const next = () => setIdx(i => (i + 1) % banners.length);
-
+  // 복수 배너 — Swiper 슬라이드
   return (
-    <div
-      className="relative w-full rounded-2xl overflow-hidden group my-4"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      <span className="absolute top-2 right-2 z-10 text-xs text-white/60 bg-black/20 px-1.5 py-0.5 rounded-full">광고</span>
-
-      <BannerImg banner={banners[idx]} imgClass="w-full h-auto block" />
-
-      {banners.length > 1 && (
-        <>
-          <button onClick={prev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-xl font-bold">
-            ‹
-          </button>
-          <button onClick={next}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-xl font-bold">
-            ›
-          </button>
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {banners.map((_, i) => (
-              <button key={i} onClick={() => setIdx(i)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  i === idx ? 'bg-white scale-110' : 'bg-white/40 hover:bg-white/70'
-                }`} />
-            ))}
-          </div>
-        </>
-      )}
+    <div className="bz-carousel" style={{ borderRadius: 16, overflow: 'hidden', position: 'relative' }}>
+      {adBadge}
+      <Swiper
+        modules={[Autoplay, Pagination, Navigation]}
+        autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+        pagination={{ clickable: true }}
+        navigation
+        loop
+        style={{ height: 250 }}
+      >
+        {banners.map(b => (
+          <SwiperSlide key={b.id} style={{ height: 250 }}>
+            {b.link_url ? (
+              <a href={b.link_url} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'block', height: '100%' }}
+                onClick={() => trackEvent(b.id, 'click')}>
+                <img src={b.image_url} alt={b.title}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  onError={e => { e.target.style.display = 'none'; }} />
+              </a>
+            ) : (
+              <img src={b.image_url} alt={b.title}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                onError={e => { e.target.style.display = 'none'; }} />
+            )}
+          </SwiperSlide>
+        ))}
+      </Swiper>
+      <style>{`
+        .bz-carousel .swiper-button-next,
+        .bz-carousel .swiper-button-prev {
+          color: #fff !important;
+          width: 36px !important;
+          height: 36px !important;
+          margin-top: -18px !important;
+          background: rgba(0,0,0,0.35);
+          border-radius: 50%;
+          backdrop-filter: blur(4px);
+          transition: background 0.15s;
+        }
+        .bz-carousel .swiper-button-next:hover,
+        .bz-carousel .swiper-button-prev:hover {
+          background: rgba(0,0,0,0.55);
+        }
+        .bz-carousel .swiper-button-next::after,
+        .bz-carousel .swiper-button-prev::after {
+          font-size: 13px !important;
+          font-weight: 900;
+        }
+        .bz-carousel .swiper-pagination-bullet {
+          background: rgba(255,255,255,0.5) !important;
+          opacity: 1 !important;
+          width: 7px !important;
+          height: 7px !important;
+          transition: all 0.25s;
+        }
+        .bz-carousel .swiper-pagination-bullet-active {
+          background: #fff !important;
+          width: 20px !important;
+          border-radius: 4px !important;
+        }
+      `}</style>
     </div>
   );
 }

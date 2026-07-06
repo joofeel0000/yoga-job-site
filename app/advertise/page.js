@@ -204,7 +204,7 @@ export default function AdvertisePage() {
               베타 참여 광고주는 정식 오픈 후 3개월간 50% 할인 혜택 제공
             </p>
           </div>
-          <Link href="/admin">
+          <Link href="/advertise/apply">
             <button style={{
               background: '#C2922F', color: '#fff', border: 'none', borderRadius: 11,
               padding: '12px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer',
@@ -322,7 +322,7 @@ export default function AdvertisePage() {
               </p>
             </div>
           </div>
-          <Link href="/admin">
+          <Link href="/advertise/apply">
             <button style={{
               background: '#fff', color: '#23211C', border: 'none', borderRadius: 11,
               padding: '14px 28px', fontSize: 15, fontWeight: 800, cursor: 'pointer',
