@@ -163,14 +163,20 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right: hero image */}
+            {/* Right: hero image / home_top 배너 */}
             <div className="rounded-[20px] overflow-hidden aspect-[4/3] relative">
-              <Image
-                src={HERO_IMG}
-                alt="요가 클래스"
-                fill
-                className="object-cover"
-                priority
+              <BannerZone
+                position="home_top"
+                heroMode
+                fallback={
+                  <Image
+                    src={HERO_IMG}
+                    alt="요가 클래스"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                }
               />
             </div>
           </div>
@@ -192,7 +198,6 @@ export default function Home() {
       {/* ── Main content ─────────────────────────────────── */}
       <div className="max-w-[1200px] mx-auto px-6 pt-14">
 
-        <BannerZone position="home_top" />
         <BannerZone position="home_strip" />
 
         {/* Recommended jobs */}

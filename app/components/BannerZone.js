@@ -9,13 +9,26 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
 // ── 통계 추적 헬퍼 ──────────────────────────────────────────
+function detectDeviceType() {
+  if (typeof navigator === 'undefined') return 'desktop';
+  const ua = navigator.userAgent;
+  if (/Mobi|Android|iPhone|iPod/i.test(ua) && !/iPad/i.test(ua)) return 'mobile';
+  if (/iPad|Tablet/i.test(ua)) return 'tablet';
+  return 'desktop';
+}
+
 function trackEvent(bannerId, eventType) {
-  supabase.from('banner_clicks').insert({
-    banner_id:  bannerId,
-    event_type: eventType,
-    page_url:   typeof window !== 'undefined' ? window.location.pathname : null,
-    user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
-  }).then(() => {});
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.from('banner_clicks').insert({
+      banner_id:   bannerId,
+      event_type:  eventType,
+      page_url:    typeof window !== 'undefined' ? window.location.pathname : null,
+      user_agent:  typeof navigator !== 'undefined' ? navigator.userAgent : null,
+      referrer:    typeof document !== 'undefined' ? (document.referrer || null) : null,
+      device_type: detectDeviceType(),
+      user_id:     session?.user?.id || null,
+    }).then(() => {});
+  });
 }
 
 // 세션 당 한 번만 노출 카운트
@@ -51,8 +64,15 @@ function BannerImg({ banner, imgClass }) {
 }
 
 // ── home_top: Swiper 캐러셀 ────────────────────────────────
-function CarouselBanner({ banners }) {
+// heroMode=true → 부모 relative 컨테이너를 꽉 채움 (히어로 이미지 슬롯용)
+function CarouselBanner({ banners, heroMode = false }) {
   useEffect(() => { banners.forEach(b => trackView(b.id)); }, [banners]);
+
+  const outerStyle = heroMode
+    ? { position: 'absolute', inset: 0, overflow: 'hidden' }
+    : { borderRadius: 16, overflow: 'hidden', position: 'relative', marginBottom: 0 };
+
+  const swiperHeight = heroMode ? '100%' : 250;
 
   const adBadge = (
     <span style={{
@@ -68,15 +88,15 @@ function CarouselBanner({ banners }) {
     const b = banners[0];
     const img = (
       <img src={b.image_url} alt={b.title}
-        style={{ width: '100%', height: 250, objectFit: 'cover', display: 'block' }}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
         onError={e => { e.target.style.display = 'none'; }} />
     );
     return (
-      <div style={{ borderRadius: 16, overflow: 'hidden', position: 'relative', marginBottom: 0 }}>
+      <div style={outerStyle}>
         {adBadge}
         {b.link_url
           ? <a href={b.link_url} target="_blank" rel="noopener noreferrer"
-              style={{ display: 'block' }} onClick={() => trackEvent(b.id, 'click')}>{img}</a>
+              style={{ display: 'block', height: '100%' }} onClick={() => trackEvent(b.id, 'click')}>{img}</a>
           : img}
       </div>
     );
@@ -84,18 +104,19 @@ function CarouselBanner({ banners }) {
 
   // 복수 배너 — Swiper 슬라이드
   return (
-    <div className="bz-carousel" style={{ borderRadius: 16, overflow: 'hidden', position: 'relative' }}>
+    <div className="bz-carousel" style={outerStyle}>
       {adBadge}
       <Swiper
         modules={[Autoplay, Pagination, Navigation]}
         autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }}
         pagination={{ clickable: true }}
         navigation
+        scrollbar={false}
         loop
-        style={{ height: 250 }}
+        style={{ height: swiperHeight }}
       >
         {banners.map(b => (
-          <SwiperSlide key={b.id} style={{ height: 250 }}>
+          <SwiperSlide key={b.id} style={{ height: swiperHeight }}>
             {b.link_url ? (
               <a href={b.link_url} target="_blank" rel="noopener noreferrer"
                 style={{ display: 'block', height: '100%' }}
@@ -115,23 +136,25 @@ function CarouselBanner({ banners }) {
       <style>{`
         .bz-carousel .swiper-button-next,
         .bz-carousel .swiper-button-prev {
-          color: #fff !important;
-          width: 36px !important;
-          height: 36px !important;
-          margin-top: -18px !important;
-          background: rgba(0,0,0,0.35);
+          width: 32px !important;
+          height: 32px !important;
+          margin-top: -16px !important;
+          background: rgba(255,255,255,0.85);
           border-radius: 50%;
-          backdrop-filter: blur(4px);
           transition: background 0.15s;
+          color: #23211C !important;
+        }
+        .bz-carousel .swiper-button-next svg,
+        .bz-carousel .swiper-button-prev svg {
+          width: 14px !important;
+          height: 14px !important;
         }
         .bz-carousel .swiper-button-next:hover,
         .bz-carousel .swiper-button-prev:hover {
-          background: rgba(0,0,0,0.55);
+          background: rgba(255,255,255,1);
         }
-        .bz-carousel .swiper-button-next::after,
-        .bz-carousel .swiper-button-prev::after {
-          font-size: 13px !important;
-          font-weight: 900;
+        .bz-carousel .swiper-pagination {
+          background: transparent !important;
         }
         .bz-carousel .swiper-pagination-bullet {
           background: rgba(255,255,255,0.5) !important;
@@ -306,17 +329,68 @@ function WideTopBanner({ banners }) {
   return inner;
 }
 
-// ── jobs_top / resumes_top: 우측 사이드바 ──────────────────
-function SidebarBanner({ banners }) {
+// ── jobs_top / resumes_top: 우측 사이드바 (소수 배너) ─────────
+// inline=true: <aside> 없이 내용만 반환 (복합 사이드바 조합용)
+function SidebarBanner({ banners, inline = false }) {
   useEffect(() => { banners.forEach(b => trackView(b.id)); }, [banners]);
+  const content = (
+    <div className="space-y-3">
+      {banners.map(b => (
+        <BannerImg key={b.id} banner={b} imgClass="w-full h-auto rounded-xl" />
+      ))}
+    </div>
+  );
+  if (inline) return content;
   return (
     <aside className="w-44 shrink-0 hidden lg:block">
       <div className="sticky top-6">
         <p className="text-xs text-stone-300 text-right mb-2">광고</p>
-        <div className="space-y-3">
-          {banners.map(b => (
-            <BannerImg key={b.id} banner={b} imgClass="w-full h-auto rounded-xl" />
-          ))}
+        {content}
+      </div>
+    </aside>
+  );
+}
+
+// ── jobs_sidebar / resumes_sidebar: 우측 사이드바 (최대 10개 스택) ──
+// inline=true: <aside> 없이 내용만 반환 (복합 사이드바 조합용)
+function SidebarStackBanner({ banners, inline = false }) {
+  useEffect(() => { banners.forEach(b => trackView(b.id)); }, [banners]);
+
+  const items = banners.map(b => {
+    const inner = (
+      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #E3DDD0', position: 'relative', height: 100, flexShrink: 0 }}>
+        <img
+          src={b.image_url} alt={b.title}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          onError={e => { e.target.parentElement.style.display = 'none'; }}
+        />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(30,28,24,0.62) 0%, rgba(30,28,24,0) 52%)' }} />
+        <span style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 3 }}>AD</span>
+        {b.title && (
+          <p style={{ position: 'absolute', bottom: 8, left: 8, right: 8, color: '#fff', fontSize: 12, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.title}</p>
+        )}
+      </div>
+    );
+    if (b.link_url) {
+      return (
+        <a key={b.id} href={b.link_url} target="_blank" rel="noopener noreferrer"
+          style={{ textDecoration: 'none', display: 'block', flexShrink: 0 }}
+          onClick={() => trackEvent(b.id, 'click')}>
+          {inner}
+        </a>
+      );
+    }
+    return <div key={b.id} style={{ flexShrink: 0 }}>{inner}</div>;
+  });
+
+  if (inline) return <>{items}</>;
+
+  return (
+    <aside className="w-44 shrink-0 hidden lg:block">
+      <div style={{ position: 'sticky', top: 24 }}>
+        <p style={{ fontSize: 11, color: '#C4BEB0', textAlign: 'right', marginBottom: 8, fontWeight: 600, letterSpacing: '0.05em' }}>광고</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 'calc(100vh - 120px)', overflowY: 'auto', paddingRight: 1 }}>
+          {items}
         </div>
       </div>
     </aside>
@@ -324,7 +398,9 @@ function SidebarBanner({ banners }) {
 }
 
 // ── 메인 export ────────────────────────────────────────────
-export default function BannerZone({ position }) {
+// fallback: 배너가 없을 때 렌더할 콘텐츠 (히어로 이미지 슬롯 등)
+// heroMode: home_top 배너를 부모 relative 컨테이너에 꽉 채울 때 사용
+export default function BannerZone({ position, fallback = null, heroMode = false, inline = false }) {
   const [banners, setBanners] = useState([]);
 
   useEffect(() => {
@@ -350,14 +426,16 @@ export default function BannerZone({ position }) {
     load();
   }, [position]);
 
-  if (banners.length === 0) return null;
+  if (banners.length === 0) return fallback;
 
   switch (position) {
-    case 'home_top':    return <CarouselBanner banners={banners} />;
+    case 'home_top':    return <CarouselBanner banners={banners} heroMode={heroMode} />;
     case 'home_bottom': return <GridBanner banners={banners} />;
     case 'home_strip':  return <StripBanner banners={banners} />;
     case 'jobs_top':
-    case 'resumes_top':    return <SidebarBanner banners={banners} />;
+    case 'resumes_top':     return <SidebarBanner banners={banners} inline={inline} />;
+    case 'jobs_sidebar':
+    case 'resumes_sidebar': return <SidebarStackBanner banners={banners} inline={inline} />;
     case 'jobs_bottom':
     case 'resumes_bottom': return <SponsorGridBanner banners={banners} />;
     case 'community_top':

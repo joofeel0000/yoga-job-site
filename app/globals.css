@@ -306,3 +306,6 @@ body {
   color: rgb(161 161 170);
   font-size: 0.875rem;
 }
+
+.swiper-scrollbar { display: none !important; }
+.swiper-horizontal > .swiper-scrollbar { display: none !important; }

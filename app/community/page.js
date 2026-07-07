@@ -1,10 +1,12 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import BannerZone from '@/app/components/BannerZone';
 
+const PAGE_SIZE = 12;
 const TABS = ['전체', '자유게시판', '강사Q&A', '노하우', '후기'];
 
 const catColor = {
@@ -25,15 +27,95 @@ function CatBadge({ cat }) {
   );
 }
 
-export default function CommunityPage() {
+function PostRow({ post, commentCount, isLast }) {
+  return (
+    <Link href={`/community/${post.id}`} className="no-underline block">
+      <div className={`px-5 py-4 hover:bg-[#FAFAF8] transition-colors duration-100 ${isLast ? '' : 'border-b border-[#F4F1E9]'}`}>
+        <div className="flex items-center gap-2 mb-[6px]">
+          <CatBadge cat={post.category} />
+          {post.is_dummy && (
+            <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 6, background: '#EDEBE5', color: '#A09B8E', border: '1px solid #DEDAD2' }}>샘플</span>
+          )}
+        </div>
+        <h3 className="text-sm font-semibold text-[#23211C] mb-[6px] truncate">
+          {post.title}
+        </h3>
+        <div className="flex items-center gap-3 text-xs text-[#9A9382]">
+          <span>{post.author_email?.split('@')[0]}</span>
+          <span>{new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
+          <span>👁 {post.views ?? 0}</span>
+          {commentCount > 0 && <span className="text-[#23211C] font-semibold">💬 {commentCount}</span>}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function Pagination({ currentPage, totalPages, onPageChange }) {
+  if (totalPages <= 1) return null;
+
+  const getPages = () => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages = [1];
+    if (currentPage > 3) pages.push('…');
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i);
+    if (currentPage < totalPages - 2) pages.push('…');
+    pages.push(totalPages);
+    return pages;
+  };
+
+  return (
+    <div className="flex justify-center items-center gap-1 mt-6 mb-2">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="w-9 h-9 flex items-center justify-center rounded-[9px] border border-[#E3DDD0] bg-white text-[#76705F] text-base font-bold disabled:opacity-30 hover:bg-[#F4F1E9] transition"
+      >‹</button>
+      {getPages().map((p, i) =>
+        p === '…' ? (
+          <span key={`e${i}`} className="w-9 h-9 flex items-center justify-center text-[#9A9382] text-sm">…</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onPageChange(p)}
+            className={`w-9 h-9 flex items-center justify-center rounded-[9px] text-sm font-semibold border transition ${
+              p === currentPage
+                ? 'bg-[#23211C] text-white border-[#23211C]'
+                : 'bg-white text-[#76705F] border-[#E3DDD0] hover:bg-[#F4F1E9]'
+            }`}
+          >{p}</button>
+        )
+      )}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="w-9 h-9 flex items-center justify-center rounded-[9px] border border-[#E3DDD0] bg-white text-[#76705F] text-base font-bold disabled:opacity-30 hover:bg-[#F4F1E9] transition"
+      >›</button>
+    </div>
+  );
+}
+
+function CommunityContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [hotPosts, setHotPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('전체');
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1', 10));
+  const skipReset = useRef(true);
 
   useEffect(() => {
     fetchPosts();
   }, []);
+
+  useEffect(() => {
+    if (skipReset.current) { skipReset.current = false; return; }
+    setCurrentPage(1);
+    const params = new URLSearchParams(window.location.search);
+    params.delete('page');
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [activeTab]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -55,6 +137,17 @@ export default function CommunityPage() {
     if (activeTab === '전체') return true;
     return p.category === activeTab;
   });
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const pagedPosts = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const params = new URLSearchParams(window.location.search);
+    params.set('page', page);
+    router.push(`?${params.toString()}`);
+  };
 
   return (
     <main className="page-root">
@@ -105,14 +198,21 @@ export default function CommunityPage() {
                 </Link>
               </div>
             ) : (
-              <div className="bg-white rounded-[14px] border border-[#E3DDD0] overflow-hidden">
-                {filtered.map((post, idx) => {
-                  const commentCount = post.community_comments?.[0]?.count ?? 0;
-                  return (
-                    <PostRow key={post.id} post={post} commentCount={commentCount} isLast={idx === filtered.length - 1} />
-                  );
-                })}
-              </div>
+              <>
+                <p className="text-[13px] text-[#9A9382] mb-3">
+                  총 <strong className="text-[#23211C]">{filtered.length}</strong>개 게시글
+                  {totalPages > 1 && <span className="ml-1">· {currentPage} / {totalPages} 페이지</span>}
+                </p>
+                <div className="bg-white rounded-[14px] border border-[#E3DDD0] overflow-hidden">
+                  {pagedPosts.map((post, idx) => {
+                    const commentCount = post.community_comments?.[0]?.count ?? 0;
+                    return (
+                      <PostRow key={post.id} post={post} commentCount={commentCount} isLast={idx === pagedPosts.length - 1} />
+                    );
+                  })}
+                </div>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+              </>
             )}
           </div>
 
@@ -162,26 +262,10 @@ export default function CommunityPage() {
   );
 }
 
-function PostRow({ post, commentCount, isLast }) {
+export default function CommunityPage() {
   return (
-    <Link href={`/community/${post.id}`} className="no-underline block">
-      <div className={`px-5 py-4 hover:bg-[#FAFAF8] transition-colors duration-100 ${isLast ? '' : 'border-b border-[#F4F1E9]'}`}>
-        <div className="flex items-center gap-2 mb-[6px]">
-          <CatBadge cat={post.category} />
-          {post.is_dummy && (
-            <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 6, background: '#EDEBE5', color: '#A09B8E', border: '1px solid #DEDAD2' }}>샘플</span>
-          )}
-        </div>
-        <h3 className="text-sm font-semibold text-[#23211C] mb-[6px] truncate">
-          {post.title}
-        </h3>
-        <div className="flex items-center gap-3 text-xs text-[#9A9382]">
-          <span>{post.author_email?.split('@')[0]}</span>
-          <span>{new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
-          <span>👁 {post.views ?? 0}</span>
-          {commentCount > 0 && <span className="text-[#23211C] font-semibold">💬 {commentCount}</span>}
-        </div>
-      </div>
-    </Link>
+    <Suspense fallback={null}>
+      <CommunityContent />
+    </Suspense>
   );
 }

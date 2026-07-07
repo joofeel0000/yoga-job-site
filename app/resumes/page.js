@@ -2,11 +2,13 @@
 
 import { supabase } from '@/lib/supabase';
 import { getOrCreateChatRoom } from '@/lib/chat';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import BannerZone from '@/app/components/BannerZone';
+
+const PAGE_SIZE = 12;
 
 const AVATAR_IMGS = [
   'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
@@ -29,6 +31,50 @@ function FilterChip({ label, active, onClick }) {
     }`}>
       {label}
     </button>
+  );
+}
+
+function Pagination({ currentPage, totalPages, onPageChange }) {
+  if (totalPages <= 1) return null;
+
+  const getPages = () => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages = [1];
+    if (currentPage > 3) pages.push('…');
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i);
+    if (currentPage < totalPages - 2) pages.push('…');
+    pages.push(totalPages);
+    return pages;
+  };
+
+  return (
+    <div className="flex justify-center items-center gap-1 mt-8 mb-2">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="w-9 h-9 flex items-center justify-center rounded-[9px] border border-[#E3DDD0] bg-white text-[#76705F] text-base font-bold disabled:opacity-30 hover:bg-[#F4F1E9] transition"
+      >‹</button>
+      {getPages().map((p, i) =>
+        p === '…' ? (
+          <span key={`e${i}`} className="w-9 h-9 flex items-center justify-center text-[#9A9382] text-sm">…</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onPageChange(p)}
+            className={`w-9 h-9 flex items-center justify-center rounded-[9px] text-sm font-semibold border transition ${
+              p === currentPage
+                ? 'bg-[#23211C] text-white border-[#23211C]'
+                : 'bg-white text-[#76705F] border-[#E3DDD0] hover:bg-[#F4F1E9]'
+            }`}
+          >{p}</button>
+        )
+      )}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="w-9 h-9 flex items-center justify-center rounded-[9px] border border-[#E3DDD0] bg-white text-[#76705F] text-base font-bold disabled:opacity-30 hover:bg-[#F4F1E9] transition"
+      >›</button>
+    </div>
   );
 }
 
@@ -103,8 +149,9 @@ function ResumeCard({ resume, idx, onSuggest, isSuggesting }) {
   );
 }
 
-export default function Resumes() {
+function ResumesContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRegions, setSelectedRegions] = useState([]);
@@ -112,11 +159,21 @@ export default function Resumes() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
   const [suggestingId, setSuggestingId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1', 10));
+  const skipReset = useRef(true);
 
   useEffect(() => {
     fetchResumes();
     supabase.auth.getUser().then(({ data: { user } }) => setCurrentUser(user));
   }, []);
+
+  useEffect(() => {
+    if (skipReset.current) { skipReset.current = false; return; }
+    setCurrentPage(1);
+    const params = new URLSearchParams(window.location.search);
+    params.delete('page');
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [searchTerm, selectedRegions, selectedSpecialties]);
 
   const fetchResumes = async () => {
     setLoading(true);
@@ -163,6 +220,17 @@ export default function Resumes() {
     setSelectedRegions([]);
     setSelectedSpecialties([]);
     setSearchTerm('');
+  };
+
+  const totalPages = Math.ceil(filteredResumes.length / PAGE_SIZE);
+  const pagedResumes = filteredResumes.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const params = new URLSearchParams(window.location.search);
+    params.set('page', page);
+    router.push(`?${params.toString()}`);
   };
 
   return (
@@ -212,7 +280,10 @@ export default function Resumes() {
               </div>
             </div>
 
-            <p className="text-[13px] text-[#9A9382] mb-3">총 <strong className="text-[#23211C]">{filteredResumes.length}</strong>명</p>
+            <p className="text-[13px] text-[#9A9382] mb-3">
+              총 <strong className="text-[#23211C]">{filteredResumes.length}</strong>명
+              {totalPages > 1 && <span className="ml-1">· {currentPage} / {totalPages} 페이지</span>}
+            </p>
 
             {loading ? (
               <div className="state-center">불러오는 중...</div>
@@ -222,17 +293,43 @@ export default function Resumes() {
                 <p className="text-[#9A9382] text-[13px] mt-[6px]">다른 조건으로 검색해보세요</p>
               </div>
             ) : (
-              <div className="grid-3col">
-                {filteredResumes.map((resume, idx) => (
-                  <ResumeCard key={resume.id} resume={resume} idx={idx} onSuggest={handleSuggest} isSuggesting={suggestingId === resume.id} />
-                ))}
-              </div>
+              <>
+                <div className="grid-3col">
+                  {pagedResumes.map((resume, idx) => (
+                    <ResumeCard
+                      key={resume.id}
+                      resume={resume}
+                      idx={(currentPage - 1) * PAGE_SIZE + idx}
+                      onSuggest={handleSuggest}
+                      isSuggesting={suggestingId === resume.id}
+                    />
+                  ))}
+                </div>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+              </>
             )}
             <BannerZone position="resumes_bottom" />
           </div>
-          <BannerZone position="resumes_top" />
+          {/* 우측 광고 사이드바: resumes_top(기존) + resumes_sidebar(신규) 통합 */}
+          <aside className="w-44 shrink-0 hidden lg:block">
+            <div style={{ position: 'sticky', top: 24 }}>
+              <p className="text-xs text-stone-300 text-right mb-2">광고</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 'calc(100vh - 120px)', overflowY: 'auto', paddingRight: 1 }}>
+                <BannerZone position="resumes_top" inline />
+                <BannerZone position="resumes_sidebar" inline />
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </main>
+  );
+}
+
+export default function Resumes() {
+  return (
+    <Suspense fallback={null}>
+      <ResumesContent />
+    </Suspense>
   );
 }

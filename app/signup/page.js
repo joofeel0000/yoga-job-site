@@ -40,7 +40,7 @@ export default function Signup() {
     if (password !== confirmPassword) { alert('비밀번호가 일치하지 않습니다.'); return; }
     if (password.length < 6) { alert('비밀번호는 6자 이상이어야 합니다.'); return; }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email, password,
       options: { data: { name, user_type: userType } },
     });
@@ -50,6 +50,12 @@ export default function Signup() {
       else
         alert('회원가입에 실패했습니다. 다시 시도해주세요.');
     } else {
+      if (data.user) {
+        await supabase.from('profiles').upsert(
+          { id: data.user.id, email, name, role: 'user' },
+          { onConflict: 'id' }
+        );
+      }
       alert('회원가입 성공! 이메일을 확인해주세요.');
       router.push('/login');
     }

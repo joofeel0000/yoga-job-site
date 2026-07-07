@@ -4,19 +4,41 @@ import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ImageUpload from '@/app/components/ImageUpload';
+import {
+  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, Tooltip, ResponsiveContainer,
+} from 'recharts';
 
 const POSITION_LABELS = {
-  home_top:        '메인 상단 (슬라이드 캐러셀)',
-  home_strip:      '메인 와이드 배너 (160px)',
-  home_bottom:     '메인 스폰서 카드 (3열 그리드)',
-  jobs_top:        '구인공고 우측 사이드바',
-  jobs_bottom:     '구인공고 하단 스폰서 카드',
-  resumes_top:     '강사찾기 우측 사이드바',
-  resumes_bottom:  '강사찾기 하단 스폰서 카드',
-  community_top:   '커뮤니티 상단 와이드 배너',
-  property_top:    '매물정보 상단 와이드 배너',
-  property_strip:  '매물정보 와이드 배너 (띠)',
-  community_strip: '커뮤니티 와이드 배너 (띠)',
+  home_top:         '메인 슬라이드 배너',
+  home_strip:       '메인 와이드 배너',
+  home_bottom:      '메인 스폰서 카드',
+  jobs_top:         '구인공고 사이드바 (구)',
+  jobs_sidebar:     '구인공고 사이드바 (최대 10개)',
+  jobs_bottom:      '구인공고 하단 스폰서',
+  resumes_top:      '강사찾기 사이드바 (구)',
+  resumes_sidebar:  '강사찾기 사이드바 (최대 10개)',
+  resumes_bottom:   '강사찾기 하단 스폰서',
+  community_top:    '커뮤니티 상단',
+  property_top:     '매물정보 상단',
+  property_strip:   '매물정보 띠배너',
+  community_strip:  '커뮤니티 띠배너',
+};
+
+const POSITION_SIZES = {
+  home_top:         '히어로 슬롯 (4:3)',
+  home_strip:       '1200×160px',
+  home_bottom:      '380×200px (3열)',
+  jobs_top:         '176px 사이드바',
+  jobs_sidebar:     '176×100px × 최대 10개',
+  jobs_bottom:      '380×180px (3열)',
+  resumes_top:      '176px 사이드바',
+  resumes_sidebar:  '176×100px × 최대 10개',
+  resumes_bottom:   '380×180px (3열)',
+  community_top:    '1200×140px',
+  property_top:     '1200×140px',
+  property_strip:   '1200×160px',
+  community_strip:  '1200×160px',
 };
 
 const BLANK_BANNER = {
@@ -35,15 +57,28 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [bannerClicks, setBannerClicks] = useState([]);
-  const [statsPeriod, setStatsPeriod] = useState(7);
 
   const [showBannerForm, setShowBannerForm] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
+  const [statsBanner, setStatsBanner] = useState(null);
+  const [statsData, setStatsData] = useState([]);
+  const [statsPeriod, setStatsPeriod] = useState('7d');
+  const [statsLoading, setStatsLoading] = useState(false);
   const [editingBannerId, setEditingBannerId] = useState(null);
   const [bannerForm, setBannerForm] = useState(BLANK_BANNER);
 
   useEffect(() => {
     checkUser();
   }, []);
+
+  useEffect(() => {
+    if (showBannerForm || showStatsModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [showBannerForm, showStatsModal]);
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -205,6 +240,43 @@ export default function Admin() {
     const { error } = await supabase.from('banners').update({ is_active: !isActive }).eq('id', id);
     if (error) alert('변경 실패');
     else fetchAllData();
+  };
+
+  // --- Banner Stats ---
+  const fetchBannerStats = async (bannerId, period) => {
+    setStatsLoading(true);
+    let query = supabase
+      .from('banner_clicks')
+      .select('event_type, clicked_at, device_type, referrer, page_url')
+      .eq('banner_id', bannerId)
+      .order('clicked_at', { ascending: true });
+
+    if (period !== 'all') {
+      const days = period === 'today' ? 1 : period === '7d' ? 7 : 30;
+      const since = new Date(Date.now() - days * 86400000).toISOString();
+      query = query.gte('clicked_at', since);
+    }
+    const { data } = await query;
+    setStatsData(data || []);
+    setStatsLoading(false);
+  };
+
+  const openBannerStats = (banner) => {
+    setStatsBanner(banner);
+    setStatsPeriod('7d');
+    setShowStatsModal(true);
+    fetchBannerStats(banner.id, '7d');
+  };
+
+  const closeStatsModal = () => {
+    setShowStatsModal(false);
+    setStatsBanner(null);
+    setStatsData([]);
+  };
+
+  const changeStatsPeriod = (period) => {
+    setStatsPeriod(period);
+    if (statsBanner) fetchBannerStats(statsBanner.id, period);
   };
 
   // --- Style helpers ---
@@ -384,361 +456,542 @@ export default function Admin() {
           )
 
         ) : activeTab === 'banners' ? (
-          <div className="space-y-6">
+          (() => {
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+            const thisMonthClicks = bannerClicks.filter(c => c.event_type === 'click' && c.clicked_at >= monthStart).length;
+            const activeCount = banners.filter(b => b.is_active).length;
+            const pendingBanners = banners.filter(b => !b.is_active && b.user_id);
+            const managedBanners = banners.filter(b => b.is_active || !b.user_id);
 
-            {/* 통계 섹션 */}
-            {(() => {
-              const since = new Date(Date.now() - statsPeriod * 86400000).toISOString();
-              const periodClicks = bannerClicks.filter(c => c.clicked_at >= since);
-              const statsMap = {};
-              periodClicks.forEach(c => {
-                if (!statsMap[c.banner_id]) statsMap[c.banner_id] = { views: 0, clicks: 0 };
-                if (c.event_type === 'view')  statsMap[c.banner_id].views++;
-                if (c.event_type === 'click') statsMap[c.banner_id].clicks++;
-              });
-              const hasStats = banners.some(b => statsMap[b.id]);
-              return (
-                <div className="card">
-                  <div className="flex justify-between items-center px-6 py-4 border-b border-stone-100">
-                    <p className="text-sm font-semibold text-stone-700">📊 배너 통계</p>
-                    <div className="flex gap-1 bg-stone-100 rounded-lg p-1">
-                      {[7, 30].map(d => (
-                        <button key={d} onClick={() => setStatsPeriod(d)}
-                          className={`px-3 py-1 rounded-md text-xs font-semibold transition ${statsPeriod === d ? 'bg-[#23211C] text-white' : 'text-stone-500'}`}>
-                          최근 {d}일
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  {!hasStats ? (
-                    <div className="px-6 py-8 text-center text-stone-400 text-sm">
-                      해당 기간의 통계 데이터가 없습니다
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full min-w-[560px]">
-                        <thead className="bg-stone-50 border-b border-stone-100">
-                          <tr>
-                            <th className={thClass}>배너</th>
-                            <th className={thClass}>위치</th>
-                            <th className="px-6 py-4 text-right text-xs font-bold text-stone-500 uppercase tracking-wide">노출수</th>
-                            <th className="px-6 py-4 text-right text-xs font-bold text-stone-500 uppercase tracking-wide">클릭수</th>
-                            <th className="px-6 py-4 text-right text-xs font-bold text-stone-500 uppercase tracking-wide">CTR</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-stone-100">
-                          {banners.map(b => {
-                            const s = statsMap[b.id] || { views: 0, clicks: 0 };
-                            const ctr = s.views > 0 ? ((s.clicks / s.views) * 100).toFixed(1) : '0.0';
-                            return (
-                              <tr key={b.id} className="hover:bg-stone-50">
-                                <td className={tdClass}>
-                                  <div className="flex items-center gap-3">
-                                    <img src={b.image_url} alt={b.title}
-                                      className="w-14 h-8 object-cover rounded-lg border border-stone-100 shrink-0"
-                                      onError={e => { e.target.style.display = 'none'; }} />
-                                    <span className="font-medium truncate max-w-[160px]">{b.title}</span>
-                                  </div>
-                                </td>
-                                <td className={tdSubClass}>
-                                  <span className="px-2 py-1 bg-[#EAE7DE] text-[#23211C] rounded-full text-xs font-medium whitespace-nowrap">
-                                    {POSITION_LABELS[b.position] || b.position}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4 text-right text-sm font-semibold text-stone-700">{s.views.toLocaleString()}</td>
-                                <td className="px-6 py-4 text-right text-sm font-semibold text-[#23211C]">{s.clicks.toLocaleString()}</td>
-                                <td className="px-6 py-4 text-right">
-                                  <span className={`text-sm font-bold ${parseFloat(ctr) >= 1 ? 'text-[#16A34A]' : 'text-stone-500'}`}>
-                                    {ctr}%
-                                  </span>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
+            const grouped = {};
+            managedBanners.forEach(b => {
+              if (!grouped[b.position]) grouped[b.position] = [];
+              grouped[b.position].push(b);
+            });
+            const orderedPositions = Object.keys(POSITION_LABELS).filter(p => grouped[p]);
 
-            {/* 광고 신청 검토 */}
-            {(() => {
-              const pending = banners.filter(b => !b.is_active && b.user_id);
-              if (pending.length === 0) return null;
-              return (
-                <div className="card" style={{ borderLeft: '3px solid #F59E0B' }}>
-                  <div className="flex items-center gap-3 px-6 py-4 border-b border-stone-100">
-                    <p className="text-sm font-semibold text-stone-700">📬 광고 신청 검토</p>
-                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
-                      {pending.length}건 대기
-                    </span>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[760px]">
-                      <thead className="bg-stone-50 border-b border-stone-100">
-                        <tr>
-                          <th className={thClass}>광고주</th>
-                          <th className={thClass}>위치</th>
-                          <th className={thClass}>이미지</th>
-                          <th className={thClass}>기간</th>
-                          <th className={thClass}>문의 내용</th>
-                          <th className="px-6 py-4 text-center text-xs font-bold text-stone-500 uppercase tracking-wide">처리</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-stone-100">
-                        {pending.map(b => (
-                          <tr key={b.id} className="hover:bg-amber-50 transition">
-                            <td className={tdClass}>
-                              <p className="font-semibold truncate max-w-[160px]">{b.title}</p>
-                              {b.link_url && (
-                                <p className="text-xs text-stone-400 truncate max-w-[160px] mt-0.5">{b.link_url}</p>
-                              )}
-                            </td>
-                            <td className={tdSubClass}>
-                              <span className="px-2 py-1 bg-[#EAE7DE] text-[#23211C] rounded-full text-xs font-medium whitespace-nowrap">
-                                {POSITION_LABELS[b.position] || b.position}
-                              </span>
-                            </td>
-                            <td className={tdSubClass}>
-                              <img src={b.image_url} alt={b.title}
-                                className="w-20 h-10 object-cover rounded-lg border border-stone-100"
-                                onError={e => { e.target.style.display = 'none'; }} />
-                            </td>
-                            <td className={tdSubClass}>
-                              <div className="text-xs space-y-0.5">
-                                {b.starts_at ? <p>시작: {new Date(b.starts_at).toLocaleDateString('ko-KR')}</p> : null}
-                                {b.ends_at   ? <p>종료: {new Date(b.ends_at).toLocaleDateString('ko-KR')}</p>   : null}
-                                {!b.starts_at && !b.ends_at ? <p className="text-stone-300">기간 미지정</p> : null}
-                              </div>
-                            </td>
-                            <td className={tdSubClass}>
-                              <p className="text-xs max-w-[180px] line-clamp-3 leading-relaxed">
-                                {b.notes || '—'}
-                              </p>
-                            </td>
-                            <td className="px-6 py-4 text-center whitespace-nowrap space-x-1.5">
-                              <button onClick={() => approveBanner(b.id)}
-                                className="px-3 py-1 bg-[#16A34A] text-white text-xs rounded-full hover:bg-[#15803D] transition font-semibold">
-                                승인
-                              </button>
-                              <button onClick={() => startEditBanner(b)}
-                                className="px-3 py-1 bg-[#23211C] text-white text-xs rounded-full hover:bg-black transition font-semibold">
-                                수정
-                              </button>
-                              <button onClick={() => rejectBanner(b.id)}
-                                className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">
-                                거절
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              );
-            })()}
+            const pendingGrouped = {};
+            pendingBanners.forEach(b => {
+              if (!pendingGrouped[b.position]) pendingGrouped[b.position] = [];
+              pendingGrouped[b.position].push(b);
+            });
 
-            {/* 등록/수정 폼 */}
-            {showBannerForm && (
-              <div className="bg-white rounded-2xl border border-[#E3DDD0] shadow-sm p-6">
-                <h2 className="text-base font-bold text-stone-800 mb-5">
-                  {editingBannerId ? '배너 수정' : '새 배너 등록'}
-                </h2>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelClass}>제목 *</label>
-                    <input type="text" placeholder="배너 제목"
-                      value={bannerForm.title}
-                      onChange={(e) => setBannerForm(f => ({ ...f, title: e.target.value }))}
-                      className={inputClass} />
-                  </div>
-                  <div>
-                    <label className={labelClass}>위치 *</label>
-                    <select value={bannerForm.position}
-                      onChange={(e) => setBannerForm(f => ({ ...f, position: e.target.value }))}
-                      className={inputClass}>
-                      {Object.entries(POSITION_LABELS).map(([val, label]) => (
-                        <option key={val} value={val}>{label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className={labelClass}>이미지 *</label>
-                    <ImageUpload
-                      bucket="banners"
-                      value={bannerForm.image_url}
-                      onChange={(url) => setBannerForm(f => ({ ...f, image_url: url }))}
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className={labelClass}>링크 URL</label>
-                    <input type="url" placeholder="https://example.com (클릭 시 이동, 선택 사항)"
-                      value={bannerForm.link_url}
-                      onChange={(e) => setBannerForm(f => ({ ...f, link_url: e.target.value }))}
-                      className={inputClass} />
-                  </div>
-                  <div>
-                    <label className={labelClass}>노출 시작일</label>
-                    <div className="flex gap-2">
-                      <input type="datetime-local"
-                        value={bannerForm.starts_at}
-                        onChange={(e) => setBannerForm(f => ({ ...f, starts_at: e.target.value }))}
-                        className={inputClass} />
-                      {bannerForm.starts_at && (
-                        <button type="button"
-                          onClick={() => setBannerForm(f => ({ ...f, starts_at: '' }))}
-                          className="px-3 py-2 bg-stone-100 text-stone-500 rounded-xl hover:bg-stone-200 transition text-xs shrink-0 font-medium">
-                          지우기
-                        </button>
-                      )}
+            return (
+              <div className="space-y-6">
+
+                {/* ── 요약 통계 카드 ──────────────────────────── */}
+                <div className="grid grid-cols-4 gap-4">
+                  {[
+                    { label: '전체 배너', value: banners.length, icon: '🖼️', bg: '#EAE7DE', fg: '#23211C' },
+                    { label: '활성 배너', value: activeCount, icon: '✅', bg: '#DCFCE7', fg: '#16A34A' },
+                    {
+                      label: '대기 신청', value: pendingBanners.length, icon: '📬',
+                      bg: pendingBanners.length > 0 ? '#FEF3C7' : '#F4F1E9',
+                      fg: pendingBanners.length > 0 ? '#D97706' : '#9A9382',
+                    },
+                    { label: '이번 달 클릭', value: thisMonthClicks.toLocaleString(), icon: '👆', bg: '#EDE9FE', fg: '#7C3AED' },
+                  ].map(s => (
+                    <div key={s.label} style={{ background: s.bg }} className="rounded-2xl p-5">
+                      <div className="text-xl mb-2">{s.icon}</div>
+                      <div style={{ color: s.fg }} className="text-[28px] font-extrabold tracking-tight leading-none">{s.value}</div>
+                      <div className="text-[13px] text-[#9A9382] mt-1.5">{s.label}</div>
                     </div>
-                    <p className="text-xs text-stone-400 mt-1">비워두면 즉시 노출</p>
-                  </div>
-                  <div>
-                    <label className={labelClass}>노출 종료일</label>
-                    <div className="flex gap-2">
-                      <input type="datetime-local"
-                        value={bannerForm.ends_at}
-                        onChange={(e) => setBannerForm(f => ({ ...f, ends_at: e.target.value }))}
-                        className={inputClass} />
-                      {bannerForm.ends_at && (
-                        <button type="button"
-                          onClick={() => setBannerForm(f => ({ ...f, ends_at: '' }))}
-                          className="px-3 py-2 bg-stone-100 text-stone-500 rounded-xl hover:bg-stone-200 transition text-xs shrink-0 font-medium">
-                          지우기
-                        </button>
-                      )}
-                    </div>
-                    <p className="text-xs text-stone-400 mt-1">비워두면 무기한 노출</p>
-                  </div>
-                  <div>
-                    <label className={labelClass}>노출 순서 (낮을수록 먼저)</label>
-                    <input type="number" min="0"
-                      value={bannerForm.display_order}
-                      onChange={(e) => setBannerForm(f => ({ ...f, display_order: e.target.value }))}
-                      className={inputClass} />
-                  </div>
-                  <div className="flex items-center gap-3 pt-5">
-                    <input type="checkbox" id="is_active"
-                      checked={bannerForm.is_active}
-                      onChange={(e) => setBannerForm(f => ({ ...f, is_active: e.target.checked }))}
-                      className="w-4 h-4 accent-[#23211C]" />
-                    <label htmlFor="is_active" className="text-sm font-medium text-stone-700">활성화</label>
-                  </div>
+                  ))}
                 </div>
 
-                <div className="flex justify-end gap-3 mt-6">
-                  <button onClick={cancelBannerForm}
-                    className="px-5 py-2 bg-stone-100 text-stone-600 text-sm rounded-full hover:bg-stone-200 transition font-semibold">
-                    취소
-                  </button>
-                  <button onClick={saveBanner}
-                    className="px-5 py-2 bg-[#23211C] text-white text-sm rounded-full hover:bg-black transition font-semibold">
-                    {editingBannerId ? '수정 저장' : '등록하기'}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* 배너 목록 */}
-            <div className="card">
-              <div className="flex justify-between items-center px-6 py-4 border-b border-stone-100">
-                <p className="text-sm font-semibold text-stone-700">배너 목록</p>
-                {!showBannerForm && (
+                {/* ── 새 배너 등록 버튼 ──────────────────────── */}
+                <div className="flex justify-end">
                   <button onClick={startNewBanner}
-                    className="px-4 py-2 bg-[#23211C] text-white text-xs rounded-full hover:bg-black transition font-semibold">
+                    className="px-5 py-2.5 bg-[#23211C] text-white text-sm rounded-full hover:bg-black transition font-semibold">
                     + 새 배너 등록
                   </button>
-                )}
-              </div>
+                </div>
 
-              {banners.length === 0 ? (
-                <div className="p-12 text-center">
-                  <p className="text-stone-400 text-sm">등록된 배너가 없습니다</p>
-                  <p className="text-stone-300 text-xs mt-1">위 버튼으로 첫 배너를 등록해보세요</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[700px]">
-                    <thead className="bg-stone-50 border-b border-stone-100">
-                      <tr>
-                        <th className={thClass}>제목</th>
-                        <th className={thClass}>위치</th>
-                        <th className={thClass}>상태</th>
-                        <th className={thClass}>노출 기간</th>
-                        <th className={thClass}>순서</th>
-                        <th className="px-6 py-4 text-center text-xs font-bold text-stone-500 uppercase tracking-wide">관리</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-stone-100">
-                      {banners.map((banner) => (
-                        <tr key={banner.id} className="hover:bg-stone-50 transition">
-                          <td className={tdClass}>
-                            <div className="flex items-center gap-3">
-                              <img src={banner.image_url} alt={banner.title}
-                                className="w-14 h-8 object-cover rounded-lg border border-stone-100 shrink-0"
-                                onError={(e) => { e.target.style.display = 'none'; }} />
-                              <span className="font-medium truncate max-w-[150px]">{banner.title}</span>
-                            </div>
-                          </td>
-                          <td className={tdSubClass}>
-                            <span className="px-2 py-1 bg-[#EAE7DE] text-[#23211C] rounded-full text-xs font-medium whitespace-nowrap">
-                              {POSITION_LABELS[banner.position] || banner.position}
+                {/* ── 광고 신청 검토 ─────────────────────────── */}
+                {pendingBanners.length > 0 && (
+                  <div className="border border-amber-200 rounded-2xl overflow-hidden">
+                    <div className="flex items-center gap-3 px-6 py-4 bg-amber-50 border-b border-amber-100">
+                      <span className="text-base">📬</span>
+                      <p className="text-sm font-bold text-amber-800">광고 신청 검토</p>
+                      <span className="px-2.5 py-0.5 bg-amber-400 text-white rounded-full text-xs font-bold">
+                        {pendingBanners.length}건 대기
+                      </span>
+                    </div>
+                    <div className="p-5 space-y-6 bg-white">
+                      {Object.entries(pendingGrouped).map(([pos, items]) => (
+                        <div key={pos}>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
+                              {POSITION_LABELS[pos] || pos}
                             </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                              banner.is_active ? 'bg-[#EAE7DE] text-[#23211C]' : 'bg-stone-100 text-stone-500'
-                            }`}>
-                              {banner.is_active ? '활성' : '비활성'}
-                            </span>
-                          </td>
-                          <td className={tdSubClass}>
-                            <div className="text-xs space-y-0.5">
-                              {banner.starts_at
-                                ? <p>시작: {new Date(banner.starts_at).toLocaleDateString('ko-KR')}</p>
-                                : null}
-                              {banner.ends_at
-                                ? <p>종료: {new Date(banner.ends_at).toLocaleDateString('ko-KR')}</p>
-                                : null}
-                              {!banner.starts_at && !banner.ends_at
-                                ? <p className="text-stone-300">기간 제한 없음</p>
-                                : null}
-                            </div>
-                          </td>
-                          <td className={tdSubClass}>{banner.display_order}</td>
-                          <td className="px-6 py-4 text-center space-x-1.5 whitespace-nowrap">
-                            <button onClick={() => toggleBannerActive(banner.id, banner.is_active)}
-                              className={`px-3 py-1 text-white text-xs rounded-full transition font-semibold ${
-                                banner.is_active
-                                  ? 'bg-stone-400 hover:bg-stone-500'
-                                  : 'bg-[#23211C] hover:bg-[#23211C]'
-                              }`}>
-                              {banner.is_active ? '비활성화' : '활성화'}
-                            </button>
-                            <button onClick={() => startEditBanner(banner)}
-                              className="px-3 py-1 bg-[#23211C] text-white text-xs rounded-full hover:bg-black transition font-semibold">
-                              수정
-                            </button>
-                            <button onClick={() => deleteBanner(banner.id)}
-                              className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">
-                              삭제
-                            </button>
-                          </td>
-                        </tr>
+                            {POSITION_SIZES[pos] && (
+                              <span className="text-xs text-stone-400">{POSITION_SIZES[pos]}</span>
+                            )}
+                          </div>
+                          <div className="space-y-3">
+                            {items.map(b => (
+                              <div key={b.id} className="flex gap-4 items-start bg-[#FAFAF8] rounded-xl p-4 border border-[#F0ECE2]">
+                                <div className="w-24 h-14 rounded-lg overflow-hidden shrink-0 bg-stone-100">
+                                  <img src={b.image_url} alt={b.title}
+                                    className="w-full h-full object-cover"
+                                    onError={e => { e.target.parentElement.style.background = '#F4F1E9'; e.target.style.display = 'none'; }} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-bold text-[#23211C] text-sm truncate">{b.title}</p>
+                                  {b.link_url && (
+                                    <p className="text-xs text-stone-400 truncate mt-0.5">{b.link_url}</p>
+                                  )}
+                                  <div className="flex gap-3 mt-2 text-xs text-stone-500 flex-wrap">
+                                    {b.starts_at && <span>시작: {new Date(b.starts_at).toLocaleDateString('ko-KR')}</span>}
+                                    {b.ends_at && <span>종료: {new Date(b.ends_at).toLocaleDateString('ko-KR')}</span>}
+                                    {!b.starts_at && !b.ends_at && <span className="text-stone-300">기간 미지정</span>}
+                                  </div>
+                                  {b.notes && (
+                                    <p className="text-xs text-stone-500 mt-1.5 line-clamp-2 leading-relaxed">{b.notes}</p>
+                                  )}
+                                </div>
+                                <div className="flex flex-col gap-1.5 shrink-0">
+                                  <button onClick={() => approveBanner(b.id)}
+                                    className="px-4 py-1.5 bg-[#16A34A] text-white text-xs rounded-full hover:bg-[#15803D] transition font-bold whitespace-nowrap">
+                                    ✓ 승인
+                                  </button>
+                                  <button onClick={() => startEditBanner(b)}
+                                    className="px-4 py-1.5 bg-[#23211C] text-white text-xs rounded-full hover:bg-black transition font-semibold whitespace-nowrap">
+                                    수정
+                                  </button>
+                                  <button onClick={() => rejectBanner(b.id)}
+                                    className="px-4 py-1.5 bg-red-50 text-red-500 text-xs rounded-full hover:bg-red-100 transition font-semibold border border-red-200 whitespace-nowrap">
+                                    ✕ 거절
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── 위치별 배너 목록 ───────────────────────── */}
+                {banners.length === 0 ? (
+                  <div className="bg-white border border-[#E3DDD0] rounded-2xl p-12 text-center">
+                    <p className="text-stone-400 text-sm">등록된 배너가 없습니다</p>
+                    <p className="text-stone-300 text-xs mt-1">위 버튼으로 첫 배너를 등록해보세요</p>
+                  </div>
+                ) : orderedPositions.length > 0 ? (
+                  <div className="space-y-4">
+                    {orderedPositions.map(pos => {
+                      const items = grouped[pos];
+                      const posActiveCount = items.filter(b => b.is_active).length;
+                      return (
+                        <div key={pos} className="bg-white border border-[#E3DDD0] rounded-2xl overflow-hidden">
+                          {/* 위치 헤더 */}
+                          <div className="flex items-center gap-3 px-6 py-3.5 bg-[#F4F1E9] border-b border-[#E3DDD0]">
+                            <div className="flex-1 flex items-center gap-2 flex-wrap min-w-0">
+                              <span className="font-bold text-[#23211C] text-sm">{POSITION_LABELS[pos]}</span>
+                              <span className="text-stone-300">·</span>
+                              <span className="text-[12px] text-stone-400 font-mono">{pos}</span>
+                              {POSITION_SIZES[pos] && (
+                                <>
+                                  <span className="text-stone-300">·</span>
+                                  <span className="text-[12px] text-stone-400">{POSITION_SIZES[pos]}</span>
+                                </>
+                              )}
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 ${
+                              posActiveCount > 0 ? 'bg-[#23211C] text-white' : 'bg-stone-200 text-stone-500'
+                            }`}>
+                              활성 {posActiveCount}개
+                            </span>
+                          </div>
+
+                          {/* 배너 카드 목록 */}
+                          <div className="divide-y divide-[#F4F1E9]">
+                            {items.map(banner => (
+                              <div key={banner.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#FAF8F2] transition-colors">
+                                {/* 썸네일 */}
+                                <div className="w-20 h-12 rounded-lg overflow-hidden shrink-0 bg-stone-100">
+                                  <img src={banner.image_url} alt={banner.title}
+                                    className="w-full h-full object-cover"
+                                    onError={e => { e.target.parentElement.style.background = '#F4F1E9'; e.target.style.display = 'none'; }} />
+                                </div>
+
+                                {/* 정보 */}
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-semibold text-[#23211C] text-sm truncate">{banner.title}</p>
+                                  <div className="flex gap-3 mt-1 text-xs text-stone-400 flex-wrap">
+                                    <span>순서 {banner.display_order}</span>
+                                    {banner.starts_at && <span>시작 {new Date(banner.starts_at).toLocaleDateString('ko-KR')}</span>}
+                                    {banner.ends_at && <span>종료 {new Date(banner.ends_at).toLocaleDateString('ko-KR')}</span>}
+                                    {!banner.starts_at && !banner.ends_at && <span>무기한</span>}
+                                  </div>
+                                </div>
+
+                                {/* 활성 토글 */}
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className="text-xs text-stone-400 w-10 text-right">
+                                    {banner.is_active ? '활성' : '비활성'}
+                                  </span>
+                                  <button
+                                    onClick={() => toggleBannerActive(banner.id, banner.is_active)}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+                                      banner.is_active ? 'bg-[#23211C]' : 'bg-stone-200'
+                                    }`}
+                                  >
+                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                                      banner.is_active ? 'translate-x-6' : 'translate-x-1'
+                                    }`} />
+                                  </button>
+                                </div>
+
+                                {/* 통계/수정/삭제 */}
+                                <div className="flex gap-2 shrink-0">
+                                  <button onClick={() => openBannerStats(banner)}
+                                    className="px-3 py-1.5 bg-[#EDE9FE] text-[#7C3AED] text-xs rounded-lg hover:bg-purple-100 transition font-semibold">
+                                    통계
+                                  </button>
+                                  <button onClick={() => startEditBanner(banner)}
+                                    className="px-3 py-1.5 bg-[#EAE7DE] text-[#23211C] text-xs rounded-lg hover:bg-[#DDD9CE] transition font-semibold">
+                                    수정
+                                  </button>
+                                  <button onClick={() => deleteBanner(banner.id)}
+                                    className="px-3 py-1.5 bg-red-50 text-red-500 text-xs rounded-lg hover:bg-red-100 transition font-semibold">
+                                    삭제
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+
+              </div>
+            );
+          })()
 
         ) : null}
       </div>
+      {/* ── 배너 상세 통계 모달 ─────────────────────────────── */}
+      {showStatsModal && statsBanner && (() => {
+        const clicks  = statsData.filter(r => r.event_type === 'click');
+        const views   = statsData.filter(r => r.event_type === 'view');
+        const ctr     = views.length > 0 ? ((clicks.length / views.length) * 100).toFixed(1) : '0.0';
+
+        // 일별 추이
+        const dailyMap = {};
+        statsData.forEach(r => {
+          const d = r.clicked_at.slice(0, 10);
+          if (!dailyMap[d]) dailyMap[d] = { date: d, 노출: 0, 클릭: 0 };
+          if (r.event_type === 'view')  dailyMap[d].노출++;
+          if (r.event_type === 'click') dailyMap[d].클릭++;
+        });
+        const dailyData = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
+
+        // 기기별 파이
+        const deviceMap = {};
+        clicks.forEach(r => { const k = r.device_type || 'unknown'; deviceMap[k] = (deviceMap[k] || 0) + 1; });
+        const DEVICE_LABEL = { mobile: '모바일', desktop: '데스크탑', tablet: '태블릿', unknown: '기타' };
+        const DEVICE_COLOR = { mobile: '#7C3AED', desktop: '#23211C', tablet: '#6B7280', unknown: '#D1D5DB' };
+        const devicePie = Object.entries(deviceMap).map(([k, v]) => ({ name: DEVICE_LABEL[k] || k, value: v, color: DEVICE_COLOR[k] || '#D1D5DB' }));
+
+        // 시간대별 바
+        const hourly = Array.from({ length: 24 }, (_, h) => ({ 시간: `${h}시`, 클릭: 0 }));
+        clicks.forEach(r => { hourly[new Date(r.clicked_at).getHours()].클릭++; });
+
+        // 유입 경로
+        const refMap = {};
+        clicks.forEach(r => { const k = r.referrer || r.page_url || '직접'; refMap[k] = (refMap[k] || 0) + 1; });
+        const refList = Object.entries(refMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+        return (
+          <div className="fixed inset-0 z-50">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeStatsModal} />
+            <div
+              className="absolute inset-0 overflow-y-auto flex items-start justify-center p-4 pt-8"
+              onClick={e => { if (e.target === e.currentTarget) closeStatsModal(); }}
+            >
+              <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl z-10 my-4">
+
+                {/* 헤더 */}
+                <div className="flex items-start justify-between px-6 py-5 border-b border-[#E3DDD0]">
+                  <div>
+                    <h2 className="text-base font-bold text-[#23211C]">{statsBanner.title} — 상세 통계</h2>
+                    <p className="text-xs text-stone-400 mt-0.5">
+                      {POSITION_LABELS[statsBanner.position]} · {POSITION_SIZES[statsBanner.position]}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="flex gap-1 bg-stone-100 rounded-lg p-1">
+                      {[['today','오늘'],['7d','7일'],['30d','30일'],['all','전체']].map(([v, l]) => (
+                        <button key={v} onClick={() => changeStatsPeriod(v)}
+                          className={`px-3 py-1 rounded-md text-xs font-semibold transition ${statsPeriod === v ? 'bg-[#23211C] text-white' : 'text-stone-500 hover:text-stone-700'}`}>
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                    <button onClick={closeStatsModal}
+                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F4F1E9] transition text-stone-400 hover:text-[#23211C] text-sm font-bold">
+                      ✕
+                    </button>
+                  </div>
+                </div>
+
+                {statsLoading ? (
+                  <div className="py-20 text-center">
+                    <div className="text-2xl animate-pulse mb-2">📊</div>
+                    <p className="text-stone-400 text-sm">통계 로딩 중...</p>
+                  </div>
+                ) : (
+                  <div className="p-6 space-y-5">
+
+                    {/* 요약 수치 */}
+                    <div className="grid grid-cols-4 gap-3">
+                      {[
+                        { label: '총 노출', value: views.length.toLocaleString(), bg: '#EAE7DE', fg: '#23211C' },
+                        { label: '총 클릭', value: clicks.length.toLocaleString(), bg: '#DCFCE7', fg: '#16A34A' },
+                        { label: 'CTR', value: `${ctr}%`, bg: '#EDE9FE', fg: '#7C3AED' },
+                        { label: '데이터 건수', value: statsData.length.toLocaleString(), bg: '#F4F1E9', fg: '#9A9382' },
+                      ].map(s => (
+                        <div key={s.label} style={{ background: s.bg }} className="rounded-xl p-4">
+                          <div style={{ color: s.fg }} className="text-2xl font-extrabold tracking-tight leading-none">{s.value}</div>
+                          <div className="text-xs text-stone-400 mt-1.5">{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* 일별 추이 + 기기별 */}
+                    <div className="grid grid-cols-[1fr_200px] gap-4">
+                      <div className="bg-[#FAFAF8] rounded-xl p-4 border border-[#F0ECE2]">
+                        <p className="text-xs font-semibold text-stone-500 mb-3">일별 노출 / 클릭 추이</p>
+                        {dailyData.length === 0 ? (
+                          <div className="h-36 flex items-center justify-center text-stone-300 text-sm">데이터 없음</div>
+                        ) : (
+                          <ResponsiveContainer width="100%" height={144}>
+                            <LineChart data={dailyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                              <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={d => d.slice(5)} />
+                              <YAxis tick={{ fontSize: 10 }} />
+                              <Tooltip />
+                              <Line type="monotone" dataKey="노출" stroke="#C4BEB0" strokeWidth={1.5} dot={false} />
+                              <Line type="monotone" dataKey="클릭" stroke="#23211C" strokeWidth={2} dot={false} />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        )}
+                      </div>
+
+                      <div className="bg-[#FAFAF8] rounded-xl p-4 border border-[#F0ECE2]">
+                        <p className="text-xs font-semibold text-stone-500 mb-2">기기별 클릭</p>
+                        {devicePie.length === 0 ? (
+                          <div className="h-36 flex items-center justify-center text-stone-300 text-sm">데이터 없음</div>
+                        ) : (
+                          <>
+                            <PieChart width={168} height={110}>
+                              <Pie data={devicePie} cx={84} cy={55} innerRadius={30} outerRadius={50} dataKey="value" paddingAngle={2}>
+                                {devicePie.map((e, i) => <Cell key={i} fill={e.color} />)}
+                              </Pie>
+                              <Tooltip formatter={(v, n) => [v + '건', n]} />
+                            </PieChart>
+                            <div className="space-y-1 mt-1">
+                              {devicePie.map(d => (
+                                <div key={d.name} className="flex items-center gap-2 text-xs">
+                                  <span style={{ background: d.color }} className="w-2 h-2 rounded-full shrink-0" />
+                                  <span className="text-stone-600 flex-1">{d.name}</span>
+                                  <span className="font-semibold text-stone-700">{d.value}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 시간대별 */}
+                    <div className="bg-[#FAFAF8] rounded-xl p-4 border border-[#F0ECE2]">
+                      <p className="text-xs font-semibold text-stone-500 mb-3">시간대별 클릭 분포</p>
+                      <ResponsiveContainer width="100%" height={110}>
+                        <BarChart data={hourly} margin={{ top: 0, right: 4, bottom: 0, left: -20 }}>
+                          <XAxis dataKey="시간" tick={{ fontSize: 9 }} interval={3} />
+                          <YAxis tick={{ fontSize: 10 }} />
+                          <Tooltip />
+                          <Bar dataKey="클릭" fill="#23211C" radius={[2, 2, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    {/* 유입 경로 */}
+                    {refList.length > 0 && (
+                      <div className="bg-[#FAFAF8] rounded-xl p-4 border border-[#F0ECE2]">
+                        <p className="text-xs font-semibold text-stone-500 mb-3">유입 경로 (클릭 기준)</p>
+                        <div className="space-y-2">
+                          {refList.map(([ref, count]) => (
+                            <div key={ref} className="flex items-center gap-3">
+                              <p className="text-xs text-stone-600 flex-1 truncate">{ref}</p>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <div className="w-20 h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                                  <div
+                                    style={{ width: clicks.length > 0 ? `${(count / clicks.length) * 100}%` : '0%' }}
+                                    className="h-full bg-[#23211C] rounded-full"
+                                  />
+                                </div>
+                                <span className="text-xs font-semibold text-stone-700 w-5 text-right">{count}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── 배너 등록/수정 모달 ─────────────────────────────── */}
+      {showBannerForm && (
+        <div className="fixed inset-0 z-50">
+          {/* 백드롭 */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={cancelBannerForm}
+          />
+
+          {/* 스크롤 래퍼 */}
+          <div
+            className="absolute inset-0 overflow-y-auto flex items-start justify-center p-4 pt-10"
+            onClick={(e) => { if (e.target === e.currentTarget) cancelBannerForm(); }}
+          >
+
+          {/* 모달 카드 */}
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-10 my-4">
+
+            {/* 헤더 */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#E3DDD0]">
+              <div>
+                <h2 className="text-base font-bold text-[#23211C]">
+                  {editingBannerId ? '배너 수정' : '새 배너 등록'}
+                </h2>
+                {editingBannerId && (
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    {POSITION_LABELS[bannerForm.position]} — {POSITION_SIZES[bannerForm.position]}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={cancelBannerForm}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F4F1E9] transition text-stone-400 hover:text-[#23211C] text-sm font-bold shrink-0"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* 폼 바디 */}
+            <div className="p-6">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>제목 *</label>
+                  <input type="text" placeholder="배너 제목"
+                    value={bannerForm.title}
+                    onChange={(e) => setBannerForm(f => ({ ...f, title: e.target.value }))}
+                    className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>위치 *</label>
+                  <select value={bannerForm.position}
+                    onChange={(e) => setBannerForm(f => ({ ...f, position: e.target.value }))}
+                    className={inputClass}>
+                    {Object.entries(POSITION_LABELS).map(([val, label]) => (
+                      <option key={val} value={val}>{label} — {POSITION_SIZES[val] || ''}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="md:col-span-2">
+                  <label className={labelClass}>이미지 *</label>
+                  <ImageUpload
+                    bucket="banners"
+                    value={bannerForm.image_url}
+                    onChange={(url) => setBannerForm(f => ({ ...f, image_url: url }))}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className={labelClass}>링크 URL</label>
+                  <input type="url" placeholder="https://example.com (클릭 시 이동, 선택 사항)"
+                    value={bannerForm.link_url}
+                    onChange={(e) => setBannerForm(f => ({ ...f, link_url: e.target.value }))}
+                    className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>노출 시작일</label>
+                  <div className="flex gap-2">
+                    <input type="datetime-local"
+                      value={bannerForm.starts_at}
+                      onChange={(e) => setBannerForm(f => ({ ...f, starts_at: e.target.value }))}
+                      className={inputClass} />
+                    {bannerForm.starts_at && (
+                      <button type="button"
+                        onClick={() => setBannerForm(f => ({ ...f, starts_at: '' }))}
+                        className="px-3 py-2 bg-stone-100 text-stone-500 rounded-xl hover:bg-stone-200 transition text-xs shrink-0 font-medium">
+                        지우기
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-xs text-stone-400 mt-1">비워두면 즉시 노출</p>
+                </div>
+                <div>
+                  <label className={labelClass}>노출 종료일</label>
+                  <div className="flex gap-2">
+                    <input type="datetime-local"
+                      value={bannerForm.ends_at}
+                      onChange={(e) => setBannerForm(f => ({ ...f, ends_at: e.target.value }))}
+                      className={inputClass} />
+                    {bannerForm.ends_at && (
+                      <button type="button"
+                        onClick={() => setBannerForm(f => ({ ...f, ends_at: '' }))}
+                        className="px-3 py-2 bg-stone-100 text-stone-500 rounded-xl hover:bg-stone-200 transition text-xs shrink-0 font-medium">
+                        지우기
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-xs text-stone-400 mt-1">비워두면 무기한 노출</p>
+                </div>
+                <div>
+                  <label className={labelClass}>노출 순서 (낮을수록 먼저)</label>
+                  <input type="number" min="0"
+                    value={bannerForm.display_order}
+                    onChange={(e) => setBannerForm(f => ({ ...f, display_order: e.target.value }))}
+                    className={inputClass} />
+                </div>
+                <div className="flex items-center gap-3 pt-5">
+                  <input type="checkbox" id="modal_is_active"
+                    checked={bannerForm.is_active}
+                    onChange={(e) => setBannerForm(f => ({ ...f, is_active: e.target.checked }))}
+                    className="w-4 h-4 accent-[#23211C]" />
+                  <label htmlFor="modal_is_active" className="text-sm font-medium text-stone-700">활성화</label>
+                </div>
+              </div>
+            </div>
+
+            {/* 모달 푸터 */}
+            <div className="flex justify-end gap-3 px-6 py-4 border-t border-[#E3DDD0] bg-[#FAFAF8] rounded-b-2xl">
+              <button onClick={cancelBannerForm}
+                className="px-5 py-2 bg-stone-100 text-stone-600 text-sm rounded-full hover:bg-stone-200 transition font-semibold">
+                취소
+              </button>
+              <button onClick={saveBanner}
+                className="px-5 py-2 bg-[#23211C] text-white text-sm rounded-full hover:bg-black transition font-semibold">
+                {editingBannerId ? '수정 저장' : '등록하기'}
+              </button>
+            </div>
+          </div>
+          </div>{/* 스크롤 래퍼 end */}
+        </div>
+      )}
     </main>
   );
 }

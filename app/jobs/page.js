@@ -1,11 +1,13 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import BannerZone from '@/app/components/BannerZone';
+
+const PAGE_SIZE = 12;
 
 const JOB_IMGS = [
   'https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=120&auto=format&fit=crop&q=80',
@@ -47,7 +49,52 @@ function FilterSection({ title, options, selected, onToggle }) {
   );
 }
 
+function Pagination({ currentPage, totalPages, onPageChange }) {
+  if (totalPages <= 1) return null;
+
+  const getPages = () => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages = [1];
+    if (currentPage > 3) pages.push('…');
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i);
+    if (currentPage < totalPages - 2) pages.push('…');
+    pages.push(totalPages);
+    return pages;
+  };
+
+  return (
+    <div className="flex justify-center items-center gap-1 mt-8 mb-2">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="w-9 h-9 flex items-center justify-center rounded-[9px] border border-[#E3DDD0] bg-white text-[#76705F] text-base font-bold disabled:opacity-30 hover:bg-[#F4F1E9] transition"
+      >‹</button>
+      {getPages().map((p, i) =>
+        p === '…' ? (
+          <span key={`e${i}`} className="w-9 h-9 flex items-center justify-center text-[#9A9382] text-sm">…</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onPageChange(p)}
+            className={`w-9 h-9 flex items-center justify-center rounded-[9px] text-sm font-semibold border transition ${
+              p === currentPage
+                ? 'bg-[#23211C] text-white border-[#23211C]'
+                : 'bg-white text-[#76705F] border-[#E3DDD0] hover:bg-[#F4F1E9]'
+            }`}
+          >{p}</button>
+        )
+      )}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="w-9 h-9 flex items-center justify-center rounded-[9px] border border-[#E3DDD0] bg-white text-[#76705F] text-base font-bold disabled:opacity-30 hover:bg-[#F4F1E9] transition"
+      >›</button>
+    </div>
+  );
+}
+
 function JobsContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -62,11 +109,21 @@ function JobsContent() {
   const [sortBy, setSortBy] = useState('최신순');
   const [bookmarks, setBookmarks] = useState({});
   const [user, setUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1', 10));
+  const skipReset = useRef(true);
 
   useEffect(() => {
     fetchJobs();
     checkUser();
   }, []);
+
+  useEffect(() => {
+    if (skipReset.current) { skipReset.current = false; return; }
+    setCurrentPage(1);
+    const params = new URLSearchParams(window.location.search);
+    params.delete('page');
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [searchTerm, selectedRegions, selectedTypes, selectedStyles, sortBy]);
 
   const checkUser = async () => {
     const { data: { user: u } } = await supabase.auth.getUser();
@@ -129,6 +186,17 @@ function JobsContent() {
     return 0;
   });
 
+  const totalPages = Math.ceil(sortedJobs.length / PAGE_SIZE);
+  const pagedJobs = sortedJobs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const params = new URLSearchParams(window.location.search);
+    params.set('page', page);
+    router.push(`?${params.toString()}`);
+  };
+
   const timeAgo = (dateStr) => {
     const diff = (Date.now() - new Date(dateStr)) / 1000;
     if (diff < 86400) return '오늘';
@@ -183,6 +251,7 @@ function JobsContent() {
 
           <p className="text-[13px] text-[#9A9382] mb-[14px]">
             총 <strong className="text-[#23211C]">{sortedJobs.length}</strong>개 공고
+            {totalPages > 1 && <span className="ml-1">· {currentPage} / {totalPages} 페이지</span>}
           </p>
 
           {loading ? (
@@ -193,22 +262,34 @@ function JobsContent() {
               <p className="text-[#9A9382] text-[13px] mt-[6px]">다른 조건으로 검색해보세요</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-[10px]">
-              {sortedJobs.map((job, idx) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  idx={idx}
-                  isBookmarked={!!bookmarks[job.id]}
-                  onBookmark={toggleBookmark}
-                  timeAgo={timeAgo}
-                />
-              ))}
-            </div>
+            <>
+              <div className="flex flex-col gap-[10px]">
+                {pagedJobs.map((job, idx) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    idx={(currentPage - 1) * PAGE_SIZE + idx}
+                    isBookmarked={!!bookmarks[job.id]}
+                    onBookmark={toggleBookmark}
+                    timeAgo={timeAgo}
+                  />
+                ))}
+              </div>
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            </>
           )}
           <BannerZone position="jobs_bottom" />
         </div>
-        <BannerZone position="jobs_top" />
+        {/* 우측 광고 사이드바: jobs_top(기존) + jobs_sidebar(신규) 통합 */}
+        <aside className="w-44 shrink-0 hidden lg:block">
+          <div style={{ position: 'sticky', top: 24 }}>
+            <p className="text-xs text-stone-300 text-right mb-2">광고</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 'calc(100vh - 120px)', overflowY: 'auto', paddingRight: 1 }}>
+              <BannerZone position="jobs_top" inline />
+              <BannerZone position="jobs_sidebar" inline />
+            </div>
+          </div>
+        </aside>
       </div>
     </main>
   );
@@ -217,12 +298,10 @@ function JobsContent() {
 function JobCard({ job, idx, isBookmarked, onBookmark, timeAgo }) {
   return (
     <div className="bg-white rounded-[14px] border border-[#E3DDD0] hover:border-[#23211C] hover:shadow-[0_4px_16px_rgba(30,28,24,0.08)] px-5 py-4 flex gap-4 items-center transition-all duration-150">
-      {/* Thumbnail */}
       <div className="w-[60px] h-[60px] rounded-xl overflow-hidden shrink-0 relative">
         <Image src={JOB_IMGS[idx % JOB_IMGS.length]} alt={job.title} fill sizes="60px" className="object-cover" />
       </div>
 
-      {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-[6px] mb-1">
           <span className="text-xs text-[#9A9382]">요가스튜디오</span>
@@ -247,7 +326,6 @@ function JobCard({ job, idx, isBookmarked, onBookmark, timeAgo }) {
         </div>
       </div>
 
-      {/* Salary + time */}
       <div className="text-right shrink-0 mr-2">
         {job.salary && (
           <p className="text-sm font-bold text-[#23211C] mb-1">{job.salary}</p>
@@ -255,7 +333,6 @@ function JobCard({ job, idx, isBookmarked, onBookmark, timeAgo }) {
         <p className="text-xs text-[#9A9382]">{timeAgo(job.created_at)}</p>
       </div>
 
-      {/* Actions */}
       <div className="flex gap-2 items-center shrink-0">
         <button
           onClick={(e) => onBookmark(e, job.id)}

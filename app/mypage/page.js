@@ -18,6 +18,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } fro
 export default function MyPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [myJobs, setMyJobs] = useState([]);
   const [myResumes, setMyResumes] = useState([]);
   const [bookmarkedJobs, setBookmarkedJobs] = useState([]);
@@ -53,6 +54,14 @@ export default function MyPage() {
     }
 
     setUser(user);
+
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('name, role')
+      .eq('id', user.id)
+      .single();
+    if (profileData) setProfile(profileData);
+
     fetchMyData(user.id);
   };
 
@@ -300,7 +309,12 @@ export default function MyPage() {
         <div className="bg-white rounded-2xl border border-[#E3DDD0] shadow-sm p-6 mb-6 flex justify-between items-center gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-extrabold text-[#26241D] tracking-[-0.02em]">마이페이지</h1>
-            <p className="text-[#76705F] text-sm mt-1">{user?.email}</p>
+            {(profile?.name || user?.user_metadata?.name) && (
+              <p className="text-base font-semibold text-[#23211C] mt-0.5">
+                {profile?.name || user?.user_metadata?.name}
+              </p>
+            )}
+            <p className="text-[#76705F] text-sm mt-0.5">{user?.email}</p>
           </div>
           <div className="flex gap-2 items-center">
             <Link href="/profile" className="inline-flex items-center px-4 py-2.5 bg-[#23211C] text-white text-sm font-bold rounded-xl hover:bg-black transition">
