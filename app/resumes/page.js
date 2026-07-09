@@ -85,7 +85,7 @@ function ResumeCard({ resume, idx, onSuggest, isSuggesting }) {
   return (
     <div className="bg-white rounded-2xl border border-[#E3DDD0] hover:border-[#23211C] hover:shadow-[0_10px_28px_rgba(30,28,24,0.12)] px-5 py-6 flex flex-col items-center transition-all duration-150">
       <div className="w-[72px] h-[72px] rounded-full overflow-hidden relative mb-[10px] border-2 border-[#E3DDD0] shrink-0">
-        <Image src={AVATAR_IMGS[idx % AVATAR_IMGS.length]} alt={resume.name} fill sizes="72px" className="object-cover" />
+        <Image src={resume.photo_url || AVATAR_IMGS[idx % AVATAR_IMGS.length]} alt={resume.name} fill sizes="72px" className="object-cover" />
       </div>
 
       <div className="flex items-center gap-1 mb-1">
