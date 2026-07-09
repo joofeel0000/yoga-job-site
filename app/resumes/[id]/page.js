@@ -127,7 +127,7 @@ export default function ResumeDetail() {
           <div className="flex flex-col sm:flex-row gap-5 sm:items-start">
             {/* 아바타 */}
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shrink-0 border-[3px] border-[#E3DDD0] relative self-start">
-              <Image src={avatarImg(resume.id)} alt={resume.name} fill sizes="96px" style={{ objectFit: 'cover' }} />
+              <Image src={resume.photo_url || avatarImg(resume.id)} alt={resume.name} fill sizes="96px" style={{ objectFit: 'cover' }} />
             </div>
 
             {/* 정보 */}
