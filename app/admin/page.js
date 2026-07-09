@@ -207,7 +207,7 @@ export default function Admin() {
         image_url:   editForm.image_url || null,
       }).eq('id', editModal.data.id));
     } else if (type === 'resume') {
-      ({ error } = await supabase.from('candidate').update({
+      const { data: updatedRows, error: resumeErr } = await supabase.from('candidate').update({
         name:             editForm.name,
         location:         editForm.location,
         yoga_styles:      editForm.yoga_styles,
@@ -215,7 +215,10 @@ export default function Admin() {
         introduction:     editForm.introduction,
         status:           editForm.status,
         photo_url:        editForm.photo_url || null,
-      }).eq('id', editModal.data.id));
+      }).eq('id', editModal.data.id).select();
+      error = resumeErr || (Array.isArray(updatedRows) && updatedRows.length === 0
+        ? { message: '업데이트된 행 없음 — Supabase RLS 정책 확인 필요' }
+        : null);
     } else if (type === 'user') {
       ({ error } = await supabase.from('profiles').update({
         name:  editForm.name,
