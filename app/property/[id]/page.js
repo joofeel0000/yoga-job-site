@@ -33,6 +33,7 @@ export default function PropertyDetail() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     fetchProperty();
@@ -97,28 +98,53 @@ export default function PropertyDetail() {
         <div className="bg-white rounded-3xl border border-stone-100 shadow-sm overflow-hidden">
 
           {/* hero image */}
-          <div style={{ position: 'relative', height: 280 }}>
-            <Image
-              src={studioImg(property.id)}
-              alt={property.title}
-              fill
-              sizes="(max-width: 768px) 100vw, 768px"
-              style={{ objectFit: 'cover' }}
-              priority
-            />
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'linear-gradient(to top, rgba(30,28,24,0.55) 0%, rgba(30,28,24,0) 50%)',
-            }} />
-            <span style={{
-              position: 'absolute', bottom: 16, left: 20,
-              fontSize: 13, fontWeight: 700,
-              background: '#23211C', color: '#fff',
-              padding: '4px 10px', borderRadius: 6,
-            }}>
-              {property.property_type}
-            </span>
-          </div>
+          {(() => {
+            const imgs = property.images?.filter(Boolean) || [];
+            const heroSrc = selectedImage || imgs[0] || studioImg(property.id);
+            return (
+              <>
+                <div style={{ position: 'relative', height: 280 }}>
+                  <Image
+                    src={heroSrc}
+                    alt={property.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 768px"
+                    style={{ objectFit: 'cover' }}
+                    priority
+                  />
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    background: 'linear-gradient(to top, rgba(30,28,24,0.55) 0%, rgba(30,28,24,0) 50%)',
+                  }} />
+                  <span style={{
+                    position: 'absolute', bottom: 16, left: 20,
+                    fontSize: 13, fontWeight: 700,
+                    background: '#23211C', color: '#fff',
+                    padding: '4px 10px', borderRadius: 6,
+                  }}>
+                    {property.property_type}
+                  </span>
+                </div>
+                {imgs.length > 1 && (
+                  <div className="flex gap-2 px-4 py-3 bg-stone-50 border-t border-stone-100 overflow-x-auto">
+                    {imgs.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedImage(img)}
+                        className={`shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition ${
+                          (selectedImage === img) || (!selectedImage && idx === 0)
+                            ? 'border-[#23211C]'
+                            : 'border-transparent hover:border-stone-300'
+                        }`}
+                      >
+                        <img src={img} alt={`사진 ${idx + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          })()}
 
           <div className="p-5 sm:p-8">
 

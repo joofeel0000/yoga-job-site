@@ -204,6 +204,7 @@ export default function Admin() {
         salary:      editForm.salary,
         description: editForm.description,
         status:      editForm.status,
+        logo_url:    editForm.logo_url || null,
       }).eq('id', editModal.data.id));
     } else if (type === 'resume') {
       ({ error } = await supabase.from('candidate').update({
@@ -213,6 +214,7 @@ export default function Admin() {
         experience_years: editForm.experience_years,
         introduction:     editForm.introduction,
         status:           editForm.status,
+        photo_url:        editForm.photo_url || null,
       }).eq('id', editModal.data.id));
     } else if (type === 'user') {
       ({ error } = await supabase.from('profiles').update({
@@ -1079,6 +1081,15 @@ export default function Admin() {
                 {editModal.type === 'job' && (
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
+                      <label className={labelClass}>회사/스튜디오 로고</label>
+                      <ImageUpload
+                        bucket="jobs"
+                        value={editForm.logo_url || ''}
+                        onChange={(url) => setEditForm(f => ({...f, logo_url: url}))}
+                        hint="로고 이미지 (선택사항)"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
                       <label className={labelClass}>제목 *</label>
                       <input type="text" value={editForm.title || ''} onChange={e => setEditForm(f => ({...f, title: e.target.value}))} className={inputClass} />
                     </div>
@@ -1114,6 +1125,15 @@ export default function Admin() {
 
                 {editModal.type === 'resume' && (
                   <div className="grid md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className={labelClass}>프로필 사진</label>
+                      <ImageUpload
+                        bucket="avatars"
+                        value={editForm.photo_url || ''}
+                        onChange={(url) => setEditForm(f => ({...f, photo_url: url}))}
+                        hint="프로필 사진"
+                      />
+                    </div>
                     <div>
                       <label className={labelClass}>이름 *</label>
                       <input type="text" value={editForm.name || ''} onChange={e => setEditForm(f => ({...f, name: e.target.value}))} className={inputClass} />

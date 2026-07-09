@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ImageUpload from '@/app/components/ImageUpload';
 
 const inputClass = "input-base";
 const labelClass = "label-field";
@@ -21,6 +22,7 @@ export default function PostProperty() {
     price: '',
     description: '',
     contact: '',
+    images: ['', '', ''],
   });
 
   useEffect(() => { checkUser(); }, []);
@@ -46,6 +48,8 @@ export default function PostProperty() {
     }
     setSubmitting(true);
 
+    const uploadedImages = formData.images.filter(Boolean);
+
     const { data, error } = await supabase.from('property').insert([{
       title: formData.title.trim(),
       property_type: formData.property_type,
@@ -56,6 +60,7 @@ export default function PostProperty() {
       contact: formData.contact.trim(),
       user_id: user.id,
       status: 'active',
+      images: uploadedImages,
     }]).select();
 
     setSubmitting(false);
@@ -176,6 +181,27 @@ export default function PostProperty() {
               placeholder="전화번호 또는 이메일 (로그인 사용자에게만 공개)"
               className={inputClass}
             />
+          </div>
+
+          <div>
+            <label className={labelClass}>매물 사진 (최대 3장)</label>
+            <div className="grid grid-cols-3 gap-3">
+              {[0, 1, 2].map((idx) => (
+                <div key={idx}>
+                  <ImageUpload
+                    bucket="properties"
+                    value={formData.images[idx]}
+                    onChange={(url) => {
+                      const imgs = [...formData.images];
+                      imgs[idx] = url;
+                      setFormData({ ...formData, images: imgs });
+                    }}
+                    hint={idx === 0 ? '대표 사진' : `사진 ${idx + 1}`}
+                  />
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-stone-400 mt-2">첫 번째 사진이 목록 대표 이미지로 표시됩니다</p>
           </div>
 
           <button
