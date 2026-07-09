@@ -177,8 +177,12 @@ export default function JobDetail() {
 
         {/* Header Card */}
         <div className="bg-white rounded-[18px] border border-[#E3DDD0] p-5 sm:p-7 mb-5 flex flex-col sm:flex-row gap-4 sm:gap-5 sm:items-start">
-          <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-[14px] overflow-hidden shrink-0 relative">
-            <Image src={jobImg(job.id)} alt={job.title} fill sizes="72px" style={{ objectFit: 'cover' }} />
+          <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-[14px] overflow-hidden shrink-0 relative bg-[#F4F1E9] flex items-center justify-center">
+            {job.image_url ? (
+              <Image src={job.image_url} alt={job.title} fill sizes="72px" style={{ objectFit: 'cover' }} />
+            ) : (
+              <span className="text-3xl select-none">🧘</span>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-[#9A9382] mb-1">요가스튜디오</p>

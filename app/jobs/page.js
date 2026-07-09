@@ -300,8 +300,12 @@ function JobCard({ job, idx, isBookmarked, onBookmark, timeAgo }) {
     <div className="bg-white rounded-[14px] border border-[#E3DDD0] hover:border-[#23211C] hover:shadow-[0_4px_16px_rgba(30,28,24,0.08)] px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 transition-all duration-150">
       {/* 이미지 + 정보 */}
       <div className="flex gap-4 items-center flex-1 min-w-0">
-        <div className="w-[60px] h-[60px] rounded-xl overflow-hidden shrink-0 relative">
-          <Image src={JOB_IMGS[idx % JOB_IMGS.length]} alt={job.title} fill sizes="60px" className="object-cover" />
+        <div className="w-[60px] h-[60px] rounded-xl overflow-hidden shrink-0 relative bg-[#F4F1E9] flex items-center justify-center">
+          {job.image_url ? (
+            <Image src={job.image_url} alt={job.title} fill sizes="60px" className="object-cover" />
+          ) : (
+            <span className="text-2xl select-none">🧘</span>
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-[6px] mb-1">
