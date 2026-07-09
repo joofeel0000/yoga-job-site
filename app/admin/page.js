@@ -66,19 +66,24 @@ export default function Admin() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [editingBannerId, setEditingBannerId] = useState(null);
   const [bannerForm, setBannerForm] = useState(BLANK_BANNER);
+  const [properties, setProperties] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [editModal, setEditModal] = useState(null); // { type, data }
+  const [editForm, setEditForm] = useState({});
+  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     checkUser();
   }, []);
 
   useEffect(() => {
-    if (showBannerForm || showStatsModal) {
+    if (showBannerForm || showStatsModal || editModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
     return () => { document.body.style.overflow = ''; };
-  }, [showBannerForm, showStatsModal]);
+  }, [showBannerForm, showStatsModal, editModal]);
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -108,12 +113,14 @@ export default function Admin() {
   const fetchAllData = async () => {
     setLoading(true);
 
-    const [jobsRes, resumesRes, usersRes, bannersRes, clicksRes] = await Promise.all([
+    const [jobsRes, resumesRes, usersRes, bannersRes, clicksRes, propsRes, postsRes] = await Promise.all([
       supabase.from('job').select('*').order('created_at', { ascending: false }),
       supabase.from('candidate').select('*').order('created_at', { ascending: false }),
       supabase.from('profiles').select('*').order('created_at', { ascending: false }),
       supabase.from('banners').select('*').order('position').order('display_order'),
       supabase.from('banner_clicks').select('banner_id, event_type, clicked_at').order('clicked_at', { ascending: false }),
+      supabase.from('property').select('*').order('created_at', { ascending: false }),
+      supabase.from('community_posts').select('*').order('created_at', { ascending: false }),
     ]);
 
     if (jobsRes.data)    setJobs(jobsRes.data);
@@ -121,6 +128,8 @@ export default function Admin() {
     if (usersRes.data)   setUsers(usersRes.data);
     if (bannersRes.data) setBanners(bannersRes.data);
     if (clicksRes.data)  setBannerClicks(clicksRes.data);
+    if (propsRes.data)   setProperties(propsRes.data);
+    if (postsRes.data)   setPosts(postsRes.data);
 
     setLoading(false);
   };
@@ -153,6 +162,91 @@ export default function Admin() {
     const { error } = await supabase.from('profiles').delete().eq('id', userId);
     if (error) alert('삭제 실패: 인증 사용자는 Supabase Dashboard에서 삭제해야 합니다.');
     else { alert('프로필이 삭제되었습니다!'); fetchAllData(); }
+  };
+
+  const deleteProperty = async (id) => {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    const { error } = await supabase.from('property').delete().eq('id', id);
+    if (error) alert('삭제 실패');
+    else { alert('삭제되었습니다!'); fetchAllData(); }
+  };
+
+  const deletePost = async (id) => {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    const { error } = await supabase.from('community_posts').delete().eq('id', id);
+    if (error) alert('삭제 실패');
+    else { alert('삭제되었습니다!'); fetchAllData(); }
+  };
+
+  // --- Edit Modal ---
+  const openEditModal = (type, data) => {
+    setEditModal({ type, data });
+    setEditForm({ ...data });
+  };
+
+  const closeEditModal = () => {
+    setEditModal(null);
+    setEditForm({});
+  };
+
+  const saveEdit = async () => {
+    if (!editModal) return;
+    setEditSaving(true);
+    const { type } = editModal;
+    let error;
+
+    if (type === 'job') {
+      ({ error } = await supabase.from('job').update({
+        title:       editForm.title,
+        location:    editForm.location,
+        yoga_style:  editForm.yoga_style,
+        experience:  editForm.experience,
+        salary:      editForm.salary,
+        description: editForm.description,
+        status:      editForm.status,
+      }).eq('id', editModal.data.id));
+    } else if (type === 'resume') {
+      ({ error } = await supabase.from('candidate').update({
+        name:             editForm.name,
+        location:         editForm.location,
+        yoga_styles:      editForm.yoga_styles,
+        experience_years: editForm.experience_years,
+        introduction:     editForm.introduction,
+        status:           editForm.status,
+      }).eq('id', editModal.data.id));
+    } else if (type === 'user') {
+      ({ error } = await supabase.from('profiles').update({
+        name:  editForm.name,
+        email: editForm.email,
+        role:  editForm.role,
+      }).eq('id', editModal.data.id));
+    } else if (type === 'property') {
+      ({ error } = await supabase.from('property').update({
+        title:         editForm.title,
+        property_type: editForm.property_type,
+        location:      editForm.location,
+        area:          editForm.area,
+        price:         editForm.price,
+        description:   editForm.description,
+        contact:       editForm.contact,
+        status:        editForm.status,
+      }).eq('id', editModal.data.id));
+    } else if (type === 'post') {
+      ({ error } = await supabase.from('community_posts').update({
+        title:    editForm.title,
+        content:  editForm.content,
+        category: editForm.category,
+      }).eq('id', editModal.data.id));
+    }
+
+    setEditSaving(false);
+    if (error) {
+      alert('저장 실패: ' + error.message);
+    } else {
+      alert('저장되었습니다!');
+      closeEditModal();
+      fetchAllData();
+    }
   };
 
   // --- Banner ---
@@ -292,7 +386,7 @@ export default function Admin() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-[26px] font-bold text-[#23211C] mb-1">관리자 페이지</h1>
-            <p className="text-sm text-[#9A9382]">구인공고·이력서·회원·배너 광고를 관리합니다</p>
+            <p className="text-sm text-[#9A9382]">구인공고·이력서·회원·매물·커뮤니티·배너를 관리합니다</p>
           </div>
           <Link href="/" className="text-[#23211C] hover:text-black font-medium text-sm transition-colors">
             ← 홈으로
@@ -313,6 +407,14 @@ export default function Admin() {
             <button onClick={() => setActiveTab('users')}
               className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'users' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
               회원 관리 ({users.length})
+            </button>
+            <button onClick={() => setActiveTab('property')}
+              className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'property' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
+              매물정보 ({properties.length})
+            </button>
+            <button onClick={() => setActiveTab('community')}
+              className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'community' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
+              커뮤니티 ({posts.length})
             </button>
             <button onClick={() => setActiveTab('banners')}
               className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'banners' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
@@ -361,6 +463,8 @@ export default function Admin() {
                         <Link href={`/jobs/${job.id}`}>
                           <button className="btn-pill-sm">보기</button>
                         </Link>
+                        <button onClick={() => openEditModal('job', job)}
+                          className="px-3 py-1 bg-[#EAE7DE] text-[#23211C] text-xs rounded-full hover:bg-[#DDD9CE] transition font-semibold">수정</button>
                         <button onClick={() => deleteJob(job.id)}
                           className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">삭제</button>
                       </td>
@@ -403,6 +507,8 @@ export default function Admin() {
                         <Link href={`/resumes/${resume.id}`}>
                           <button className="btn-pill-sm">보기</button>
                         </Link>
+                        <button onClick={() => openEditModal('resume', resume)}
+                          className="px-3 py-1 bg-[#EAE7DE] text-[#23211C] text-xs rounded-full hover:bg-[#DDD9CE] transition font-semibold">수정</button>
                         <button onClick={() => deleteResume(resume.id)}
                           className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">삭제</button>
                       </td>
@@ -444,6 +550,8 @@ export default function Admin() {
                       </td>
                       <td className={tdSubClass}>{new Date(u.created_at).toLocaleDateString('ko-KR')}</td>
                       <td className="px-6 py-4 text-center space-x-2">
+                        <button onClick={() => openEditModal('user', u)}
+                          className="px-3 py-1 bg-[#EAE7DE] text-[#23211C] text-xs rounded-full hover:bg-[#DDD9CE] transition font-semibold">수정</button>
                         <button onClick={() => toggleUserRole(u.id, u.role)}
                           className={`px-3 py-1 text-white text-xs rounded-full transition font-semibold ${
                             u.role === 'admin' ? 'bg-stone-500 hover:bg-stone-600' : 'bg-orange-500 hover:bg-orange-600'
@@ -451,6 +559,94 @@ export default function Admin() {
                           {u.role === 'admin' ? '일반 회원으로' : '관리자로'}
                         </button>
                         <button onClick={() => deleteUser(u.id, u.email)}
+                          className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">삭제</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              </div>
+            </div>
+          )
+
+        ) : activeTab === 'property' ? (
+          properties.length === 0 ? (
+            <div className="card-empty">
+              <p className="text-stone-400 text-sm">등록된 매물이 없습니다</p>
+            </div>
+          ) : (
+            <div className="card">
+              <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-stone-50 border-b border-stone-100">
+                  <tr>
+                    <th className={thClass}>제목</th>
+                    <th className={thClass}>유형</th>
+                    <th className={thClass}>지역</th>
+                    <th className={thClass}>금액</th>
+                    <th className={thClass}>등록일</th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-stone-500 uppercase tracking-wide">관리</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {properties.map((prop) => (
+                    <tr key={prop.id} className="hover:bg-stone-50 transition">
+                      <td className={tdClass}>{prop.title}</td>
+                      <td className={tdSubClass}>{prop.property_type}</td>
+                      <td className={tdSubClass}>{prop.location}</td>
+                      <td className={tdSubClass}>{prop.price}</td>
+                      <td className={tdSubClass}>{new Date(prop.created_at).toLocaleDateString('ko-KR')}</td>
+                      <td className="px-6 py-4 text-center space-x-2">
+                        <Link href={`/property/${prop.id}`}>
+                          <button className="btn-pill-sm">보기</button>
+                        </Link>
+                        <button onClick={() => openEditModal('property', prop)}
+                          className="px-3 py-1 bg-[#EAE7DE] text-[#23211C] text-xs rounded-full hover:bg-[#DDD9CE] transition font-semibold">수정</button>
+                        <button onClick={() => deleteProperty(prop.id)}
+                          className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">삭제</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              </div>
+            </div>
+          )
+
+        ) : activeTab === 'community' ? (
+          posts.length === 0 ? (
+            <div className="card-empty">
+              <p className="text-stone-400 text-sm">등록된 게시글이 없습니다</p>
+            </div>
+          ) : (
+            <div className="card">
+              <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-stone-50 border-b border-stone-100">
+                  <tr>
+                    <th className={thClass}>제목</th>
+                    <th className={thClass}>카테고리</th>
+                    <th className={thClass}>작성자</th>
+                    <th className={thClass}>조회</th>
+                    <th className={thClass}>등록일</th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-stone-500 uppercase tracking-wide">관리</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {posts.map((post) => (
+                    <tr key={post.id} className="hover:bg-stone-50 transition">
+                      <td className={tdClass}>{post.title}</td>
+                      <td className={tdSubClass}>{post.category}</td>
+                      <td className={tdSubClass}>{post.author_email}</td>
+                      <td className={tdSubClass}>{post.views || 0}</td>
+                      <td className={tdSubClass}>{new Date(post.created_at).toLocaleDateString('ko-KR')}</td>
+                      <td className="px-6 py-4 text-center space-x-2">
+                        <Link href={`/community/${post.id}`}>
+                          <button className="btn-pill-sm">보기</button>
+                        </Link>
+                        <button onClick={() => openEditModal('post', post)}
+                          className="px-3 py-1 bg-[#EAE7DE] text-[#23211C] text-xs rounded-full hover:bg-[#DDD9CE] transition font-semibold">수정</button>
+                        <button onClick={() => deletePost(post.id)}
                           className="px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition font-semibold">삭제</button>
                       </td>
                     </tr>
@@ -858,6 +1054,197 @@ export default function Admin() {
           </div>
         );
       })()}
+
+      {/* ── 데이터 수정 모달 ─────────────────────────────── */}
+      {editModal && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeEditModal} />
+          <div className="absolute inset-0 overflow-y-auto flex items-start justify-center p-4 pt-10"
+            onClick={e => { if (e.target === e.currentTarget) closeEditModal(); }}>
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-10 my-4">
+
+              {/* 헤더 */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-[#E3DDD0]">
+                <h2 className="text-base font-bold text-[#23211C]">
+                  {{ job: '구인공고 수정', resume: '이력서 수정', user: '회원 수정', property: '매물 수정', post: '게시글 수정' }[editModal.type]}
+                </h2>
+                <button onClick={closeEditModal}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F4F1E9] transition text-stone-400 hover:text-[#23211C] text-sm font-bold shrink-0">
+                  ✕
+                </button>
+              </div>
+
+              {/* 폼 바디 */}
+              <div className="p-6">
+                {editModal.type === 'job' && (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className={labelClass}>제목 *</label>
+                      <input type="text" value={editForm.title || ''} onChange={e => setEditForm(f => ({...f, title: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>지역</label>
+                      <input type="text" value={editForm.location || ''} onChange={e => setEditForm(f => ({...f, location: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>요가 스타일</label>
+                      <input type="text" value={editForm.yoga_style || ''} onChange={e => setEditForm(f => ({...f, yoga_style: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>경력</label>
+                      <input type="text" value={editForm.experience || ''} onChange={e => setEditForm(f => ({...f, experience: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>급여</label>
+                      <input type="text" value={editForm.salary || ''} onChange={e => setEditForm(f => ({...f, salary: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>상태</label>
+                      <select value={editForm.status || 'active'} onChange={e => setEditForm(f => ({...f, status: e.target.value}))} className={inputClass}>
+                        <option value="active">활성 (active)</option>
+                        <option value="closed">마감 (closed)</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelClass}>설명</label>
+                      <textarea rows={5} value={editForm.description || ''} onChange={e => setEditForm(f => ({...f, description: e.target.value}))} className={`${inputClass} resize-y`} />
+                    </div>
+                  </div>
+                )}
+
+                {editModal.type === 'resume' && (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelClass}>이름 *</label>
+                      <input type="text" value={editForm.name || ''} onChange={e => setEditForm(f => ({...f, name: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>지역</label>
+                      <input type="text" value={editForm.location || ''} onChange={e => setEditForm(f => ({...f, location: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>요가 스타일</label>
+                      <input type="text" value={editForm.yoga_styles || ''} onChange={e => setEditForm(f => ({...f, yoga_styles: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>경력 (년수)</label>
+                      <input type="text" value={editForm.experience_years || ''} onChange={e => setEditForm(f => ({...f, experience_years: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>상태</label>
+                      <select value={editForm.status || 'active'} onChange={e => setEditForm(f => ({...f, status: e.target.value}))} className={inputClass}>
+                        <option value="active">활성 (active)</option>
+                        <option value="closed">마감 (closed)</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelClass}>자기소개</label>
+                      <textarea rows={5} value={editForm.introduction || ''} onChange={e => setEditForm(f => ({...f, introduction: e.target.value}))} className={`${inputClass} resize-y`} />
+                    </div>
+                  </div>
+                )}
+
+                {editModal.type === 'user' && (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelClass}>이름</label>
+                      <input type="text" value={editForm.name || ''} onChange={e => setEditForm(f => ({...f, name: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>이메일</label>
+                      <input type="email" value={editForm.email || ''} onChange={e => setEditForm(f => ({...f, email: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>역할</label>
+                      <select value={editForm.role || 'user'} onChange={e => setEditForm(f => ({...f, role: e.target.value}))} className={inputClass}>
+                        <option value="user">일반 회원 (user)</option>
+                        <option value="admin">관리자 (admin)</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {editModal.type === 'property' && (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className={labelClass}>제목 *</label>
+                      <input type="text" value={editForm.title || ''} onChange={e => setEditForm(f => ({...f, title: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>유형</label>
+                      <select value={editForm.property_type || '임대'} onChange={e => setEditForm(f => ({...f, property_type: e.target.value}))} className={inputClass}>
+                        <option value="임대">임대</option>
+                        <option value="매매">매매</option>
+                        <option value="양도">양도</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>지역</label>
+                      <input type="text" value={editForm.location || ''} onChange={e => setEditForm(f => ({...f, location: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>면적</label>
+                      <input type="text" value={editForm.area || ''} onChange={e => setEditForm(f => ({...f, area: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>금액</label>
+                      <input type="text" value={editForm.price || ''} onChange={e => setEditForm(f => ({...f, price: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>연락처</label>
+                      <input type="text" value={editForm.contact || ''} onChange={e => setEditForm(f => ({...f, contact: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>상태</label>
+                      <select value={editForm.status || 'active'} onChange={e => setEditForm(f => ({...f, status: e.target.value}))} className={inputClass}>
+                        <option value="active">활성 (active)</option>
+                        <option value="closed">마감 (closed)</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelClass}>설명</label>
+                      <textarea rows={5} value={editForm.description || ''} onChange={e => setEditForm(f => ({...f, description: e.target.value}))} className={`${inputClass} resize-y`} />
+                    </div>
+                  </div>
+                )}
+
+                {editModal.type === 'post' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className={labelClass}>카테고리</label>
+                      <select value={editForm.category || '자유게시판'} onChange={e => setEditForm(f => ({...f, category: e.target.value}))} className={inputClass}>
+                        {['자유게시판', '강사Q&A', '노하우', '후기', '요가정보'].map(c => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>제목 *</label>
+                      <input type="text" value={editForm.title || ''} onChange={e => setEditForm(f => ({...f, title: e.target.value}))} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>내용 *</label>
+                      <textarea rows={8} value={editForm.content || ''} onChange={e => setEditForm(f => ({...f, content: e.target.value}))} className={`${inputClass} resize-y`} />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 푸터 */}
+              <div className="flex justify-end gap-3 px-6 py-4 border-t border-[#E3DDD0] bg-[#FAFAF8] rounded-b-2xl">
+                <button onClick={closeEditModal}
+                  className="px-5 py-2 bg-stone-100 text-stone-600 text-sm rounded-full hover:bg-stone-200 transition font-semibold">
+                  취소
+                </button>
+                <button onClick={saveEdit} disabled={editSaving}
+                  className="px-5 py-2 bg-[#23211C] text-white text-sm rounded-full hover:bg-black transition font-semibold disabled:opacity-60">
+                  {editSaving ? '저장 중...' : '저장'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── 배너 등록/수정 모달 ─────────────────────────────── */}
       {showBannerForm && (
