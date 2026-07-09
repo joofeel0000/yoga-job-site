@@ -204,7 +204,7 @@ export default function Admin() {
         salary:      editForm.salary,
         description: editForm.description,
         status:      editForm.status,
-        logo_url:    editForm.logo_url || null,
+        image_url:   editForm.image_url || null,
       }).eq('id', editModal.data.id));
     } else if (type === 'resume') {
       ({ error } = await supabase.from('candidate').update({
@@ -1084,8 +1084,8 @@ export default function Admin() {
                       <label className={labelClass}>회사/스튜디오 로고</label>
                       <ImageUpload
                         bucket="jobs"
-                        value={editForm.logo_url || ''}
-                        onChange={(url) => setEditForm(f => ({...f, logo_url: url}))}
+                        value={editForm.image_url || ''}
+                        onChange={(url) => setEditForm(f => ({...f, image_url: url}))}
                         hint="로고 이미지 (선택사항)"
                       />
                     </div>
