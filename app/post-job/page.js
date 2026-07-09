@@ -91,12 +91,12 @@ export default function PostJob() {
 
   return (
     <main className="min-h-screen bg-[#F4F1E9]">
-      <div className="mx-auto" style={{ maxWidth: 720, padding: '32px 24px' }}>
+      <div className="max-w-[720px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <Link href="/" className="text-sm text-[#23211C] hover:text-black font-medium mb-6 inline-block transition-colors">
           ← 홈으로 돌아가기
         </Link>
 
-        <div className="bg-white rounded-3xl border border-stone-100 shadow-sm p-8">
+        <div className="bg-white rounded-3xl border border-stone-100 shadow-sm p-5 sm:p-8">
           <h1 className="text-2xl font-bold text-stone-800 mb-1">구인 공고 등록</h1>
           <p className="text-stone-400 text-sm mb-8">AI가 매력적인 공고문을 작성해드립니다</p>
 

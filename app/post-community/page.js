@@ -52,17 +52,17 @@ export default function PostCommunity() {
 
   return (
     <main style={{ minHeight: '100vh', background: '#F4F1E9' }}>
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 24px' }}>
+      <div className="max-w-[680px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+        <div className="flex flex-wrap justify-between items-start gap-3 mb-6">
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#23211C', marginBottom: 4 }}>글쓰기</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#23211C', marginBottom: 4 }}>글쓰기</h1>
             <p style={{ fontSize: 14, color: '#9A9382' }}>커뮤니티에 글을 작성하세요</p>
           </div>
-          <Link href="/community" style={{ fontSize: 13, color: '#76705F', textDecoration: 'none' }}>← 목록으로</Link>
+          <Link href="/community" style={{ fontSize: 13, color: '#76705F', textDecoration: 'none' }} className="shrink-0">← 목록으로</Link>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ background: '#fff', borderRadius: 18, border: '1px solid #E3DDD0', padding: '32px' }}>
+        <form onSubmit={handleSubmit} className="bg-white rounded-[18px] border border-[#E3DDD0] p-5 sm:p-8">
 
           {/* Category */}
           <div style={{ marginBottom: 24 }}>

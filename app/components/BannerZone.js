@@ -181,7 +181,7 @@ function GridBanner({ banners }) {
       <div style={{ marginBottom: 10 }}>
         <span style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', letterSpacing: '0.1em' }}>SPONSORED</span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {banners.map(b => <SponsorCard key={b.id} banner={b} height={200} />)}
       </div>
     </section>
@@ -280,7 +280,7 @@ function SponsorGridBanner({ banners }) {
       <div style={{ marginBottom: 10 }}>
         <span style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', letterSpacing: '0.1em' }}>SPONSORED</span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {banners.map(b => <SponsorCard key={b.id} banner={b} />)}
       </div>
     </div>

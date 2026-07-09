@@ -78,7 +78,7 @@ export default function PropertyDetail() {
 
   return (
     <main className="min-h-screen bg-[#F4F1E9]">
-      <div className="mx-auto" style={{ maxWidth: 1200, padding: '32px 24px' }}>
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
         <div className="flex justify-between items-center mb-8">
           <Link href="/property" className="text-sm text-[#23211C] hover:text-black font-medium transition-colors">
@@ -120,7 +120,7 @@ export default function PropertyDetail() {
             </span>
           </div>
 
-          <div className="p-8">
+          <div className="p-5 sm:p-8">
 
           <div className="flex items-center gap-3 mb-4">
             <span className="text-xs text-stone-400">
@@ -130,7 +130,7 @@ export default function PropertyDetail() {
 
           <h1 className="text-2xl font-bold text-stone-800 mb-6">{property.title}</h1>
 
-          <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
             {property.location && (
               <div className="bg-stone-50 rounded-2xl p-4">
                 <p className="text-xs text-stone-400 mb-1">위치</p>

@@ -150,7 +150,7 @@ function PropertyContent() {
     <main className="min-h-screen bg-[#F4F1E9]">
       <div className="content-wrap">
 
-        <div className="flex justify-between items-end mb-6">
+        <div className="flex flex-wrap justify-between items-end gap-3 mb-6">
           <div>
             <h1 className="text-[26px] font-bold text-[#23211C] mb-1">요가 매물 정보</h1>
             <p className="text-sm text-[#9A9382]">요가 스튜디오 임대·매매·양도 정보를 확인하세요</p>

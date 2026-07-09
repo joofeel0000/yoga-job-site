@@ -301,7 +301,7 @@ export default function Admin() {
 
         {/* 탭 */}
         <div className="card mb-6">
-          <div className="flex border-b border-stone-100">
+          <div className="flex border-b border-stone-100 overflow-x-auto">
             <button onClick={() => setActiveTab('jobs')}
               className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'jobs' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
               구인 공고 ({jobs.length})
@@ -339,6 +339,7 @@ export default function Admin() {
             </div>
           ) : (
             <div className="card">
+              <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-stone-50 border-b border-stone-100">
                   <tr>
@@ -367,6 +368,7 @@ export default function Admin() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )
 
@@ -377,6 +379,7 @@ export default function Admin() {
             </div>
           ) : (
             <div className="card">
+              <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-stone-50 border-b border-stone-100">
                   <tr>
@@ -407,6 +410,7 @@ export default function Admin() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )
 
@@ -417,6 +421,7 @@ export default function Admin() {
             </div>
           ) : (
             <div className="card">
+              <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-stone-50 border-b border-stone-100">
                   <tr>
@@ -452,6 +457,7 @@ export default function Admin() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )
 
@@ -481,7 +487,7 @@ export default function Admin() {
               <div className="space-y-6">
 
                 {/* ── 요약 통계 카드 ──────────────────────────── */}
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
                     { label: '전체 배너', value: banners.length, icon: '🖼️', bg: '#EAE7DE', fg: '#23211C' },
                     { label: '활성 배너', value: activeCount, icon: '✅', bg: '#DCFCE7', fg: '#16A34A' },

@@ -65,7 +65,7 @@ function LoginForm() {
           <span style={{ fontSize: 20, fontWeight: 800, color: '#23211C', marginTop: 10, letterSpacing: '-0.02em' }}>요가잡</span>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E3DDD0', padding: '36px 32px', boxShadow: '0 4px 24px rgba(30,28,24,0.06)' }}>
+        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E3DDD0', boxShadow: '0 4px 24px rgba(30,28,24,0.06)' }} className="px-5 py-8 sm:px-8">
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#23211C', textAlign: 'center', marginBottom: 6 }}>
             다시 오신 걸 환영해요
           </h1>

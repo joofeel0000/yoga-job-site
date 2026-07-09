@@ -101,7 +101,7 @@ export default function Home() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="bg-gradient-to-b from-[#ECE9E1] to-[#F4F1E9] pt-14 pb-20">
         <div className="max-w-[1200px] mx-auto px-6">
-          <div className="grid grid-cols-[1.05fr_0.95fr] gap-12 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-8 md:gap-12 items-center">
 
             {/* Left */}
             <div>
@@ -109,12 +109,12 @@ export default function Home() {
                 <span className="text-xs font-semibold text-[#23211C]">요가 강사·스튜디오 채용 플랫폼</span>
               </div>
 
-              <h1 className="text-5xl font-extrabold leading-[1.18] tracking-[-0.03em] text-[#26241D] mb-4">
+              <h1 className="text-[30px] md:text-5xl font-extrabold leading-[1.18] tracking-[-0.03em] text-[#26241D] mb-4">
                 요가 강사와 스튜디오를,<br />가장 가깝게 잇다
               </h1>
 
               <p className="text-[15px] leading-relaxed text-[#76705F] mb-7">
-                지역·전문분야별 맞춤 공고부터 검증된 강사 프로필, 스튜디오<br />매물까지. 요가 일자리의 모든 것.
+                지역·전문분야별 맞춤 공고부터 검증된 강사 프로필, 스튜디오 매물까지. 요가 일자리의 모든 것.
               </p>
 
               {/* Search bar */}
@@ -164,7 +164,7 @@ export default function Home() {
             </div>
 
             {/* Right: hero image / home_top 배너 */}
-            <div className="rounded-[20px] overflow-hidden aspect-[4/3] relative">
+            <div className="hidden md:block rounded-[20px] overflow-hidden aspect-[4/3] relative">
               <BannerZone
                 position="home_top"
                 heroMode
@@ -236,7 +236,7 @@ export default function Home() {
 
         {/* Property + Community */}
         <section className="mb-14">
-          <div className="grid grid-cols-[1.4fr_1fr] gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-6">
 
             {/* Property */}
             <div>

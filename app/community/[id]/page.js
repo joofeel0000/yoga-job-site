@@ -100,7 +100,7 @@ export default function CommunityPostDetail() {
 
   return (
     <main style={{ minHeight: '100vh', background: '#F4F1E9' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <Link href="/community" style={{ fontSize: 13, color: '#76705F', textDecoration: 'none' }}>← 커뮤니티</Link>
@@ -112,7 +112,7 @@ export default function CommunityPostDetail() {
         </div>
 
         {/* Post */}
-        <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #E3DDD0', padding: '32px', marginBottom: 16 }}>
+        <div className="bg-white rounded-[18px] border border-[#E3DDD0] p-5 sm:p-8 mb-4">
           <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: cc.bg, color: cc.text, marginBottom: 16 }}>
             {post.category}
           </span>
@@ -126,7 +126,7 @@ export default function CommunityPostDetail() {
           <div style={{ fontSize: 15, color: '#26241D', lineHeight: 1.9, whiteSpace: 'pre-wrap' }}>{post.content}</div>
 
           {/* Action buttons */}
-          <div style={{ display: 'flex', gap: 10, marginTop: 28, paddingTop: 20, borderTop: '1px solid #F4F1E9' }}>
+          <div className="flex flex-wrap gap-2 mt-7 pt-5 border-t border-[#F4F1E9]">
             <button
               onClick={() => setLiked(!liked)}
               style={{
@@ -160,7 +160,7 @@ export default function CommunityPostDetail() {
         </div>
 
         {/* Comments */}
-        <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #E3DDD0', padding: '28px 32px' }}>
+        <div className="bg-white rounded-[18px] border border-[#E3DDD0] p-5 sm:p-8">
           <h2 style={{ fontSize: 15, fontWeight: 700, color: '#23211C', marginBottom: 20 }}>댓글 {comments.length}개</h2>
 
           {comments.length === 0 ? (
@@ -187,7 +187,7 @@ export default function CommunityPostDetail() {
           )}
 
           {user ? (
-            <form onSubmit={handleSubmitComment} style={{ display: 'flex', gap: 10, paddingTop: 16, borderTop: '1px solid #E3DDD0' }}>
+            <form onSubmit={handleSubmitComment} className="flex flex-col sm:flex-row gap-2.5 pt-4 border-t border-[#E3DDD0]">
               <textarea
                 value={newComment}
                 onChange={e => setNewComment(e.target.value)}
@@ -199,9 +199,9 @@ export default function CommunityPostDetail() {
                 }}
               />
               <button type="submit" disabled={submitting || !newComment.trim()} style={{
-                padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                padding: '11px 20px', borderRadius: 10, fontSize: 13, fontWeight: 700,
                 background: '#23211C', color: '#fff', border: 'none', cursor: 'pointer',
-                opacity: submitting || !newComment.trim() ? 0.5 : 1, alignSelf: 'flex-end',
+                opacity: submitting || !newComment.trim() ? 0.5 : 1,
               }}>
                 {submitting ? '...' : '등록'}
               </button>

@@ -5,13 +5,12 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ImageUpload from '@/app/components/ImageUpload';
 
-const APPLY_POSITIONS = [
-  { value: 'home_top',       label: '메인 슬라이드 배너',              size: '970 × 250', price: 300000 },
-  { value: 'home_strip',     label: '메인 와이드 배너',                size: '1200 × 90', price: 200000 },
-  { value: 'home_bottom',    label: '메인 스폰서 카드',                size: '300 × 250', price: 150000 },
-  { value: 'jobs_top',       label: '구인공고·강사찾기 사이드바',      size: '300 × 250', price: 100000 },
-  { value: 'jobs_bottom',    label: '페이지 하단 스폰서 카드',         size: '300 × 250', price: 100000 },
-  { value: 'property_strip', label: '매물정보 & 커뮤니티 와이드 배너', size: '1200 × 90', price: 200000 },
+const APPLY_PACKAGES = [
+  { value: 'pkg_yoga_target', label: '요가원 타겟', icon: '🧘', includes: '메인 스폰서 카드 1개 + 구인구직 사이드바 1개', price: 200000, originalPrice: 250000, discount: 20 },
+  { value: 'pkg_instructor_target', label: '강사 타겟', icon: '🌟', includes: '강사찾기 사이드바 1개 + 커뮤니티 와이드 1개', price: 240000, originalPrice: 300000, discount: 20 },
+  { value: 'pkg_jobs_cross', label: '구인구직 교차', icon: '🔄', includes: '구인구직 사이드바 1개 + 강사찾기 사이드바 1개', price: 160000, originalPrice: 200000, discount: 20 },
+  { value: 'pkg_brand', label: '브랜드 노출', icon: '📢', includes: '메인 와이드 1개 + 매물정보 와이드 1개', price: 400000, originalPrice: 500000, discount: 20 },
+  { value: 'pkg_full', label: '풀 브랜딩', icon: '🚀', includes: '메인 슬라이드 1개 + 구인구직 사이드바 1개 + 강사찾기 사이드바 1개', price: 550000, originalPrice: 700000, discount: 21 },
 ];
 
 const S = {
@@ -32,7 +31,7 @@ export default function AdvertiseApplyPage() {
   const [submitted, setSubmitted] = useState(false);
 
   const [form, setForm] = useState({
-    position:  'home_top',
+    position:  'pkg_yoga_target',
     title:     '',
     image_url: '',
     link_url:  '',
@@ -134,7 +133,7 @@ export default function AdvertiseApplyPage() {
     );
   }
 
-  const selected = APPLY_POSITIONS.find(p => p.value === form.position);
+  const selected = APPLY_PACKAGES.find(p => p.value === form.position);
 
   return (
     <main className="page-root">
@@ -179,36 +178,44 @@ export default function AdvertiseApplyPage() {
             background: '#fff', border: '1px solid #E3DDD0',
             borderRadius: 18, padding: '32px',
           }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px 24px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
-              {/* 광고 위치 */}
-              <div style={{ gridColumn: '1 / -1' }}>
-                <label style={S.label}>광고 위치 *</label>
+              {/* 패키지 선택 */}
+              <div className="col-span-1 sm:col-span-2">
+                <label style={S.label}>패키지 선택 *</label>
                 <select value={form.position} onChange={set('position')} style={S.input}>
-                  {APPLY_POSITIONS.map(p => (
+                  {APPLY_PACKAGES.map(p => (
                     <option key={p.value} value={p.value}>
-                      {p.label} — {p.size}
+                      {p.icon} {p.label} — {p.includes}
                     </option>
                   ))}
                 </select>
                 {selected && (
-                  <div style={{ display: 'flex', gap: 16, marginTop: 8, flexWrap: 'wrap' }}>
-                    <span style={{ ...S.hint, margin: 0 }}>📐 {selected.size}</span>
-                    <span style={{ ...S.hint, margin: 0 }}>
-                      정식 예정가:&nbsp;
-                      <strong style={{ color: '#23211C' }}>
-                        {selected.price.toLocaleString('ko-KR')}원/월
-                      </strong>
-                    </span>
-                    <span style={{ ...S.hint, margin: 0, color: '#16A34A', fontWeight: 700 }}>
-                      → 현재 무료
-                    </span>
+                  <div style={{ marginTop: 10, background: '#F4F1E9', border: '1px solid #E3DDD0', borderRadius: 10, padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 12, color: '#76705F', fontWeight: 600 }}>포함 지면:</span>
+                      <span style={{ fontSize: 12, color: '#23211C', fontWeight: 700 }}>{selected.includes}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 12, color: '#9A9382', textDecoration: 'line-through' }}>
+                        개별 {selected.originalPrice.toLocaleString('ko-KR')}원
+                      </span>
+                      <span style={{ fontSize: 12, color: '#23211C', fontWeight: 800 }}>
+                        → {selected.price.toLocaleString('ko-KR')}원/월
+                      </span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#C2922F', background: '#FDF3E3', padding: '1px 7px', borderRadius: 6 }}>
+                        {selected.discount}% 할인
+                      </span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#16A34A' }}>
+                        → 현재 베타 무료
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
 
               {/* 광고주명 */}
-              <div style={{ gridColumn: '1 / -1' }}>
+              <div className="col-span-1 sm:col-span-2">
                 <label style={S.label}>광고주명 / 브랜드명 *</label>
                 <input
                   type="text"
@@ -220,18 +227,18 @@ export default function AdvertiseApplyPage() {
               </div>
 
               {/* 이미지 업로드 */}
-              <div style={{ gridColumn: '1 / -1' }}>
+              <div className="col-span-1 sm:col-span-2">
                 <label style={S.label}>배너 이미지 *</label>
                 <ImageUpload
                   bucket="banners"
                   value={form.image_url}
                   onChange={(url) => setForm(f => ({ ...f, image_url: url }))}
-                  hint={`권장 사이즈: ${selected?.size ?? ''} · JPG · PNG · WebP · 최대 5MB`}
+                  hint="JPG · PNG · WebP · 최대 5MB · 가로형 권장"
                 />
               </div>
 
               {/* 링크 URL */}
-              <div style={{ gridColumn: '1 / -1' }}>
+              <div className="col-span-1 sm:col-span-2">
                 <label style={S.label}>클릭 시 이동 URL</label>
                 <input
                   type="url"
@@ -265,7 +272,7 @@ export default function AdvertiseApplyPage() {
               </div>
 
               {/* 문의 내용 */}
-              <div style={{ gridColumn: '1 / -1' }}>
+              <div className="col-span-1 sm:col-span-2">
                 <label style={S.label}>문의 내용</label>
                 <textarea
                   placeholder="광고 목적, 특이사항, 연락처 등 자유롭게 적어주세요"
@@ -289,21 +296,18 @@ export default function AdvertiseApplyPage() {
             </div>
 
             {/* 버튼 */}
-            <div style={{
-              borderTop: '1px solid #F4F1E9', marginTop: 24, paddingTop: 24,
-              display: 'flex', justifyContent: 'flex-end', gap: 12,
-            }}>
-              <Link href="/advertise">
-                <button type="button" style={{
-                  padding: '12px 24px', borderRadius: 11,
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-3 border-t border-[#F4F1E9] mt-6 pt-6">
+              <Link href="/advertise" className="sm:order-first">
+                <button type="button" className="w-full sm:w-auto" style={{
+                  padding: '13px 24px', borderRadius: 11,
                   border: '1px solid #E3DDD0', background: '#fff',
                   color: '#23211C', fontSize: 14, fontWeight: 600, cursor: 'pointer',
                 }}>
                   취소
                 </button>
               </Link>
-              <button type="submit" disabled={submitting} style={{
-                padding: '12px 28px', borderRadius: 11, border: 'none',
+              <button type="submit" disabled={submitting} className="w-full sm:w-auto" style={{
+                padding: '13px 28px', borderRadius: 11, border: 'none',
                 background: submitting ? '#9A9382' : '#23211C',
                 color: '#fff', fontSize: 14, fontWeight: 700,
                 cursor: submitting ? 'not-allowed' : 'pointer',

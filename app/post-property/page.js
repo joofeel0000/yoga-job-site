@@ -74,19 +74,19 @@ export default function PostProperty() {
 
   return (
     <main className="min-h-screen bg-[#F4F1E9]">
-      <div className="mx-auto" style={{ maxWidth: 720, padding: '32px 24px' }}>
+      <div className="max-w-[720px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-wrap justify-between items-start gap-3 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-stone-800 tracking-tight">매물 등록</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-stone-800 tracking-tight">매물 등록</h1>
             <p className="text-stone-400 text-sm mt-1">요가 스튜디오 매물 정보를 등록하세요</p>
           </div>
-          <Link href="/property" className="text-sm text-[#23211C] hover:text-black font-medium transition-colors">
+          <Link href="/property" className="text-sm text-[#23211C] hover:text-black font-medium transition-colors shrink-0">
             ← 목록으로
           </Link>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-stone-100 shadow-sm p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-stone-100 shadow-sm p-5 sm:p-8 space-y-6">
 
           <div>
             <label className={labelClass}>거래 유형 *</label>
@@ -120,7 +120,7 @@ export default function PostProperty() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>위치</label>
               <input

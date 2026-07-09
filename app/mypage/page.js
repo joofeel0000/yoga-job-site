@@ -305,7 +305,7 @@ export default function MyPage() {
 
   return (
     <main className="min-h-screen bg-[#F4F1E9]">
-      <div className="mx-auto" style={{ maxWidth: 1200, padding: '32px 24px' }}>
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="bg-white rounded-2xl border border-[#E3DDD0] shadow-sm p-6 mb-6 flex justify-between items-center gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-extrabold text-[#26241D] tracking-[-0.02em]">마이페이지</h1>
@@ -942,7 +942,7 @@ export default function MyPage() {
                   </div>
 
                   {/* 요약 카드 */}
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {[
                       { label: '총 노출수', value: totalViews.toLocaleString(), sub: `최근 ${adPeriod}일` },
                       { label: '총 클릭수', value: totalClicks.toLocaleString(), sub: `최근 ${adPeriod}일` },
@@ -975,7 +975,7 @@ export default function MyPage() {
                   </div>
 
                   {/* 배너별 테이블 */}
-                  <div className="bg-white rounded-2xl border border-[#E3DDD0] overflow-hidden">
+                  <div className="bg-white rounded-2xl border border-[#E3DDD0] overflow-x-auto">
                     <div className="px-6 py-4 border-b border-stone-100">
                       <p className="text-sm font-bold text-[#23211C]">배너별 상세</p>
                     </div>

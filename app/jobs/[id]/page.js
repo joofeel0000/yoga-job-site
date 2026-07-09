@@ -38,6 +38,39 @@ function InfoRow({ label, value }) {
   );
 }
 
+function ActionCard({ job, user, hasApplied, isBookmarked, applicantCount, onApply, onBookmark }) {
+  return (
+    <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 20px' }}>
+      {job.salary && (
+        <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: '1px solid #E3DDD0' }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 6 }}>급여</p>
+          <p style={{ fontSize: 20, fontWeight: 700, color: '#23211C' }}>{job.salary}</p>
+        </div>
+      )}
+      <div style={{ marginBottom: 20, paddingBottom: 20, borderBottom: '1px solid #E3DDD0' }}>
+        <p style={{ fontSize: 12, color: '#9A9382', marginBottom: 4 }}>현재 지원자</p>
+        <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C' }}>{applicantCount}명</p>
+      </div>
+      <button onClick={onApply} disabled={hasApplied} style={{
+        width: '100%', padding: '14px 0', borderRadius: 12, fontSize: 15, fontWeight: 700,
+        background: hasApplied ? '#E3DDD0' : '#23211C',
+        color: hasApplied ? '#9A9382' : '#fff',
+        border: 'none', cursor: hasApplied ? 'not-allowed' : 'pointer', marginBottom: 10,
+      }}>
+        {hasApplied ? '✓ 지원 완료' : '지원하기'}
+      </button>
+      <button onClick={onBookmark} style={{
+        width: '100%', padding: '11px 0', borderRadius: 12, fontSize: 14, fontWeight: 600,
+        background: isBookmarked ? '#FDF3E3' : '#F4F1E9',
+        color: isBookmarked ? '#C2922F' : '#76705F',
+        border: `1px solid ${isBookmarked ? '#C2922F' : '#E3DDD0'}`, cursor: 'pointer',
+      }}>
+        {isBookmarked ? '♥ 저장됨' : '♡ 저장하기'}
+      </button>
+    </div>
+  );
+}
+
 export default function JobDetail() {
   const params = useParams();
   const id = params.id;
@@ -124,7 +157,7 @@ export default function JobDetail() {
 
   if (loading || !job) {
     return (
-      <main style={{ minHeight: '100vh', background: '#F4F1E9', paddingTop: 68, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <main style={{ minHeight: '100vh', background: '#F4F1E9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <p style={{ color: '#9A9382', fontSize: 14 }}>{loading ? '불러오는 중...' : '공고를 찾을 수 없습니다'}</p>
       </main>
     );
@@ -132,46 +165,48 @@ export default function JobDetail() {
 
   const descLines = (job.description || '').split('\n').filter(l => l.trim());
 
+  const actionProps = { job, user, hasApplied, isBookmarked, applicantCount, onApply: handleApply, onBookmark: toggleBookmark };
+
   return (
     <main style={{ minHeight: '100vh', background: '#F4F1E9' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
-        <Link href="/jobs" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: '#23211C', marginBottom: 24, textDecoration: 'none', background: '#fff', border: '1px solid #E3DDD0', borderRadius: 10, padding: '8px 16px' }}>
+        <Link href="/jobs" className="inline-flex items-center gap-[6px] text-[13px] font-semibold text-[#23211C] mb-5 no-underline bg-white border border-[#E3DDD0] rounded-[10px] px-4 py-2">
           ← 공고 목록
         </Link>
 
         {/* Header Card */}
-        <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #E3DDD0', padding: '28px 32px', marginBottom: 20, display: 'flex', gap: 20, alignItems: 'flex-start' }}>
-          <div style={{ width: 72, height: 72, borderRadius: 14, overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+        <div className="bg-white rounded-[18px] border border-[#E3DDD0] p-5 sm:p-7 mb-5 flex flex-col sm:flex-row gap-4 sm:gap-5 sm:items-start">
+          <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-[14px] overflow-hidden shrink-0 relative">
             <Image src={jobImg(job.id)} alt={job.title} fill sizes="72px" style={{ objectFit: 'cover' }} />
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: 12, color: '#9A9382', marginBottom: 6 }}>요가스튜디오</p>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#23211C', marginBottom: 12, lineHeight: 1.3 }}>{job.title}</h1>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-[#9A9382] mb-1">요가스튜디오</p>
+            <h1 className="text-[20px] sm:text-[22px] font-bold text-[#23211C] mb-3 leading-snug">{job.title}</h1>
+            <div className="flex gap-[6px] flex-wrap">
               {job.location && <Tag label={job.location} />}
               {job.yoga_style && <Tag label={job.yoga_style} />}
               {job.experience && <Tag label={job.experience} />}
             </div>
           </div>
-          <div style={{ flexShrink: 0, textAlign: 'right' }}>
+          <div className="sm:text-right shrink-0">
             {job.salary && (
-              <p style={{ fontSize: 18, fontWeight: 700, color: '#23211C', marginBottom: 8 }}>{job.salary}</p>
+              <p className="text-[17px] sm:text-[18px] font-bold text-[#23211C] mb-1">{job.salary}</p>
             )}
-            <p style={{ fontSize: 12, color: '#9A9382' }}>
+            <p className="text-xs text-[#9A9382]">
               {new Date(job.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
           </div>
         </div>
 
-        {/* 2-col body */}
-        <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+        {/* Body: 1-col on mobile, 2-col on lg+ */}
+        <div className="flex flex-col lg:flex-row gap-5 items-start">
 
           {/* Left: content */}
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="flex-1 min-w-0 flex flex-col gap-4">
 
             {job.description && (
-              <section style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 28px' }}>
+              <section style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 20px' }}>
                 <h2 style={{ fontSize: 15, fontWeight: 700, color: '#23211C', marginBottom: 16 }}>상세 설명</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {descLines.length > 0 ? descLines.map((line, i) => (
@@ -186,7 +221,7 @@ export default function JobDetail() {
               </section>
             )}
 
-            <section style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 28px' }}>
+            <section style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 20px' }}>
               <h2 style={{ fontSize: 15, fontWeight: 700, color: '#23211C', marginBottom: 16 }}>근무 조건</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <InfoRow label="근무지역" value={job.location} />
@@ -195,45 +230,23 @@ export default function JobDetail() {
                 <InfoRow label="급여" value={job.salary} />
               </div>
             </section>
+
+            {/* 모바일 전용 액션 카드 */}
+            <div className="lg:hidden">
+              <ActionCard {...actionProps} />
+            </div>
           </div>
 
-          {/* Right: sticky sidebar */}
-          <div style={{ width: 264, flexShrink: 0, position: 'sticky', top: 88 }}>
-            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E3DDD0', padding: '24px 20px' }}>
-              {job.salary && (
-                <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: '1px solid #E3DDD0' }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: '#9A9382', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 6 }}>급여</p>
-                  <p style={{ fontSize: 20, fontWeight: 700, color: '#23211C' }}>{job.salary}</p>
-                </div>
-              )}
-              <div style={{ marginBottom: 20, paddingBottom: 20, borderBottom: '1px solid #E3DDD0' }}>
-                <p style={{ fontSize: 12, color: '#9A9382', marginBottom: 4 }}>현재 지원자</p>
-                <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C' }}>{applicantCount}명</p>
-              </div>
-              <button onClick={handleApply} disabled={hasApplied} style={{
-                width: '100%', padding: '14px 0', borderRadius: 12, fontSize: 15, fontWeight: 700,
-                background: hasApplied ? '#E3DDD0' : '#23211C',
-                color: hasApplied ? '#9A9382' : '#fff',
-                border: 'none', cursor: hasApplied ? 'not-allowed' : 'pointer', marginBottom: 10,
-              }}>
-                {hasApplied ? '✓ 지원 완료' : '지원하기'}
-              </button>
-              <button onClick={toggleBookmark} style={{
-                width: '100%', padding: '11px 0', borderRadius: 12, fontSize: 14, fontWeight: 600,
-                background: isBookmarked ? '#FDF3E3' : '#F4F1E9',
-                color: isBookmarked ? '#C2922F' : '#76705F',
-                border: `1px solid ${isBookmarked ? '#C2922F' : '#E3DDD0'}`, cursor: 'pointer',
-              }}>
-                {isBookmarked ? '♥ 저장됨' : '♡ 저장하기'}
-              </button>
-            </div>
+          {/* 데스크탑 전용 sticky 사이드바 */}
+          <div className="hidden lg:block w-[264px] shrink-0 sticky top-[88px]">
+            <ActionCard {...actionProps} />
           </div>
         </div>
       </div>
 
       {showApplyModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 16 }}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 32, maxWidth: 440, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: '28px 24px', maxWidth: 440, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
             <h3 style={{ fontSize: 18, fontWeight: 700, color: '#23211C', marginBottom: 6 }}>지원하기</h3>
             <p style={{ fontSize: 13, color: '#76705F', marginBottom: 20 }}>간단한 메시지를 남겨주세요</p>
             <textarea value={applyMessage} onChange={e => setApplyMessage(e.target.value)}

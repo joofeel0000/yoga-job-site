@@ -165,20 +165,22 @@ function CommunityContent() {
         </div>
 
         {/* Tabs */}
-        <div className="flex mb-5 border-b-2 border-[#E3DDD0]">
-          {TABS.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-5 py-[10px] text-sm border-none cursor-pointer bg-transparent transition-all duration-150 -mb-[2px] border-b-2 ${
-                activeTab === tab
-                  ? 'font-bold text-[#23211C] border-b-[#23211C]'
-                  : 'font-normal text-[#76705F] border-b-transparent'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="border-b-2 border-[#E3DDD0] overflow-x-auto mb-5">
+          <div className="flex min-w-max">
+            {TABS.map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-5 py-[10px] text-sm border-none cursor-pointer bg-transparent transition-all duration-150 -mb-[2px] border-b-2 whitespace-nowrap ${
+                  activeTab === tab
+                    ? 'font-bold text-[#23211C] border-b-[#23211C]'
+                    : 'font-normal text-[#76705F] border-b-transparent'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </div>
 
         <BannerZone position="community_top" />
@@ -217,7 +219,7 @@ function CommunityContent() {
           </div>
 
           {/* Right sidebar */}
-          <div className="w-[260px] shrink-0 flex flex-col gap-[14px]">
+          <div className="hidden md:flex w-[260px] shrink-0 flex-col gap-[14px]">
 
             {/* 주간 인기글 */}
             <div className="bg-white rounded-[14px] border border-[#E3DDD0] px-[18px] py-5">

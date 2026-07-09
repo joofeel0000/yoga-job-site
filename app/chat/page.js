@@ -70,7 +70,7 @@ export default function ChatPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F4F1E9] p-8">
+    <main className="min-h-screen bg-[#F4F1E9] px-4 sm:px-6 py-6 sm:py-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-stone-800">💬 채팅</h1>
