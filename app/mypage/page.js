@@ -434,31 +434,31 @@ export default function MyPage() {
                   const statusBadge = getStatusBadge(job.status, job.expires_at);
                   
                   return (
-                    <div key={job.id} className="p-5 hover:bg-[#FAF8F2] transition">
-                      <div className="flex justify-between items-start gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <h3 className="text-[17px] font-bold text-[#26241D]">{job.title}</h3>
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadge.color}`}>
+                    <div key={job.id} className="p-4 sm:p-5 hover:bg-[#FAF8F2] transition">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <h3 className="text-[16px] sm:text-[17px] font-bold text-[#26241D] break-words">{job.title}</h3>
+                            <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge.color}`}>
                               {statusBadge.icon} {statusBadge.text}
                             </span>
                           </div>
-                          <div className="flex gap-3 text-[13px] text-[#76705F] mb-3 flex-wrap">
+                          <div className="flex gap-2 text-[13px] text-[#76705F] mb-2 flex-wrap">
                             <span>📍 {job.location}</span>
                             <span>🌿 {job.yoga_style}</span>
                             {job.salary && <span>💰 {job.salary}</span>}
                           </div>
-                          <p className="text-stone-400 text-sm">
+                          <p className="text-stone-400 text-xs sm:text-sm">
                             등록일: {new Date(job.created_at).toLocaleDateString('ko-KR')}
                           </p>
                         </div>
-                        <div className="flex gap-2 flex-wrap items-center shrink-0">
-                          <Link href={`/jobs/${job.id}`}>
-                            <button className="btn-primary">
+                        <div className="grid grid-cols-2 sm:flex gap-2 sm:items-center sm:shrink-0">
+                          <Link href={`/jobs/${job.id}`} className="block">
+                            <button className="btn-primary w-full sm:w-auto">
                               보기
                             </button>
                           </Link>
-                          
+
                           {job.status !== 'closed' ? (
                             <>
                               <button
@@ -473,7 +473,7 @@ export default function MyPage() {
                                     }
                                   }
                                 }}
-                                className="btn-secondary"
+                                className="btn-secondary w-full sm:w-auto"
                               >
                                 마감
                               </button>
@@ -487,7 +487,7 @@ export default function MyPage() {
                                     alert('연장 실패: ' + error);
                                   }
                                 }}
-                                className="btn-secondary"
+                                className="btn-secondary w-full sm:w-auto"
                               >
                                 연장
                               </button>
@@ -503,15 +503,15 @@ export default function MyPage() {
                                   alert('다시 열기 실패: ' + error);
                                 }
                               }}
-                              className="btn-secondary"
+                              className="btn-secondary w-full sm:w-auto"
                             >
                               다시 열기
                             </button>
                           )}
-                          
+
                           <button
                             onClick={() => deleteJob(job.id)}
-                            className="btn-danger"
+                            className="btn-danger w-full sm:w-auto"
                           >
                             삭제
                           </button>
@@ -540,30 +540,30 @@ export default function MyPage() {
                   const statusBadge = getStatusBadge(resume.status, resume.expires_at);
                   
                   return (
-                    <div key={resume.id} className="p-5 hover:bg-[#FAF8F2] transition">
-                      <div className="flex justify-between items-start gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <h3 className="text-[17px] font-bold text-[#26241D]">{resume.name}</h3>
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadge.color}`}>
+                    <div key={resume.id} className="p-4 sm:p-5 hover:bg-[#FAF8F2] transition">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <h3 className="text-[16px] sm:text-[17px] font-bold text-[#26241D] break-words">{resume.name}</h3>
+                            <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge.color}`}>
                               {statusBadge.icon} {statusBadge.text}
                             </span>
                           </div>
-                          <div className="flex gap-3 text-[13px] text-[#76705F] mb-3 flex-wrap">
+                          <div className="flex gap-2 text-[13px] text-[#76705F] mb-2 flex-wrap">
                             <span>📍 {resume.location}</span>
                             <span>🌿 {resume.yoga_styles}</span>
                           </div>
-                          <p className="text-stone-400 text-sm">
+                          <p className="text-stone-400 text-xs sm:text-sm">
                             등록일: {new Date(resume.created_at).toLocaleDateString('ko-KR')}
                           </p>
                         </div>
-                        <div className="flex gap-2 flex-wrap items-center shrink-0">
-                          <Link href={`/resumes/${resume.id}`}>
-                            <button className="btn-primary">
+                        <div className="grid grid-cols-2 sm:flex gap-2 sm:items-center sm:shrink-0">
+                          <Link href={`/resumes/${resume.id}`} className="block">
+                            <button className="btn-primary w-full sm:w-auto">
                               보기
                             </button>
                           </Link>
-                          
+
                           {resume.status !== 'closed' ? (
                             <>
                               <button
@@ -578,7 +578,7 @@ export default function MyPage() {
                                     }
                                   }
                                 }}
-                                className="btn-secondary"
+                                className="btn-secondary w-full sm:w-auto"
                               >
                                 마감
                               </button>
@@ -592,7 +592,7 @@ export default function MyPage() {
                                     alert('연장 실패: ' + error);
                                   }
                                 }}
-                                className="btn-secondary"
+                                className="btn-secondary w-full sm:w-auto"
                               >
                                 연장
                               </button>
@@ -608,15 +608,15 @@ export default function MyPage() {
                                   alert('다시 열기 실패: ' + error);
                                 }
                               }}
-                              className="btn-secondary"
+                              className="btn-secondary w-full sm:w-auto"
                             >
                               다시 열기
                             </button>
                           )}
-                          
+
                           <button
                             onClick={() => deleteResume(resume.id)}
-                            className="btn-danger"
+                            className="btn-danger w-full sm:w-auto"
                           >
                             삭제
                           </button>
