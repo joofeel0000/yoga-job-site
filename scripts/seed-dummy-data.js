@@ -359,16 +359,18 @@ function makeJob() {
 
 function makeCandidate() {
   const styleCount = Math.random() < 0.4 ? 2 : 1;
-  const yoga_styles = pickN(YOGA_STYLES, styleCount).join(', '); // 종류명만
+  const yoga_styles = pickN(YOGA_STYLES, styleCount).join(', ');
   const primaryStyle = yoga_styles.split(',')[0].trim();
   const years = pick(EXPERIENCE_YEARS);
   const cert = pick(CERT_PHRASES);
   return {
     name: pick(CANDIDATE_NAMES),
     location: pick(LOCATIONS),
-    yoga_styles,                                                        // 예: "하타요가, 빈야사"
-    experience_years: years,                                            // 예: "3년"
-    introduction: pick(CANDIDATE_INTRODUCTIONS)(primaryStyle, years, cert), // 자격증+경력+자기소개 통합
+    yoga_styles,
+    experience_years: years,
+    certifications: cert,
+    introduction: pick(CANDIDATE_INTRODUCTIONS)(primaryStyle, years, cert),
+    photo_url: null,
     user_id: SEED_USER_ID,
     status: 'active',
     expires_at: expiresAt(30),
