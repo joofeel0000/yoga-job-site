@@ -49,9 +49,9 @@ export default function Footer() {
             ]} />
             <FooterCol title="고객지원" items={[
               { label: '공지사항', href: '/community' },
-              { label: '이용약관', href: '/' },
-              { label: '개인정보처리방침', href: '/' },
-              { label: '광고문의', href: '/' },
+              { label: '이용약관', href: '/terms' },
+              { label: '개인정보처리방침', href: '/privacy' },
+              { label: '광고문의', href: '/advertise' },
             ]} />
           </div>
         </div>
