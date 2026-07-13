@@ -22,7 +22,7 @@ const JOBS_PER_RUN       = parseInt(process.env.SEED_JOBS_PER_RUN       ?? '3', 
 const CANDIDATES_PER_RUN = parseInt(process.env.SEED_CANDIDATES_PER_RUN ?? '2', 10);
 const PROPERTIES_PER_RUN = parseInt(process.env.SEED_PROPERTIES_PER_RUN ?? '2', 10);
 const POSTS_PER_RUN      = parseInt(process.env.SEED_POSTS_PER_RUN      ?? '3', 10);
-const MAX_TOTAL          = parseInt(process.env.MAX_TOTAL_SEED_ROWS      ?? '300', 10);
+const MAX_TOTAL          = parseInt(process.env.MAX_TOTAL_SEED_ROWS      ?? '1000', 10);
 
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
   console.error('❌ SUPABASE_URL 또는 SUPABASE_SERVICE_ROLE_KEY가 설정되지 않았습니다.');
