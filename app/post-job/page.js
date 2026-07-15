@@ -140,12 +140,18 @@ export default function PostJob() {
 
             {/* AI 섹션 */}
             <div className="bg-[#ECE9E1] p-5 rounded-2xl border border-[#E3DDD0]">
-              <p className="text-sm text-[#23211C] mb-3 font-medium">
-                ✨ AI가 입력하신 정보를 바탕으로 전문적인 공고문을 작성해드립니다
-              </p>
+              <p className="text-sm text-[#23211C] mb-1 font-semibold">✦ AI 공고 자동 작성</p>
+              <p className="text-xs text-stone-500 mb-4">지역·요가 종류·경력·급여를 입력하면 AI가 자연스러운 공고 설명을 만들어드립니다</p>
               <button type="button" onClick={generateWithAI} disabled={isGenerating}
-                className="px-5 py-2 bg-[#23211C] text-white text-sm rounded-full hover:bg-black transition disabled:bg-stone-300 font-semibold">
-                {isGenerating ? 'AI가 작성 중...' : 'AI로 공고 작성하기'}
+                className="inline-flex items-center gap-2 px-5 py-2 bg-[#23211C] text-white text-sm rounded-full hover:bg-black transition disabled:bg-stone-300 font-semibold">
+                {isGenerating ? (
+                  <>
+                    <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    AI가 작성 중입니다...
+                  </>
+                ) : (
+                  'AI로 공고 작성하기'
+                )}
               </button>
 
               {aiGenerated && (

@@ -14,6 +14,7 @@ import {
   getStatusBadge
 } from '@/lib/expiry';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import ImageUpload from '@/app/components/ImageUpload';
 
 export default function MyPage() {
   const router = useRouter();
@@ -32,6 +33,12 @@ export default function MyPage() {
   const [myBanners, setMyBanners] = useState([]);
   const [adClicks, setAdClicks] = useState([]);
   const [adPeriod, setAdPeriod] = useState(7);
+
+  const [editingResume, setEditingResume] = useState(null);
+  const [resumeForm, setResumeForm] = useState({});
+  const [editingJob, setEditingJob] = useState(null);
+  const [jobForm, setJobForm] = useState({});
+  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     // URL에서 탭 정보 읽기
@@ -271,6 +278,76 @@ export default function MyPage() {
     setLoading(false);
   };
 
+  const openResumeEdit = (resume) => {
+    setResumeForm({
+      name: resume.name || '',
+      location: resume.location || '',
+      yoga_styles: resume.yoga_styles || '',
+      experience_years: resume.experience_years || '',
+      certifications: resume.certifications || '',
+      photo_url: resume.photo_url || '',
+      introduction: resume.introduction || '',
+    });
+    setEditingResume(resume);
+  };
+
+  const saveResumeEdit = async () => {
+    setEditSaving(true);
+    const { error } = await supabase
+      .from('candidate')
+      .update({
+        name: resumeForm.name,
+        location: resumeForm.location,
+        yoga_styles: resumeForm.yoga_styles,
+        experience_years: resumeForm.experience_years,
+        certifications: resumeForm.certifications,
+        photo_url: resumeForm.photo_url,
+        introduction: resumeForm.introduction,
+      })
+      .eq('id', editingResume.id);
+    setEditSaving(false);
+    if (error) {
+      alert('저장 실패: ' + error.message);
+    } else {
+      setEditingResume(null);
+      fetchMyData(user.id);
+    }
+  };
+
+  const openJobEdit = (job) => {
+    setJobForm({
+      title: job.title || '',
+      location: job.location || '',
+      yoga_style: job.yoga_style || '',
+      experience: job.experience || '',
+      salary: job.salary || '',
+      description: job.description || '',
+    });
+    setEditingJob(job);
+  };
+
+  const saveJobEdit = async () => {
+    setEditSaving(true);
+    const { error } = await supabase
+      .from('job')
+      .update({
+        title: jobForm.title,
+        location: jobForm.location,
+        yoga_style: jobForm.yoga_style,
+        experience: jobForm.experience,
+        salary: jobForm.salary,
+        description: jobForm.description,
+      })
+      .eq('id', editingJob.id);
+    setEditSaving(false);
+    if (error) {
+      alert('저장 실패: ' + error.message);
+    } else {
+      setEditingJob(null);
+      fetchMyData(user.id);
+    }
+  };
+
   const deleteJob = async (id) => {
     if (!confirm('정말 삭제하시겠습니까?')) return;
 
@@ -459,6 +536,13 @@ export default function MyPage() {
                             </button>
                           </Link>
 
+                          <button
+                            onClick={() => openJobEdit(job)}
+                            className="btn-secondary w-full sm:w-auto"
+                          >
+                            수정
+                          </button>
+
                           {job.status !== 'closed' ? (
                             <>
                               <button
@@ -563,6 +647,13 @@ export default function MyPage() {
                               보기
                             </button>
                           </Link>
+
+                          <button
+                            onClick={() => openResumeEdit(resume)}
+                            className="btn-secondary w-full sm:w-auto"
+                          >
+                            수정
+                          </button>
 
                           {resume.status !== 'closed' ? (
                             <>
@@ -1024,6 +1115,206 @@ export default function MyPage() {
           </div>
         ) : null}
       </div>
+
+      {/* 이력서 수정 모달 */}
+      {editingResume && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.45)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) setEditingResume(null); }}
+        >
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#F0ECE2]">
+              <h2 className="text-lg font-bold text-[#23211C]">이력서 수정</h2>
+              <button onClick={() => setEditingResume(null)} className="text-stone-400 hover:text-stone-700 text-xl font-bold leading-none">×</button>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <div>
+                <label className="label-field">프로필 사진</label>
+                <ImageUpload
+                  bucket="avatars"
+                  value={resumeForm.photo_url}
+                  onChange={(url) => setResumeForm(f => ({ ...f, photo_url: url }))}
+                  hint="선택사항 · JPG · PNG · WebP · 최대 5MB"
+                />
+              </div>
+              <div>
+                <label className="label-field">이름 *</label>
+                <input
+                  type="text"
+                  value={resumeForm.name}
+                  onChange={(e) => setResumeForm(f => ({ ...f, name: e.target.value }))}
+                  className="input-base"
+                  placeholder="예: 김요가"
+                />
+              </div>
+              <div>
+                <label className="label-field">희망 지역 *</label>
+                <input
+                  type="text"
+                  value={resumeForm.location}
+                  onChange={(e) => setResumeForm(f => ({ ...f, location: e.target.value }))}
+                  className="input-base"
+                  placeholder="예: 서울 강남구"
+                />
+              </div>
+              <div>
+                <label className="label-field">요가 종류 *</label>
+                <input
+                  type="text"
+                  value={resumeForm.yoga_styles}
+                  onChange={(e) => setResumeForm(f => ({ ...f, yoga_styles: e.target.value }))}
+                  className="input-base"
+                  placeholder="예: 빈야사, 하타요가"
+                />
+              </div>
+              <div>
+                <label className="label-field">경력</label>
+                <select
+                  value={resumeForm.experience_years}
+                  onChange={(e) => setResumeForm(f => ({ ...f, experience_years: e.target.value }))}
+                  className="input-base"
+                >
+                  <option value="">선택해주세요</option>
+                  <option>신입</option><option>1년</option><option>2년</option>
+                  <option>3년</option><option>4년</option><option>5년 이상</option>
+                </select>
+              </div>
+              <div>
+                <label className="label-field">자격증</label>
+                <input
+                  type="text"
+                  value={resumeForm.certifications}
+                  onChange={(e) => setResumeForm(f => ({ ...f, certifications: e.target.value }))}
+                  className="input-base"
+                  placeholder="예: 요가지도자 2급, RYT 200"
+                />
+              </div>
+              <div>
+                <label className="label-field">자기소개 *</label>
+                <textarea
+                  value={resumeForm.introduction}
+                  onChange={(e) => setResumeForm(f => ({ ...f, introduction: e.target.value }))}
+                  rows={4}
+                  className="input-base resize-none"
+                  placeholder="본인의 강점, 강의 스타일 등을 자유롭게 작성해주세요"
+                />
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-[#F0ECE2] flex gap-3 justify-end">
+              <button
+                onClick={() => setEditingResume(null)}
+                className="px-5 py-2.5 rounded-xl border border-[#E3DDD0] text-sm font-semibold text-[#76705F] hover:bg-[#F4F1E9] transition"
+              >
+                취소
+              </button>
+              <button
+                onClick={saveResumeEdit}
+                disabled={editSaving}
+                className="px-5 py-2.5 rounded-xl bg-[#23211C] text-white text-sm font-semibold hover:bg-black transition disabled:bg-stone-300"
+              >
+                {editSaving ? '저장 중...' : '저장'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 구인공고 수정 모달 */}
+      {editingJob && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.45)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) setEditingJob(null); }}
+        >
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#F0ECE2]">
+              <h2 className="text-lg font-bold text-[#23211C]">구인공고 수정</h2>
+              <button onClick={() => setEditingJob(null)} className="text-stone-400 hover:text-stone-700 text-xl font-bold leading-none">×</button>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <div>
+                <label className="label-field">공고 제목 *</label>
+                <input
+                  type="text"
+                  value={jobForm.title}
+                  onChange={(e) => setJobForm(f => ({ ...f, title: e.target.value }))}
+                  className="input-base"
+                  placeholder="예: 빈야사 요가 강사 모집"
+                />
+              </div>
+              <div>
+                <label className="label-field">지역 *</label>
+                <input
+                  type="text"
+                  value={jobForm.location}
+                  onChange={(e) => setJobForm(f => ({ ...f, location: e.target.value }))}
+                  className="input-base"
+                  placeholder="예: 서울 강남구"
+                />
+              </div>
+              <div>
+                <label className="label-field">요가 종류 *</label>
+                <select
+                  value={jobForm.yoga_style}
+                  onChange={(e) => setJobForm(f => ({ ...f, yoga_style: e.target.value }))}
+                  className="input-base"
+                >
+                  <option value="">선택해주세요</option>
+                  <option>하타요가</option><option>빈야사</option><option>아쉬탕가</option>
+                  <option>파워요가</option><option>음요가</option><option>핫요가</option><option>기타</option>
+                </select>
+              </div>
+              <div>
+                <label className="label-field">필요 경력</label>
+                <select
+                  value={jobForm.experience}
+                  onChange={(e) => setJobForm(f => ({ ...f, experience: e.target.value }))}
+                  className="input-base"
+                >
+                  <option value="">선택해주세요</option>
+                  <option>신입</option><option>1년 이상</option><option>3년 이상</option><option>5년 이상</option>
+                </select>
+              </div>
+              <div>
+                <label className="label-field">급여 조건</label>
+                <input
+                  type="text"
+                  value={jobForm.salary}
+                  onChange={(e) => setJobForm(f => ({ ...f, salary: e.target.value }))}
+                  className="input-base"
+                  placeholder="예: 시급 30,000원 ~ 50,000원"
+                />
+              </div>
+              <div>
+                <label className="label-field">상세 설명</label>
+                <textarea
+                  value={jobForm.description}
+                  onChange={(e) => setJobForm(f => ({ ...f, description: e.target.value }))}
+                  rows={5}
+                  className="input-base resize-none"
+                  placeholder="센터 소개, 근무 조건 등을 입력해주세요"
+                />
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-[#F0ECE2] flex gap-3 justify-end">
+              <button
+                onClick={() => setEditingJob(null)}
+                className="px-5 py-2.5 rounded-xl border border-[#E3DDD0] text-sm font-semibold text-[#76705F] hover:bg-[#F4F1E9] transition"
+              >
+                취소
+              </button>
+              <button
+                onClick={saveJobEdit}
+                disabled={editSaving}
+                className="px-5 py-2.5 rounded-xl bg-[#23211C] text-white text-sm font-semibold hover:bg-black transition disabled:bg-stone-300"
+              >
+                {editSaving ? '저장 중...' : '저장'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -18,7 +18,7 @@ There is no test suite.
 Required in `.env.local`:
 - `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anon/public key
-- `HF_TOKEN` — HuggingFace API token for AI job post generation
+- `ANTHROPIC_API_KEY` — Anthropic API key for AI text generation (job posts & resumes)
 
 ## Architecture
 
@@ -64,7 +64,8 @@ if (!user) {
 
 ### AI generation
 
-`app/api/generate-job-post/route.js` — POST endpoint that calls the HuggingFace Router API (`router.huggingface.co/v1/chat/completions`) with model `HuggingFaceTB/SmolLM3-3B:hf-inference` to generate Korean job post copy. Requires `HF_TOKEN` env var.
+- `app/api/generate-job-post/route.js` — POST endpoint using Claude API (`claude-opus-4-8`) to generate Korean yoga job post descriptions. Accepts `{location, yogaStyle, experience, salary}`. Requires `ANTHROPIC_API_KEY`.
+- `app/api/generate-resume/route.js` — POST endpoint using Claude API (`claude-opus-4-8`) to generate Korean yoga instructor self-introductions. Accepts `{name, location, yogaStyles, experienceYears, certifications}`. Requires `ANTHROPIC_API_KEY`.
 
 ### Deployment
 

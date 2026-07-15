@@ -218,7 +218,7 @@ function PropertyContent() {
                 <Link key={p.id} href={`/property/${p.id}`}>
                   <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden hover:shadow-md hover:border-stone-300 transition cursor-pointer h-full">
                     <div className="relative h-40">
-                      <PropertyThumb src={STUDIO_IMGS[((currentPage - 1) * PAGE_SIZE + i) % STUDIO_IMGS.length]} alt={p.title} />
+                      <PropertyThumb src={p.images?.[0] || STUDIO_IMGS[((currentPage - 1) * PAGE_SIZE + i) % STUDIO_IMGS.length]} alt={p.title} />
                       <span className="absolute top-[10px] left-[10px] text-[11px] font-bold bg-[#23211C] text-white px-2 py-[3px] rounded-[5px]">
                         {p.property_type}
                       </span>
