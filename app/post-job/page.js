@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { YOGA_STYLES, REGIONS, SIDO_LIST, JOB_EXPERIENCE } from '@/lib/constants';
+import ImageUpload from '@/app/components/ImageUpload';
 
 const inputClass = "input-base";
 const labelClass = "label-field";
@@ -18,7 +19,7 @@ export default function PostJob() {
     sido: '', sigungu: '', gu: '',
     yogaStylesArr: [],
     experienceLabel: '', experienceNum: null,
-    salary: '', description: ''
+    salary: '', description: '', imageUrl: ''
   });
   const [aiGenerated, setAiGenerated] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -111,6 +112,7 @@ export default function PostJob() {
       experience: formData.experienceLabel,
       salary: formData.salary,
       description: formData.description,
+      image_url: formData.imageUrl || null,
       user_id: user.id,
       status: 'active',
       expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -209,6 +211,16 @@ export default function PostJob() {
               <label className={labelClass}>급여 조건</label>
               <input type="text" name="salary" value={formData.salary} onChange={handleChange}
                 placeholder="예: 시급 30,000원 ~ 50,000원" className={inputClass} />
+            </div>
+
+            <div>
+              <label className={labelClass}>공고 이미지 <span className="text-stone-400 font-normal">(선택)</span></label>
+              <ImageUpload
+                bucket="jobs"
+                value={formData.imageUrl}
+                onChange={url => setFormData(f => ({ ...f, imageUrl: url }))}
+                hint="센터 사진, 요가 공간 이미지 등을 첨부하면 지원율이 높아집니다"
+              />
             </div>
 
             <div>

@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { createContactNotification } from '@/lib/notifications';
+import { scoreMatch } from '@/lib/matching';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -31,11 +32,30 @@ export default function ResumeDetail() {
   const [contactCount, setContactCount] = useState(0);
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactMessage, setContactMessage] = useState('');
+  const [matchedJobs, setMatchedJobs] = useState([]);
 
   useEffect(() => {
     checkUser();
     fetchResume();
   }, [id]);
+
+  useEffect(() => {
+    if (resume) fetchMatches();
+  }, [resume?.id]);
+
+  const fetchMatches = async () => {
+    const { data } = await supabase
+      .from('job')
+      .select('id, title, location, region_sido, region_sigungu, region_gu, yoga_style, yoga_styles_arr, experience, experience_num, salary')
+      .eq('status', 'active');
+    if (!data || data.length === 0) return;
+    const scored = data
+      .map(job => ({ item: job, ...scoreMatch(job, resume) }))
+      .filter(m => m.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5);
+    setMatchedJobs(scored);
+  };
 
   const checkUser = async () => {
     const { data: { user: u } } = await supabase.auth.getUser();
@@ -230,6 +250,54 @@ export default function ResumeDetail() {
             </section>
           )}
         </div>
+
+        {/* 이 강사에게 어울리는 공고 */}
+        {matchedJobs.length > 0 && (
+          <section style={{ marginTop: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 700, color: '#23211C', margin: 0 }}>이 강사에게 어울리는 공고</h2>
+              <span style={{ fontSize: 12, color: '#9A9382' }}>매칭 점수 순</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+              {matchedJobs.map(({ item, score, reasons }) => (
+                <Link key={item.id} href={`/jobs/${item.id}`} style={{ textDecoration: 'none' }}>
+                  <div
+                    style={{
+                      background: '#fff', borderRadius: 14, border: '1px solid #E3DDD0',
+                      padding: '16px 18px', cursor: 'pointer', position: 'relative',
+                      transition: 'border-color .15s, box-shadow .15s',
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.borderColor = '#C2922F'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(194,146,47,0.10)'; }}
+                    onMouseOut={e => { e.currentTarget.style.borderColor = '#E3DDD0'; e.currentTarget.style.boxShadow = 'none'; }}
+                  >
+                    <div style={{ position: 'absolute', top: 14, right: 14, background: '#FDF3E3', border: '1px solid #C2922F', borderRadius: 20, padding: '2px 10px' }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#C2922F' }}>{score}점</span>
+                    </div>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C', marginBottom: 6, paddingRight: 48, lineHeight: 1.4 }}>{item.title}</p>
+                    {item.salary && (
+                      <p style={{ fontSize: 13, fontWeight: 600, color: '#23211C', marginBottom: 8 }}>{item.salary}</p>
+                    )}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
+                      {item.location && <span style={{ fontSize: 12, color: '#76705F', background: '#F4F1E9', padding: '3px 10px', borderRadius: 8, border: '1px solid #E3DDD0' }}>{item.location}</span>}
+                      {(item.yoga_styles_arr || (item.yoga_style ? [item.yoga_style] : [])).slice(0, 3).map(s => (
+                        <span key={s} style={{ fontSize: 12, color: '#76705F', background: '#F4F1E9', padding: '3px 10px', borderRadius: 8, border: '1px solid #E3DDD0' }}>{s}</span>
+                      ))}
+                      {item.experience && <span style={{ fontSize: 12, color: '#76705F', background: '#F4F1E9', padding: '3px 10px', borderRadius: 8, border: '1px solid #E3DDD0' }}>{item.experience}</span>}
+                    </div>
+                    {reasons.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {reasons.map((r, i) => (
+                          <span key={i} style={{ fontSize: 11, color: '#76705F', background: '#F4F1E9', padding: '2px 8px', borderRadius: 6 }}>{r}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
       </div>
 
       {showContactModal && (
