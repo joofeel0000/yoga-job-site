@@ -145,6 +145,10 @@ export default function Navbar() {
             {user ? (
               <>
                 <NotificationBell />
+                <Link href="/post-job" style={{ fontSize: 14, fontWeight: 700, color: '#fff', background: '#23211C', borderRadius: 10, padding: '10px 18px', textDecoration: 'none', transition: 'background .12s' }}
+                  onMouseOver={e => { e.currentTarget.style.background = '#000'; }}
+                  onMouseOut={e => { e.currentTarget.style.background = '#23211C'; }}
+                >구인 등록</Link>
                 <Link href="/mypage" style={{ fontSize: 14, fontWeight: 600, color: '#6B6558', textDecoration: 'none', padding: '9px 14px', borderRadius: 9, transition: 'background .12s' }}
                   onMouseOver={e => { e.currentTarget.style.background = '#F2EEE4'; }}
                   onMouseOut={e => { e.currentTarget.style.background = 'transparent'; }}
@@ -237,6 +241,11 @@ export default function Navbar() {
             <div style={{ padding: '12px 16px 20px', borderTop: '1px solid #F4F1E9' }}>
               {user ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <Link href="/post-job" style={{
+                    display: 'block', textAlign: 'center', padding: '14px',
+                    borderRadius: 11, background: '#23211C',
+                    fontSize: 15, fontWeight: 700, color: '#fff', textDecoration: 'none',
+                  }}>구인 등록</Link>
                   <Link href="/mypage" style={{
                     display: 'block', textAlign: 'center', padding: '14px',
                     borderRadius: 11, border: '1px solid #E3DDD0',
