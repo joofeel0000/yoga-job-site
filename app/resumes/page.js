@@ -164,12 +164,18 @@ function ResumesContent() {
   const [currentUser, setCurrentUser] = useState(null);
   const [suggestingId, setSuggestingId] = useState(null);
   const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1', 10));
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const skipReset = useRef(true);
 
   useEffect(() => {
     fetchResumes();
     supabase.auth.getUser().then(({ data: { user } }) => setCurrentUser(user));
   }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileFilterOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileFilterOpen]);
 
   useEffect(() => {
     if (skipReset.current) { skipReset.current = false; return; }
@@ -219,6 +225,7 @@ function ResumesContent() {
   });
 
   const hasFilters = selectedRegions.length > 0 || selectedSpecialties.length > 0 || searchTerm;
+  const filterCount = selectedRegions.length + selectedSpecialties.length;
 
   const clearAll = () => {
     setSelectedRegions([]);
@@ -248,7 +255,33 @@ function ResumesContent() {
 
         <div className="flex gap-6 items-start">
           <div className="flex-1 min-w-0">
-            {/* Filter Bar */}
+            {/* 모바일 필터 버튼 (md 이상에서는 인라인 필터바가 있으므로 숨김) */}
+            <div className="flex items-center gap-2 mb-3 md:hidden">
+              <button
+                onClick={() => setMobileFilterOpen(true)}
+                className="flex items-center gap-[7px] px-4 py-[9px] bg-white border border-[#E3DDD0] rounded-[10px] text-sm font-semibold text-[#23211C] cursor-pointer"
+              >
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <path d="M1 3h13M3 7.5h9M5.5 12h4" stroke="#23211C" strokeWidth="1.6" strokeLinecap="round"/>
+                </svg>
+                필터
+                {filterCount > 0 && (
+                  <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-[#23211C] text-white text-[11px] font-bold flex items-center justify-center">
+                    {filterCount}
+                  </span>
+                )}
+              </button>
+              {hasFilters && (
+                <button
+                  onClick={clearAll}
+                  className="text-xs text-[#9A9382] bg-transparent border-none cursor-pointer p-0"
+                >
+                  전체 초기화
+                </button>
+              )}
+            </div>
+
+            {/* Filter Bar (데스크탑: 검색 + 칩 전체 표시 / 모바일: 검색 입력만 표시) */}
             <div className="bg-white rounded-[14px] border border-[#E3DDD0] px-5 py-4 mb-6">
               <div className="flex gap-5 items-start flex-wrap">
                 <div className="flex-1 min-w-[200px]">
@@ -260,7 +293,7 @@ function ResumesContent() {
                     className="w-full px-[14px] py-[9px] border border-[#E3DDD0] rounded-[9px] text-[13px] text-[#23211C] bg-[#F4F1E9] outline-none box-border"
                   />
                 </div>
-                <div>
+                <div className="hidden md:block">
                   <p className="text-[11px] font-bold text-[#9A9382] uppercase tracking-[0.07em] mb-[7px]">지역</p>
                   <div className="flex gap-[5px] flex-wrap">
                     {REGIONS.map(r => (
@@ -268,7 +301,7 @@ function ResumesContent() {
                     ))}
                   </div>
                 </div>
-                <div>
+                <div className="hidden md:block">
                   <p className="text-[11px] font-bold text-[#9A9382] uppercase tracking-[0.07em] mb-[7px]">전문분야</p>
                   <div className="flex gap-[5px] flex-wrap">
                     {SPECIALTIES.map(s => (
@@ -277,7 +310,7 @@ function ResumesContent() {
                   </div>
                 </div>
                 {hasFilters && (
-                  <button onClick={clearAll} className="self-end px-[14px] py-[7px] border border-[#E3DDD0] rounded-[8px] text-[13px] text-[#76705F] bg-white cursor-pointer">
+                  <button onClick={clearAll} className="hidden md:block self-end px-[14px] py-[7px] border border-[#E3DDD0] rounded-[8px] text-[13px] text-[#76705F] bg-white cursor-pointer">
                     초기화
                   </button>
                 )}
@@ -326,6 +359,82 @@ function ResumesContent() {
           </aside>
         </div>
       </div>
+
+      {/* 모바일 필터 바텀시트 */}
+      {mobileFilterOpen && (
+        <>
+          {/* 백드롭 */}
+          <div
+            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            onClick={() => setMobileFilterOpen(false)}
+          />
+          {/* 시트 */}
+          <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white rounded-t-[20px] shadow-[0_-8px_40px_rgba(30,28,24,0.16)] flex flex-col max-h-[80vh]">
+            {/* 헤더 */}
+            <div className="flex justify-between items-center px-5 py-4 border-b border-[#F0ECE2] shrink-0">
+              <span className="text-[15px] font-bold text-[#23211C]">
+                필터
+                {filterCount > 0 && (
+                  <span className="ml-2 text-[13px] font-normal text-[#9A9382]">{filterCount}개 선택됨</span>
+                )}
+              </span>
+              <button
+                onClick={() => setMobileFilterOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F4F1E9] border-none cursor-pointer text-[#23211C] text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* 필터 항목 (스크롤 가능) */}
+            <div className="flex-1 overflow-y-auto px-5 py-4">
+              <div className="mb-6">
+                <p className="text-[11px] font-bold text-[#9A9382] tracking-[0.08em] uppercase mb-[10px]">지역</p>
+                <div className="flex flex-wrap gap-[6px]">
+                  {REGIONS.map(r => (
+                    <FilterChip
+                      key={r}
+                      label={r}
+                      active={selectedRegions.includes(r)}
+                      onClick={() => toggleFilter(selectedRegions, setSelectedRegions, r)}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="mb-6">
+                <p className="text-[11px] font-bold text-[#9A9382] tracking-[0.08em] uppercase mb-[10px]">전문분야</p>
+                <div className="flex flex-wrap gap-[6px]">
+                  {SPECIALTIES.map(s => (
+                    <FilterChip
+                      key={s}
+                      label={s}
+                      active={selectedSpecialties.includes(s)}
+                      onClick={() => toggleFilter(selectedSpecialties, setSelectedSpecialties, s)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 푸터 버튼 */}
+            <div className="flex gap-3 px-5 py-4 border-t border-[#F0ECE2] shrink-0">
+              <button
+                onClick={() => { clearAll(); setMobileFilterOpen(false); }}
+                className="flex-1 py-[13px] rounded-[10px] border border-[#E3DDD0] text-sm font-semibold text-[#76705F] bg-white cursor-pointer"
+              >
+                초기화
+              </button>
+              <button
+                onClick={() => setMobileFilterOpen(false)}
+                className="flex-[2] py-[13px] rounded-[10px] bg-[#23211C] text-white text-sm font-bold cursor-pointer border-none"
+              >
+                적용하기
+                {filterCount > 0 && ` (${filterCount})`}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </main>
   );
 }

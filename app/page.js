@@ -32,10 +32,10 @@ const STUDIO_IMGS = [
 
 function SectionHeader({ title, moreHref, moreLabel = '더보기' }) {
   return (
-    <div className="flex justify-between items-center mb-6">
-      <h2 className="text-[26px] font-extrabold tracking-tight text-[#26241D]">{title}</h2>
+    <div className="flex justify-between items-center gap-2 mb-6">
+      <h2 className="text-[20px] sm:text-[26px] font-extrabold tracking-tight text-[#26241D]">{title}</h2>
       {moreHref && (
-        <Link href={moreHref}>
+        <Link href={moreHref} className="shrink-0">
           <button className="btn-secondary text-[13px]">{moreLabel}</button>
         </Link>
       )}
@@ -119,7 +119,8 @@ export default function Home() {
 
               {/* Search bar */}
               <form onSubmit={handleSearch} className="mb-[14px]">
-                <div className="bg-white rounded-[14px] shadow-[0_8px_24px_rgba(30,28,24,0.10)] border border-[#E3DDD0] flex items-center pr-[5px] py-[5px]">
+                {/* 데스크탑: 단일 라인 통합 박스 */}
+                <div className="hidden sm:flex bg-white rounded-[14px] shadow-[0_8px_24px_rgba(30,28,24,0.10)] border border-[#E3DDD0] items-center pr-[5px] py-[5px]">
                   <div className="flex items-center gap-[6px] px-4 border-r border-[#E3DDD0] min-w-[130px]">
                     <span className="text-sm">📍</span>
                     <select
@@ -142,6 +143,34 @@ export default function Home() {
                   <button
                     type="submit"
                     className="bg-[#23211C] hover:bg-black text-white border-none rounded-[10px] px-[18px] py-[10px] text-sm font-bold cursor-pointer transition-colors shrink-0"
+                  >
+                    검색
+                  </button>
+                </div>
+                {/* 모바일: 세로 스택 */}
+                <div className="flex flex-col gap-2 sm:hidden">
+                  <div className="bg-white rounded-[12px] border border-[#E3DDD0] flex items-center gap-[6px] px-4 py-[11px]">
+                    <span className="text-sm">📍</span>
+                    <select
+                      value={searchRegion}
+                      onChange={e => setSearchRegion(e.target.value)}
+                      className="flex-1 border-none bg-transparent text-sm font-semibold text-[#23211C] cursor-pointer outline-none"
+                    >
+                      {['전체 지역', '서울', '경기', '인천', '부산', '대구', '광주', '대전', '기타'].map(r => (
+                        <option key={r}>{r}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="포지션, 스튜디오, 키워드 검색"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="w-full bg-white rounded-[12px] border border-[#E3DDD0] outline-none text-sm text-[#29271F] px-4 py-[11px]"
+                  />
+                  <button
+                    type="submit"
+                    className="w-full bg-[#23211C] text-white border-none rounded-[12px] py-[13px] text-sm font-bold cursor-pointer transition-colors"
                   >
                     검색
                   </button>
