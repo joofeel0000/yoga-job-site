@@ -264,16 +264,16 @@ export default function ResumeDetail() {
                   <div
                     style={{
                       background: '#fff', borderRadius: 14, border: '1px solid #E3DDD0',
-                      padding: '16px 18px', cursor: 'pointer', position: 'relative',
+                      padding: '16px 18px', cursor: 'pointer',
                       transition: 'border-color .15s, box-shadow .15s',
                     }}
                     onMouseOver={e => { e.currentTarget.style.borderColor = '#C2922F'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(194,146,47,0.10)'; }}
                     onMouseOut={e => { e.currentTarget.style.borderColor = '#E3DDD0'; e.currentTarget.style.boxShadow = 'none'; }}
                   >
-                    <div style={{ position: 'absolute', top: 14, right: 14, background: '#FDF3E3', border: '1px solid #C2922F', borderRadius: 20, padding: '2px 10px' }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#C2922F' }}>{score}점</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C', margin: 0, lineHeight: 1.4 }}>{item.title}</p>
+                      <span style={{ flexShrink: 0, background: '#FDF3E3', border: '1px solid #C2922F', borderRadius: 20, padding: '2px 10px', fontSize: 12, fontWeight: 700, color: '#C2922F' }}>{score}점</span>
                     </div>
-                    <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C', marginBottom: 6, paddingRight: 48, lineHeight: 1.4 }}>{item.title}</p>
                     {item.salary && (
                       <p style={{ fontSize: 13, fontWeight: 600, color: '#23211C', marginBottom: 8 }}>{item.salary}</p>
                     )}

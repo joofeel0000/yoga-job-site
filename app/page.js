@@ -216,7 +216,7 @@ export default function Home() {
       <div className="max-w-[1200px] mx-auto px-6 -mt-7">
         <div className="grid-4col">
           {stats.map(stat => (
-            <div key={stat.label} className="bg-white border border-[#E3DDD0] rounded-2xl px-6 py-5 text-center shadow-[0_4px_12px_rgba(30,28,24,0.06)]">
+            <div key={stat.label} className="bg-white border border-[#E3DDD0] rounded-2xl px-3 sm:px-6 py-5 text-center shadow-[0_4px_12px_rgba(30,28,24,0.06)]">
               <div className="text-[28px] font-extrabold text-[#23211C] tracking-tight">{stat.num}</div>
               <div className="text-[13px] text-[#9A9382] mt-1">{stat.label}</div>
             </div>

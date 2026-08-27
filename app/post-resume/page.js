@@ -183,7 +183,7 @@ export default function PostResume() {
 
             <div>
               <label className={labelClass}>가능한 요가 종류 * (복수 선택 가능)</label>
-              <div className="grid grid-cols-3 gap-x-4 gap-y-2.5 mt-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2.5 mt-2">
                 {YOGA_STYLES.map(style => (
                   <label key={style} className="flex items-center gap-2 text-sm text-stone-700 cursor-pointer">
                     <input
