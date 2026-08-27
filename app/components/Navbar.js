@@ -1,29 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect, useRef } from 'react';
 import NotificationBell from './NotificationBell';
-
-function LogoMark({ size = 34, innerSize = 14 }) {
-  return (
-    <div style={{
-      width: size, height: size,
-      borderRadius: '50%',
-      background: '#23211C',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      flexShrink: 0,
-    }}>
-      <div style={{
-        width: innerSize, height: innerSize,
-        background: '#CFC9BB',
-        borderRadius: '50% 50% 50% 0',
-        transform: 'rotate(45deg)',
-      }} />
-    </div>
-  );
-}
 
 function HamburgerIcon({ open }) {
   return (
@@ -111,9 +93,16 @@ export default function Navbar() {
         }}>
 
           {/* 로고 */}
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-            <LogoMark size={30} innerSize={12} />
-            <span style={{ fontSize: 19, fontWeight: 800, color: '#23211C', letterSpacing: '-0.01em' }}>요가잡</span>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <Image
+              src="/logo/logo-compact.png"
+              alt="요가잡"
+              width={0}
+              height={0}
+              sizes="200px"
+              className="h-[26px] sm:h-[32px] w-auto"
+              priority
+            />
           </Link>
 
           {/* 데스크탑 네비게이션 */}
@@ -258,17 +247,24 @@ export default function Navbar() {
                   }}>로그아웃</button>
                 </div>
               ) : (
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <Link href="/login" style={{
-                    flex: 1, display: 'block', textAlign: 'center', padding: '14px',
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <Link href="/post-job" style={{
+                    display: 'block', textAlign: 'center', padding: '14px',
                     borderRadius: 11, border: '1px solid #E3DDD0',
                     fontSize: 15, fontWeight: 600, color: '#23211C', textDecoration: 'none',
-                  }}>로그인</Link>
-                  <Link href="/signup" style={{
-                    flex: 1, display: 'block', textAlign: 'center', padding: '14px',
-                    borderRadius: 11, background: '#23211C',
-                    fontSize: 15, fontWeight: 700, color: '#fff', textDecoration: 'none',
-                  }}>회원가입</Link>
+                  }}>구인 등록</Link>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <Link href="/login" style={{
+                      flex: 1, display: 'block', textAlign: 'center', padding: '14px',
+                      borderRadius: 11, border: '1px solid #E3DDD0',
+                      fontSize: 15, fontWeight: 600, color: '#23211C', textDecoration: 'none',
+                    }}>로그인</Link>
+                    <Link href="/signup" style={{
+                      flex: 1, display: 'block', textAlign: 'center', padding: '14px',
+                      borderRadius: 11, background: '#23211C',
+                      fontSize: 15, fontWeight: 700, color: '#fff', textDecoration: 'none',
+                    }}>회원가입</Link>
+                  </div>
                 </div>
               )}
             </div>
