@@ -9,10 +9,10 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 
 const JOB_IMGS = [
-  'https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=1200&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1200&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=1200&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&auto=format&fit=crop&q=90',
 ];
 
 function jobImg(id) {
@@ -48,18 +48,34 @@ function ActionCard({ job, user, hasApplied, isBookmarked, applicantCount, onApp
           <p style={{ fontSize: 20, fontWeight: 700, color: '#23211C' }}>{job.salary}</p>
         </div>
       )}
-      <div style={{ marginBottom: 20, paddingBottom: 20, borderBottom: '1px solid #E3DDD0' }}>
-        <p style={{ fontSize: 12, color: '#9A9382', marginBottom: 4 }}>현재 지원자</p>
-        <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C' }}>{applicantCount}명</p>
-      </div>
-      <button onClick={onApply} disabled={hasApplied} style={{
-        width: '100%', padding: '14px 0', borderRadius: 12, fontSize: 15, fontWeight: 700,
-        background: hasApplied ? '#E3DDD0' : '#23211C',
-        color: hasApplied ? '#9A9382' : '#fff',
-        border: 'none', cursor: hasApplied ? 'not-allowed' : 'pointer', marginBottom: 10,
-      }}>
-        {hasApplied ? '✓ 지원 완료' : '지원하기'}
-      </button>
+      {!job.is_dummy && (
+        <div style={{ marginBottom: 20, paddingBottom: 20, borderBottom: '1px solid #E3DDD0' }}>
+          <p style={{ fontSize: 12, color: '#9A9382', marginBottom: 4 }}>현재 지원자</p>
+          <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C' }}>{applicantCount}명</p>
+        </div>
+      )}
+      {job.is_dummy ? (
+        <>
+          <div style={{ marginBottom: 10, padding: '12px 14px', borderRadius: 10, background: '#F4F1E9', border: '1px solid #E3DDD0' }}>
+            <p style={{ fontSize: 13, color: '#9A9382', textAlign: 'center', margin: 0 }}>샘플 공고입니다. 실제 채용이 아닙니다.</p>
+          </div>
+          <button disabled style={{
+            width: '100%', padding: '14px 0', borderRadius: 12, fontSize: 15, fontWeight: 700,
+            background: '#E3DDD0', color: '#9A9382', border: 'none', cursor: 'not-allowed', marginBottom: 10,
+          }}>
+            지원하기
+          </button>
+        </>
+      ) : (
+        <button onClick={onApply} disabled={hasApplied} style={{
+          width: '100%', padding: '14px 0', borderRadius: 12, fontSize: 15, fontWeight: 700,
+          background: hasApplied ? '#E3DDD0' : '#23211C',
+          color: hasApplied ? '#9A9382' : '#fff',
+          border: 'none', cursor: hasApplied ? 'not-allowed' : 'pointer', marginBottom: 10,
+        }}>
+          {hasApplied ? '✓ 지원 완료' : '지원하기'}
+        </button>
+      )}
       <button onClick={onBookmark} style={{
         width: '100%', padding: '11px 0', borderRadius: 12, fontSize: 14, fontWeight: 600,
         background: isBookmarked ? '#FDF3E3' : '#F4F1E9',
@@ -97,7 +113,7 @@ export default function JobDetail() {
   const fetchMatches = async () => {
     const { data } = await supabase
       .from('candidate')
-      .select('id, name, location, region_sido, region_sigungu, region_gu, yoga_styles, yoga_styles_arr, experience_years, experience_num')
+      .select('id, name, location, region_sido, region_sigungu, region_gu, yoga_styles, yoga_styles_arr, experience_years, experience_num, is_dummy')
       .eq('status', 'active');
     if (!data || data.length === 0) return;
     const top = topMatches(job, data, scoreMatch, 5).filter(m => m.score > 0);
@@ -201,7 +217,12 @@ export default function JobDetail() {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-[#9A9382] mb-1">요가스튜디오</p>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-xs text-[#9A9382]">요가스튜디오</p>
+              {job.is_dummy && (
+                <span className="text-[11px] text-[#A09B8E] bg-[#EDEBE5] border border-[#DEDAD2] px-[7px] py-[1px] rounded-[6px]">샘플</span>
+              )}
+            </div>
             <h1 className="text-[20px] sm:text-[22px] font-bold text-[#23211C] mb-3 leading-snug">{job.title}</h1>
             <div className="flex gap-[6px] flex-wrap">
               {job.location && <Tag label={job.location} />}
@@ -282,7 +303,12 @@ export default function JobDetail() {
                     onMouseOut={e => { e.currentTarget.style.borderColor = '#E3DDD0'; e.currentTarget.style.boxShadow = 'none'; }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 10 }}>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C', margin: 0, lineHeight: 1.4 }}>{item.name}</p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C', margin: 0, lineHeight: 1.4 }}>{item.name}</p>
+                        {item.is_dummy && (
+                          <span style={{ fontSize: 10, color: '#A09B8E', background: '#EDEBE5', border: '1px solid #DEDAD2', padding: '1px 6px', borderRadius: 5, flexShrink: 0 }}>샘플</span>
+                        )}
+                      </div>
                       <span style={{ flexShrink: 0, background: '#FDF3E3', border: '1px solid #C2922F', borderRadius: 20, padding: '2px 10px', fontSize: 12, fontWeight: 700, color: '#C2922F' }}>{score}점</span>
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>

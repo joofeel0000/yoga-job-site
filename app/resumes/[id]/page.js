@@ -46,7 +46,7 @@ export default function ResumeDetail() {
   const fetchMatches = async () => {
     const { data } = await supabase
       .from('job')
-      .select('id, title, location, region_sido, region_sigungu, region_gu, yoga_style, yoga_styles_arr, experience, experience_num, salary')
+      .select('id, title, location, region_sido, region_sigungu, region_gu, yoga_style, yoga_styles_arr, experience, experience_num, salary, is_dummy')
       .eq('status', 'active');
     if (!data || data.length === 0) return;
     const scored = data
@@ -154,6 +154,9 @@ export default function ResumeDetail() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <h1 style={{ fontSize: 22, fontWeight: 700, color: '#23211C' }}>{resume.name}</h1>
+                {resume.is_dummy && (
+                  <span className="text-[11px] text-[#A09B8E] bg-[#EDEBE5] border border-[#DEDAD2] px-[7px] py-[1px] rounded-[6px]">샘플</span>
+                )}
                 <div className="flex items-center gap-1">
                   <span style={{ color: '#C2922F', fontSize: 14 }}>★</span>
                   <span style={{ fontSize: 14, fontWeight: 600, color: '#26241D' }}>4.8</span>
@@ -175,16 +178,29 @@ export default function ResumeDetail() {
 
             {/* 액션 버튼 */}
             <div className="flex sm:flex-col gap-2 shrink-0">
-              <button onClick={handleContact} disabled={hasContacted}
-                className="flex-1 sm:flex-none"
-                style={{
-                  padding: '11px 22px', borderRadius: 12, fontSize: 14, fontWeight: 700,
-                  background: hasContacted ? '#E3DDD0' : '#23211C',
-                  color: hasContacted ? '#9A9382' : '#fff',
-                  border: 'none', cursor: hasContacted ? 'not-allowed' : 'pointer',
-                }}>
-                {hasContacted ? '✓ 연락 완료' : '연락하기'}
-              </button>
+              {resume.is_dummy ? (
+                <div className="flex-1 sm:flex-none flex flex-col gap-1 items-stretch">
+                  <button disabled
+                    style={{
+                      padding: '11px 22px', borderRadius: 12, fontSize: 14, fontWeight: 700,
+                      background: '#E3DDD0', color: '#9A9382', border: 'none', cursor: 'not-allowed',
+                    }}>
+                    연락하기
+                  </button>
+                  <p style={{ fontSize: 11, color: '#9A9382', textAlign: 'center', margin: 0 }}>샘플 이력서입니다</p>
+                </div>
+              ) : (
+                <button onClick={handleContact} disabled={hasContacted}
+                  className="flex-1 sm:flex-none"
+                  style={{
+                    padding: '11px 22px', borderRadius: 12, fontSize: 14, fontWeight: 700,
+                    background: hasContacted ? '#E3DDD0' : '#23211C',
+                    color: hasContacted ? '#9A9382' : '#fff',
+                    border: 'none', cursor: hasContacted ? 'not-allowed' : 'pointer',
+                  }}>
+                  {hasContacted ? '✓ 연락 완료' : '연락하기'}
+                </button>
+              )}
               <button onClick={toggleBookmark}
                 className="flex-1 sm:flex-none"
                 style={{
@@ -271,7 +287,12 @@ export default function ResumeDetail() {
                     onMouseOut={e => { e.currentTarget.style.borderColor = '#E3DDD0'; e.currentTarget.style.boxShadow = 'none'; }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C', margin: 0, lineHeight: 1.4 }}>{item.title}</p>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, minWidth: 0, flexWrap: 'wrap' }}>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#23211C', margin: 0, lineHeight: 1.4 }}>{item.title}</p>
+                        {item.is_dummy && (
+                          <span style={{ fontSize: 10, color: '#A09B8E', background: '#EDEBE5', border: '1px solid #DEDAD2', padding: '1px 6px', borderRadius: 5, flexShrink: 0, marginTop: 2 }}>샘플</span>
+                        )}
+                      </div>
                       <span style={{ flexShrink: 0, background: '#FDF3E3', border: '1px solid #C2922F', borderRadius: 20, padding: '2px 10px', fontSize: 12, fontWeight: 700, color: '#C2922F' }}>{score}점</span>
                     </div>
                     {item.salary && (
