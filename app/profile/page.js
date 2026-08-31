@@ -211,7 +211,7 @@ export default function ProfilePage() {
         {/* 헤더 */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">프로필 설정</h1>
+            <h1 className="text-3xl font-bold text-gray-800">계정 설정</h1>
             <p className="text-gray-600 mt-2">{user?.email}</p>
           </div>
           <Link href="/mypage" className="text-[#23211C] hover:underline">

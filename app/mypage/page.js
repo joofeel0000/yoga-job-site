@@ -395,7 +395,7 @@ export default function MyPage() {
           </div>
           <div className="flex gap-2 items-center">
             <Link href="/profile" className="inline-flex items-center px-4 py-2.5 bg-[#23211C] text-white text-sm font-bold rounded-xl hover:bg-black transition">
-              프로필 설정 →
+              계정 설정 →
             </Link>
             <Link href="/" className="inline-flex items-center px-4 py-2.5 bg-white text-[#23211C] text-sm font-bold rounded-xl border border-[#E3DDD0] hover:bg-[#EFEBE1] transition">
               ← 홈으로
@@ -610,7 +610,11 @@ export default function MyPage() {
         ) : activeTab === 'resumes' ? (
           myResumes.length === 0 ? (
             <div className="card-empty">
-              <p className="text-stone-400 mb-4 text-sm">등록한 이력서가 없습니다</p>
+              <p className="text-stone-500 mb-1 text-sm font-semibold">등록한 이력서가 없습니다</p>
+              <p className="text-stone-400 mb-5 text-sm leading-relaxed">
+                이력서를 등록하면 강사찾기에 공개되어 스튜디오에서 직접 연락할 수 있고,<br className="hidden sm:block" />
+                조건에 맞는 새 공고가 올라오면 알림을 받을 수 있어요.
+              </p>
               <Link href="/post-resume">
                 <button className="px-6 py-3 bg-[#23211C] text-white rounded-full hover:bg-black transition text-sm font-semibold">
                   이력서 등록하기

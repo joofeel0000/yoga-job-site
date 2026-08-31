@@ -21,7 +21,7 @@ export default function BetaBanner() {
   return (
     <div style={{
       background: '#23211C',
-      color: '#CFC9BB',
+      color: '#F4F1E9',
       fontSize: 12,
       padding: '7px 48px 7px 20px',
       display: 'flex',
@@ -41,7 +41,7 @@ export default function BetaBanner() {
           transform: 'translateY(-50%)',
           background: 'none',
           border: 'none',
-          color: '#76705F',
+          color: '#CFC9BB',
           cursor: 'pointer',
           fontSize: 14,
           lineHeight: 1,
