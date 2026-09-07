@@ -6,6 +6,13 @@ const CANDIDATES_PER_RUN = parseInt(process.env.SEED_CANDIDATES_PER_RUN ?? '2', 
 const PROPERTIES_PER_RUN = parseInt(process.env.SEED_PROPERTIES_PER_RUN ?? '2', 10);
 const POSTS_PER_RUN      = parseInt(process.env.SEED_POSTS_PER_RUN      ?? '3', 10);
 const MAX_TOTAL          = parseInt(process.env.MAX_TOTAL_SEED_ROWS      ?? '1000', 10);
+const TABLES_WITH_EXPIRY = ['job', 'candidate'];
+const TABLES_OLDEST_TRIM = [
+  { table: 'job',             idCol: 'id', perRun: () => JOBS_PER_RUN },
+  { table: 'candidate',       idCol: 'id', perRun: () => CANDIDATES_PER_RUN },
+  { table: 'property',        idCol: 'id', perRun: () => PROPERTIES_PER_RUN },
+  { table: 'community_posts', idCol: 'id', perRun: () => POSTS_PER_RUN },
+];
 const SEED_USER_ID       = process.env.SEED_USER_ID ?? null;
 
 // ── 텍스트 풀 ──────────────────────────────────────────────────
@@ -119,6 +126,24 @@ const PROPERTY_CONTACTS = [
   '010-5555-6666', '010-6666-7777', '010-7777-8888', '010-8888-9999',
 ];
 
+const JOB_IMAGE_URLS = [
+  'https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=1200&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1200&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=1200&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=1200&auto=format&fit=crop&q=90',
+];
+
+const CANDIDATE_PHOTO_URLS = [
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=90',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&auto=format&fit=crop&q=90',
+];
+
 const AUTHOR_EMAILS = [
   'yoga.teacher01@gmail.com', 'studio.owner.kr@naver.com', 'hatha.lover@gmail.com',
   'vinyasa.pro@naver.com', 'mindful.yoga@gmail.com', 'yogini2024@naver.com',
@@ -196,6 +221,7 @@ function makeJob() {
     experience_num: expEntry.num,
     salary: pick(SALARIES),
     description: pick(JOB_DESCRIPTIONS)(style, location),
+    image_url: pick(JOB_IMAGE_URLS),
     user_id: SEED_USER_ID,
     status: 'active',
     expires_at: expiresAt(30),
@@ -222,6 +248,7 @@ function makeCandidate() {
     experience_years: expEntry.label,
     experience_num: expEntry.num,
     introduction: pick(CANDIDATE_INTRODUCTIONS)(primaryStyle, expEntry.label, cert),
+    photo_url: pick(CANDIDATE_PHOTO_URLS),
     user_id: SEED_USER_ID,
     status: 'active',
     expires_at: expiresAt(30),
@@ -273,29 +300,68 @@ export async function GET(request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   );
 
+  // 1단계: 만료된 더미 삭제 (expires_at 있는 테이블만)
+  const now = new Date().toISOString();
+  await Promise.all(
+    TABLES_WITH_EXPIRY.map(t =>
+      supabase.from(t).delete().eq('is_dummy', true).lt('expires_at', now)
+    )
+  );
+
+  // 2단계: 현재 총량 계산
   const makeCountQuery = (table) => {
     const q = supabase.from(table).select('*', { count: 'exact', head: true }).eq('is_dummy', true);
     return SEED_USER_ID ? q.eq('user_id', SEED_USER_ID) : q;
   };
 
-  const [
-    { count: jobCount },
-    { count: candidateCount },
-    { count: propertyCount },
-    { count: postCount },
-  ] = await Promise.all([
+  const counts = await Promise.all([
     makeCountQuery('job'),
     makeCountQuery('candidate'),
     makeCountQuery('property'),
     makeCountQuery('community_posts'),
   ]);
+  let [jobCount, candidateCount, propertyCount, postCount] = counts.map(r => r.count ?? 0);
 
-  const total = (jobCount ?? 0) + (candidateCount ?? 0) + (propertyCount ?? 0) + (postCount ?? 0);
-  const summary = { jobCount, candidateCount, propertyCount, postCount, total, max: MAX_TOTAL };
+  // 3단계: 이번 run에서 추가될 수 = 한도 초과분만큼 오래된 더미 삭제
+  const toInsert = JOBS_PER_RUN + CANDIDATES_PER_RUN + PROPERTIES_PER_RUN + POSTS_PER_RUN;
+  let total = jobCount + candidateCount + propertyCount + postCount;
+  const deleted = {};
 
-  if (total >= MAX_TOTAL) {
-    return Response.json({ skipped: true, reason: 'MAX_TOTAL reached', ...summary });
+  if (total + toInsert > MAX_TOTAL) {
+    const excess = total + toInsert - MAX_TOTAL;
+    let remaining = excess;
+
+    for (const { table, idCol } of TABLES_OLDEST_TRIM) {
+      if (remaining <= 0) break;
+      // is_dummy=true 인 오래된 레코드 ID만 가져와서 삭제
+      const { data } = await supabase
+        .from(table)
+        .select(idCol)
+        .eq('is_dummy', true)
+        .order('created_at', { ascending: true })
+        .limit(remaining);
+
+      if (data && data.length > 0) {
+        const ids = data.map(r => r[idCol]);
+        await supabase.from(table).delete().eq('is_dummy', true).in(idCol, ids);
+        deleted[table] = ids.length;
+        remaining -= ids.length;
+      }
+    }
+
+    // 재집계
+    const recounts = await Promise.all([
+      makeCountQuery('job'),
+      makeCountQuery('candidate'),
+      makeCountQuery('property'),
+      makeCountQuery('community_posts'),
+    ]);
+    [jobCount, candidateCount, propertyCount, postCount] = recounts.map(r => r.count ?? 0);
+    total = jobCount + candidateCount + propertyCount + postCount;
   }
+
+  const summary = { jobCount, candidateCount, propertyCount, postCount, total, max: MAX_TOTAL };
+  if (Object.keys(deleted).length > 0) summary.deleted = deleted;
 
   const results = {};
 
