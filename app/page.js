@@ -59,7 +59,7 @@ export default function Home() {
     { num: '—', label: '등록 공고' },
     { num: '—', label: '강사 프로필' },
     { num: '—', label: '스튜디오' },
-    { num: '96%', label: '만족도' },
+    { num: '0원', label: '이용료' },
   ]);
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export default function Home() {
         { num: jobCountRes.count != null ? `${jobCountRes.count.toLocaleString()}+` : '0', label: '등록 공고' },
         { num: candidateCountRes.count != null ? `${candidateCountRes.count.toLocaleString()}+` : '0', label: '강사 프로필' },
         { num: propertyCountRes.count != null ? `${propertyCountRes.count.toLocaleString()}+` : '0', label: '스튜디오' },
-        { num: '96%', label: '만족도' },
+        { num: '0원', label: '이용료' },
       ]);
     };
     fetchData();

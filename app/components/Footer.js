@@ -58,6 +58,9 @@ export default function Footer() {
       </div>
       <div style={{ borderTop: '1px solid #3E3B33' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 24px' }}>
+          <p style={{ fontSize: 12, color: '#7E786B', margin: '0 0 6px', lineHeight: 1.7 }}>
+            상호: 스리퍼 <span style={{ margin: '0 6px', color: '#4A463D' }}>|</span> 대표: 주필규 <span style={{ margin: '0 6px', color: '#4A463D' }}>|</span> 문의: <a href="tel:010-2812-1138" style={{ color: '#7E786B', textDecoration: 'none' }}>010-2812-1138</a>
+          </p>
           <p style={{ fontSize: 12, color: '#7E786B', margin: 0 }}>© 2026 요가잡. All rights reserved.</p>
         </div>
       </div>
