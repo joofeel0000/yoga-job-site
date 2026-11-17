@@ -57,7 +57,8 @@ export default function Signup() {
         );
       }
       alert('회원가입 성공! 이메일을 확인해주세요.');
-      router.push('/login');
+      const back = new URLSearchParams(window.location.search).get('redirect');
+      router.push(back ? `/login?redirect=${encodeURIComponent(back)}` : '/login');
     }
     setLoading(false);
   };

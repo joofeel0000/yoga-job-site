@@ -1,3 +1,4 @@
+// ⚠️ feedback_posts(커피 쿠폰 이벤트 의견 게시판)에는 절대 INSERT/DELETE 하지 말 것. 실제 회원 개인정보(휴대폰)가 들어 있다.
 import { createClient } from '@supabase/supabase-js';
 import { YOGA_STYLES, REGIONS, SIDO_LIST, JOB_EXPERIENCE, CANDIDATE_EXPERIENCE } from '@/lib/constants';
 

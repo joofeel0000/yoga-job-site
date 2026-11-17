@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ImageUpload from '@/app/components/ImageUpload';
+import FeedbackAdmin from './FeedbackAdmin';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -421,6 +422,10 @@ export default function Admin() {
               className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'community' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
               커뮤니티 ({posts.length})
             </button>
+            <button onClick={() => setActiveTab('feedback')}
+              className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'feedback' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
+              의견 이벤트
+            </button>
             <button onClick={() => setActiveTab('banners')}
               className={`flex-1 py-4 px-6 font-semibold transition text-sm ${activeTab === 'banners' ? 'text-[#23211C] border-b-2 border-[#23211C]' : 'text-stone-500 hover:text-stone-700'}`}>
               배너 광고 ({banners.length})
@@ -661,6 +666,9 @@ export default function Admin() {
               </div>
             </div>
           )
+
+        ) : activeTab === 'feedback' ? (
+          <FeedbackAdmin />
 
         ) : activeTab === 'banners' ? (
           (() => {

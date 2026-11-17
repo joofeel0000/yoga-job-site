@@ -52,6 +52,11 @@ export default function PrivacyPage() {
                     <td className="p-3 border border-[#E3DDD0]">접속 IP, 서비스 이용 기록, 쿠키</td>
                     <td className="p-3 border border-[#E3DDD0]">서비스 이용 중</td>
                   </tr>
+                  <tr>
+                    <td className="p-3 border border-[#E3DDD0]">이벤트 참여 (필수)</td>
+                    <td className="p-3 border border-[#E3DDD0]">휴대폰 번호, 회원 유형(센터/강사), 작성한 의견 내용</td>
+                    <td className="p-3 border border-[#E3DDD0]">의견 게시판(이벤트) 참여 시</td>
+                  </tr>
                   <tr className="bg-[#FAFAF8]">
                     <td className="p-3 border border-[#E3DDD0]">게시물</td>
                     <td className="p-3 border border-[#E3DDD0]">이름, 지역, 경력, 요가 스타일 등 이용자가 직접 입력한 정보</td>
@@ -71,6 +76,7 @@ export default function PrivacyPage() {
               <li>고객 문의 응대 및 민원 처리</li>
               <li>서비스 이용 통계 분석 (비식별화 처리 후 활용)</li>
               <li>광고 서비스 제공 및 통계 산출</li>
+              <li>이벤트 커피 쿠폰 발송 (의견 게시판 참여자의 휴대폰 번호)</li>
               <li>법령상 의무 이행</li>
             </ul>
           </Section>
@@ -83,6 +89,7 @@ export default function PrivacyPage() {
               <li>계약 또는 청약 철회 기록: 5년 (전자상거래법)</li>
               <li>소비자 불만 또는 분쟁 처리 기록: 3년 (전자상거래법)</li>
               <li>접속 로그: 3개월 (통신비밀보호법)</li>
+              <li>이벤트(의견 게시판) 참여 시 수집한 휴대폰 번호: 2027년 1월 31일까지 보관 후 파기</li>
             </ul>
           </Section>
 

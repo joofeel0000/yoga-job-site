@@ -106,7 +106,7 @@ function LoginForm() {
           <div style={{ marginTop: 24, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 10 }}>
             <p style={{ fontSize: 14, color: '#76705F' }}>
               아직 계정이 없으신가요?{' '}
-              <Link href="/signup" style={{ color: '#23211C', fontWeight: 700, textDecoration: 'none' }}>회원가입</Link>
+              <Link href={redirect ? `/signup?redirect=${encodeURIComponent(redirect)}` : '/signup'} style={{ color: '#23211C', fontWeight: 700, textDecoration: 'none' }}>회원가입</Link>
             </p>
             <Link href="/" style={{ fontSize: 13, color: '#9A9382', textDecoration: 'none' }}>← 홈으로 돌아가기</Link>
           </div>
