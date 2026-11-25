@@ -31,6 +31,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuTop, setMenuTop] = useState(60);
   const navRef = useRef(null);
+  const [eventOpen, setEventOpen] = useState(false); // 커피 이벤트 진행 중(서버 시간·선착순 기준)
 
   useEffect(() => {
     checkUser();
@@ -38,6 +39,13 @@ export default function Navbar() {
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
+  }, []);
+
+  // 커피 쿠폰 이벤트: 마감(서버 시간) 또는 100명 소진 시 메뉴에서 자동으로 사라짐
+  useEffect(() => {
+    let cancelled = false;
+    supabase.rpc('feedback_status').then(({ data }) => { if (!cancelled) setEventOpen(!!data?.open); });
+    return () => { cancelled = true; };
   }, []);
 
   // 메뉴 열릴 때 스크롤 잠금 + 드로어 top 위치 계산
@@ -70,6 +78,7 @@ export default function Navbar() {
     { href: '/property', label: '매물정보', prefix: true },
     { href: '/community', label: '커뮤니티', prefix: true },
     { href: '/advertise', label: '광고 문의', prefix: true },
+    ...(eventOpen ? [{ href: '/feedback', label: '☕ 커피 이벤트', prefix: true, event: true }] : []),
   ];
 
   const isActive = ({ href, exact, prefix }) =>
@@ -115,6 +124,7 @@ export default function Navbar() {
                   onMouseOver={e => { if (!active) e.currentTarget.style.background = '#F2EEE4'; }}
                   onMouseOut={e => { if (!active) e.currentTarget.style.background = 'transparent'; }}
                 >
+                  {item.event && <span aria-hidden="true" style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#F25937', marginRight: 7, verticalAlign: 'middle' }} />}
                   {item.label}
                 </Link>
               );
@@ -212,6 +222,7 @@ export default function Navbar() {
                       transition: 'background .1s',
                     }}
                   >
+                    {item.event && <span aria-hidden="true" style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#F25937', marginRight: 7, verticalAlign: 'middle' }} />}
                     {item.label}
                   </Link>
                 );
