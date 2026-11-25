@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import BannerZone from '@/app/components/BannerZone';
+import EventPopup from '@/app/components/EventPopup';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=800&auto=format&fit=crop&q=80';
 const POPULAR_KEYWORDS = ['하타요가', '강남', '정규직', '대강', '빈야사'];
@@ -97,6 +98,7 @@ export default function Home() {
 
   return (
     <main className="page-root">
+      <EventPopup />
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="bg-gradient-to-b from-[#ECE9E1] to-[#F4F1E9] pt-14 pb-20">
