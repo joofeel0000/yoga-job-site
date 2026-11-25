@@ -40,7 +40,10 @@ function dbErrorMessage(error) {
   const m = error?.message || '';
   if (m.includes('FEEDBACK_FULL')) return '아쉽게도 선착순 100명이 모두 참여해 마감되었습니다.';
   if (m.includes('FEEDBACK_CLOSED')) return '이벤트가 마감되어 더 이상 작성/수정할 수 없습니다.';
-  if (error?.code === '23505') return '이미 참여하셨습니다. 이벤트는 1인 1회만 참여할 수 있습니다.';
+  if (error?.code === '23505') {
+    if ((error.message || '').includes('phone')) return '이미 이 휴대폰 번호로 참여한 내역이 있습니다. 이벤트는 번호당 1회만 참여할 수 있습니다.';
+    return '이미 참여하셨습니다. 이벤트는 1인 1회만 참여할 수 있습니다.';
+  }
   if (error?.code === '23514') return '입력값을 확인해 주세요. (휴대폰 번호는 010-0000-0000 형식)';
   return '처리에 실패했습니다. 잠시 후 다시 시도해 주세요.';
 }
