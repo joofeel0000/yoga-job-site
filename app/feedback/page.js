@@ -75,6 +75,7 @@ function FeedbackContent() {
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState(null);
   const [mine, setMine] = useState(null);
+  const [participants, setParticipants] = useState(null); // null = 불러오지 못함/미로그인
   const [editing, setEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -91,6 +92,9 @@ function FeedbackContent() {
         supabase.from('feedback_posts').select('*').eq('user_id', u.id).maybeSingle(),
       ]);
       setMine(m);
+      // 참여 현황(번호·마스킹 이름·유형·날짜·발송 여부만). 실패하면 목록만 숨김
+      const { data: list, error: listErr } = await supabase.rpc('feedback_participants');
+      setParticipants(listErr ? null : (list || []));
       setForm(f => ({ ...f, member_type: memberTypeFromUser(u), phone: formatPhone(p?.phone || '') }));
     }
     setLoading(false);
@@ -152,7 +156,7 @@ function FeedbackContent() {
       <div className="max-w-[680px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="mb-6">
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#23211C', marginBottom: 4 }}>의견 남기고 커피 쿠폰 받기</h1>
-          <p style={{ fontSize: 14, color: '#9A9382' }}>요가잡 이용 중 불편했던 점을 알려 주세요. 선착순 100분께 커피 쿠폰을 드립니다. 작성한 글은 본인과 운영자만 볼 수 있습니다.</p>
+          <p style={{ fontSize: 14, color: '#9A9382' }}>요가잡 이용 중 불편했던 점을 알려 주세요. 선착순 100분께 커피 쿠폰을 드립니다. 작성한 글은 본인과 운영자만 볼 수 있고, 참여 현황(번호·이름 일부·유형)은 로그인한 회원에게 공개됩니다.</p>
         </div>
 
         <StatusBox status={status} />
@@ -281,8 +285,42 @@ function FeedbackContent() {
             </div>
           </form>
         )}
+
+        {/* 참여 현황 — 로그인 회원에게만 */}
+        {user && participants && (
+          <div style={{ marginTop: 20 }}>
+            <ParticipantList list={participants} mySeq={mine?.seq} />
+          </div>
+        )}
       </div>
     </main>
+  );
+}
+
+function ParticipantList({ list, mySeq }) {
+  return (
+    <Card>
+      <h2 style={{ fontSize: 15, fontWeight: 800, color: '#23211C', marginBottom: 4 }}>참여 현황 <span style={{ fontWeight: 600, color: '#9A9382' }}>({list.length}명)</span></h2>
+      <p style={{ fontSize: 12, color: '#9A9382', marginBottom: 12 }}>이름은 일부만 표시되며, 의견 내용과 연락처는 공개되지 않습니다.</p>
+      {list.length === 0 ? (
+        <p style={{ fontSize: 13, color: '#9A9382', padding: '14px 0' }}>아직 참여자가 없습니다. 첫 번째 주인공이 되어 보세요!</p>
+      ) : (
+        <ul data-testid="participants" style={{ maxHeight: 360, overflowY: 'auto', border: '1px solid #E3DDD0', borderRadius: 12 }}>
+          {list.map((p, i) => {
+            const me = mySeq === p.seq;
+            return (
+              <li key={p.seq} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', fontSize: 13, color: '#23211C', background: me ? '#FDF3E3' : '#fff', borderTop: i === 0 ? 'none' : '1px solid #F4F1E9' }}>
+                <span style={{ width: 34, color: '#9A9382', fontWeight: 700 }}>#{p.seq}</span>
+                <span style={{ flex: 1, fontWeight: me ? 800 : 600 }}>{p.display_name}{me && <span style={{ marginLeft: 6, fontSize: 11, color: '#C2922F' }}>나</span>}</span>
+                <span style={{ fontSize: 12, color: '#76705F' }}>{p.member_type === 'center' ? '센터' : '강사'}</span>
+                <span style={{ fontSize: 12, color: '#9A9382', width: 44, textAlign: 'right' }}>{new Date(p.created_at).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric' })}</span>
+                {p.coupon_sent && <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 7px', borderRadius: 8, background: '#F0FDF4', color: '#16A34A' }}>쿠폰 발송</span>}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </Card>
   );
 }
 
