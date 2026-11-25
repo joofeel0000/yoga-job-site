@@ -151,10 +151,6 @@ function FeedbackContent() {
     <main style={wrapStyle}>
       <div className="max-w-[680px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="mb-6">
-          <Link href="/" style={{ display: 'inline-block', marginBottom: 18 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo/yogajob-a.svg" alt="YOGAJOB" className="h-[26px] sm:h-[30px] w-auto" />
-          </Link>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#23211C', marginBottom: 4 }}>의견 남기고 커피 쿠폰 받기</h1>
           <p style={{ fontSize: 14, color: '#9A9382' }}>요가잡 이용 중 불편했던 점을 알려 주세요. 선착순 100분께 커피 쿠폰을 드립니다. 작성한 글은 본인과 운영자만 볼 수 있습니다.</p>
         </div>

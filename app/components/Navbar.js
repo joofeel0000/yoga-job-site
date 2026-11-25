@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect, useRef } from 'react';
@@ -94,15 +93,8 @@ export default function Navbar() {
 
           {/* 로고 */}
           <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <Image
-              src="/logo/logo-compact.png"
-              alt="요가잡"
-              width={0}
-              height={0}
-              sizes="200px"
-              className="h-[26px] sm:h-[32px] w-auto"
-              priority
-            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo/yogajob-a.svg" alt="YOGAJOB 요가잡" className="h-[20px] sm:h-[24px] w-auto" />
           </Link>
 
           {/* 데스크탑 네비게이션 */}

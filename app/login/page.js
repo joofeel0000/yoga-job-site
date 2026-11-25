@@ -5,20 +5,6 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-function LogoMark({ size = 32 }) {
-  const leafSize = Math.round(size * 0.5);
-  return (
-    <div style={{ position: 'relative', width: size, height: size }}>
-      <div style={{ width: size, height: size, borderRadius: '50%', background: '#23211C' }} />
-      <div style={{
-        position: 'absolute', bottom: Math.round(size * 0.1), right: Math.round(size * 0.1),
-        width: leafSize, height: leafSize, background: '#CFC9BB',
-        borderRadius: '50% 50% 50% 0', transform: 'rotate(-45deg)',
-      }} />
-    </div>
-  );
-}
-
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -61,8 +47,8 @@ function LoginForm() {
 
         {/* Logo */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 32 }}>
-          <LogoMark size={48} />
-          <span style={{ fontSize: 20, fontWeight: 800, color: '#23211C', marginTop: 10, letterSpacing: '-0.02em' }}>요가잡</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo/yogajob-a.svg" alt="YOGAJOB 요가잡" style={{ height: 30, width: 'auto', display: 'block' }} />
         </div>
 
         <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E3DDD0', boxShadow: '0 4px 24px rgba(30,28,24,0.06)' }} className="px-5 py-8 sm:px-8">

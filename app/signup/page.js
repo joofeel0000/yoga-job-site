@@ -5,20 +5,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-function LogoMark({ size = 32 }) {
-  const leafSize = Math.round(size * 0.5);
-  return (
-    <div style={{ position: 'relative', width: size, height: size }}>
-      <div style={{ width: size, height: size, borderRadius: '50%', background: '#23211C' }} />
-      <div style={{
-        position: 'absolute', bottom: Math.round(size * 0.1), right: Math.round(size * 0.1),
-        width: leafSize, height: leafSize, background: '#CFC9BB',
-        borderRadius: '50% 50% 50% 0', transform: 'rotate(-45deg)',
-      }} />
-    </div>
-  );
-}
-
 const USER_TYPES = [
   { id: 'instructor', label: '요가강사', desc: '채용 공고에 지원하거나 이력서를 등록하세요', icon: '🧘‍♀️' },
   { id: 'studio', label: '스튜디오 · 센터', desc: '구인 공고를 등록하고 강사를 채용하세요', icon: '🏢' },
@@ -74,8 +60,8 @@ export default function Signup() {
 
         {/* Logo */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 28 }}>
-          <LogoMark size={44} />
-          <span style={{ fontSize: 19, fontWeight: 800, color: '#23211C', marginTop: 10, letterSpacing: '-0.02em' }}>요가잡</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo/yogajob-a.svg" alt="YOGAJOB 요가잡" style={{ height: 30, width: 'auto', display: 'block' }} />
         </div>
 
         <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E3DDD0', boxShadow: '0 4px 24px rgba(30,28,24,0.06)' }} className="px-5 py-8 sm:px-8">
