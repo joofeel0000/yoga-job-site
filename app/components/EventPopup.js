@@ -46,12 +46,18 @@ export default function EventPopup() {
       onClick={close}
       style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(35,33,28,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div onClick={e => e.stopPropagation()}
-        style={{ width: '100%', maxWidth: 420, maxHeight: '100%', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,0.3)' }}>
+        style={{ width: '100%', maxWidth: 420, maxHeight: '100%', display: 'flex', flexDirection: 'column', background: '#F25937', borderRadius: 18, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,0.3)' }}>
         <div style={{ overflowY: 'auto', flex: 1 }}>
           <Link href="/feedback" onClick={close} style={{ display: 'block' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={IMG_SRC} alt="의견 남기고 커피 쿠폰 받기 - 선착순 100명" style={{ display: 'block', width: '100%', height: 'auto' }} />
+            <img src={IMG_SRC} alt="의견 남기고 커피 한 잔 받아 가세요 - 12월 15일까지 이벤트" style={{ display: 'block', width: '100%', height: 'auto' }} />
           </Link>
+          <div style={{ padding: '6px 24px 22px' }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#23211C', marginBottom: 12 }}>선착순 100명 · 1인 1회</p>
+            <Link href="/feedback" onClick={close} style={{ display: 'block', textAlign: 'center', padding: '14px 0', borderRadius: 12, fontSize: 15, fontWeight: 700, background: '#23211C', color: '#fff', textDecoration: 'none' }}>
+              의견 남기러 가기 →
+            </Link>
+          </div>
         </div>
         <div style={{ display: 'flex', borderTop: '1px solid #E3DDD0', flexShrink: 0 }}>
           <button onClick={hideToday} style={{ flex: 1, padding: '13px 0', fontSize: 13, color: '#76705F', background: '#F4F1E9', border: 'none', borderRight: '1px solid #E3DDD0', cursor: 'pointer' }}>오늘 하루 보지 않기</button>
