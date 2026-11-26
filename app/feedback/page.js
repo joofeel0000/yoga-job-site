@@ -66,6 +66,7 @@ function StatusBox({ status }) {
         <div style={{ height: 6, borderRadius: 3, background: '#23211C', width: `${Math.min(100, (status.taken / status.cap) * 100)}%` }} />
       </div>
       <p style={{ fontSize: 13, color: '#9A9382' }}>마감: 2026년 12월 15일(화) 23:59까지 · 선착순 마감 시 조기 종료</p>
+      <p data-testid="coupon-notice" style={{ fontSize: 13, fontWeight: 700, color: '#23211C', marginTop: 8 }}>☕ 커피 쿠폰은 이벤트 종료 후 일괄 지급(발송)됩니다.</p>
     </div>
   );
 }
@@ -179,7 +180,7 @@ function FeedbackContent() {
         {user && mine && !editing && (
           <Card>
             <p data-testid="done" style={{ fontSize: 17, fontWeight: 800, color: '#23211C', marginBottom: 4 }}>참여 완료 ✓</p>
-            <p style={{ fontSize: 13, color: '#76705F', marginBottom: 20 }}>선착순 {mine.seq}번째로 참여하셨습니다. 쿠폰은 입력하신 번호로 발송됩니다.{mine.coupon_sent_at && ` (발송 완료: ${fmtKst(mine.coupon_sent_at)})`}</p>
+            <p style={{ fontSize: 13, color: '#76705F', marginBottom: 20 }}>선착순 {mine.seq}번째로 참여하셨습니다. 쿠폰은 이벤트 종료 후 입력하신 번호로 일괄 발송됩니다.{mine.coupon_sent_at && ` (발송 완료: ${fmtKst(mine.coupon_sent_at)})`}</p>
             <h2 style={labelStyle}>내 글</h2>
             <div style={{ border: '1px solid #E3DDD0', borderRadius: 12, padding: 16, background: '#FAFAF8', fontSize: 14, color: '#23211C', lineHeight: 1.7 }}>
               <p style={{ fontSize: 12, color: '#9A9382', marginBottom: 10 }}>
@@ -249,6 +250,7 @@ function FeedbackContent() {
               <label style={labelStyle}>쿠폰 받을 휴대폰 번호 <span style={{ color: '#DC2626' }}>*</span></label>
               <input type="tel" inputMode="numeric" value={form.phone} onChange={e => set('phone', formatPhone(e.target.value))}
                 placeholder="010-0000-0000" required style={inputStyle} />
+              <p style={{ fontSize: 12, color: '#76705F', marginTop: 6 }}>쿠폰은 이벤트 종료 후 이 번호로 일괄 발송됩니다.</p>
             </div>
 
             {!editing && (

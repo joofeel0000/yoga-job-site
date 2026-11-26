@@ -53,7 +53,8 @@ export default function EventPopup() {
             <img src={IMG_SRC} alt="의견 남기고 커피 한 잔 받아 가세요 - 12월 15일까지 이벤트" style={{ display: 'block', width: '100%', height: 'auto' }} />
           </Link>
           <div style={{ padding: '6px 24px 22px' }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: '#23211C', marginBottom: 12 }}>선착순 100명 · 1인 1회</p>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#23211C', marginBottom: 2 }}>선착순 100명 · 1인 1회</p>
+            <p style={{ fontSize: 12, color: '#23211C', marginBottom: 12 }}>커피 쿠폰은 이벤트 종료 후 일괄 발송됩니다.</p>
             <Link href="/feedback" onClick={close} style={{ display: 'block', textAlign: 'center', padding: '14px 0', borderRadius: 12, fontSize: 15, fontWeight: 700, background: '#23211C', color: '#fff', textDecoration: 'none' }}>
               의견 남기러 가기 →
             </Link>
